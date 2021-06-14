@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using Back_End.Contexts;
+using System.Linq;
 
 #nullable disable
 
@@ -32,5 +34,22 @@ namespace Back_End.Models
         public virtual ICollection<Collect> Collects { get; set; }
         public virtual ICollection<Coupon> Coupons { get; set; }
         public virtual ICollection<Order> Orders { get; set; }
+
+        public static bool Login(string message, string password)
+        {
+            try
+            {
+                using (var context = new ModelContext())
+                {
+                    var customer = context.Customers
+                        .Single(b => b.CustomerPhone == message || b.CustomerEmail == message);
+                    return customer.CustomerPassword == password;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }

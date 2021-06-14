@@ -32,7 +32,7 @@ namespace Back_End.Controllers {
             }
         }
 
-        [HttpPost]
+        [HttpPut]
         public bool Post([FromForm] Customer customer) {
             try {
                 using (var context = new ModelContext()) {
@@ -46,6 +46,15 @@ namespace Back_End.Controllers {
                 return false;
             }
         }
+
+        [HttpPost]
+        public bool Login()
+        {
+            string message = Request.Form["message"]; //接受 Form 提交的数据
+            string password = Request.Form["password"];
+            return Customer.Login(message, password);
+        }
+
 
         [HttpDelete]
         public bool Delete(int customerId) {
