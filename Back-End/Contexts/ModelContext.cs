@@ -9,6 +9,8 @@ namespace Back_End.Contexts
 {
     public partial class ModelContext : DbContext
     {
+        static public ModelContext Instance = new ModelContext();
+
         public ModelContext()
         {
         }

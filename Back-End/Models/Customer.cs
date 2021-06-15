@@ -35,21 +35,5 @@ namespace Back_End.Models
         public virtual ICollection<Coupon> Coupons { get; set; }
         public virtual ICollection<Order> Orders { get; set; }
 
-        public static bool Login(string message, string password)
-        {
-            try
-            {
-                using (var context = new ModelContext())
-                {
-                    var customer = context.Customers
-                        .Single(b => b.CustomerPhone == message || b.CustomerEmail == message);
-                    return customer.CustomerPassword == password;
-                }
-            }
-            catch
-            {
-                return false;
-            }
-        }
     }
 }
