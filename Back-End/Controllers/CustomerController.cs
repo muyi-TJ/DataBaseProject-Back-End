@@ -14,6 +14,28 @@ namespace Back_End.Controllers {
     [ApiController]
     [Route("[controller]")]
     public class CustomerController : ControllerBase {
+        
+        
+        [HttpDelete]
+        public bool Delete(int id) {
+            if (id < 0)
+                return false;
+            try
+            {
+                var context = ModelContext.Instance;
+                context.DetachAll();
+                Customer customer = new Customer() { CustomerId = id };
+                context.Customers.Attach(customer);
+                context.Customers.Remove(customer);
+                context.SaveChanges();
+                return true;
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.ToString());
+                return false;
+            }
+        }
 
         //GET: api/<Customer>
         [HttpPost]
@@ -91,26 +113,6 @@ namespace Back_End.Controllers {
             }
         }
 
-
-        [HttpDelete]
-        public bool Delete(int customerId) {
-            if (customerId < 0)
-                return false;
-            try
-            {
-                var context = ModelContext.Instance;
-                Customer customer = new Customer() { CustomerId = customerId };
-                context.Customers.Attach(customer);
-                context.Customers.Remove(customer);
-                context.SaveChanges();
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
         public static bool CustomerLogin(Customer customer, string password)
         {
             try
@@ -156,7 +158,8 @@ namespace Back_End.Controllers {
             }
 
         }
-
+        
+        [HttpGet]
         public static Customer SearchById(int id)
         {
             try

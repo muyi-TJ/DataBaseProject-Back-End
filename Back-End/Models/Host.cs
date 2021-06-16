@@ -19,7 +19,7 @@ namespace Back_End.Models
         public string HostEmail { get; set; }
         public string HostPrephone { get; set; }
         public string HostAvatar { get; set; }
-        public DateTime HostCreateTime { get; set; }
+        public DateTime? HostCreateTime { get; set; }
         public string HostIdnumber { get; set; }
         public string HostRealname { get; set; }
         public string HostGender { get; set; }
