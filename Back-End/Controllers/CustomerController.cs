@@ -16,20 +16,6 @@ namespace Back_End.Controllers {
     public class CustomerController : ControllerBase {
 
         //GET: api/<Customer>
-        [HttpGet("SearchById")]
-        public string SearchById(int customerId) {
-            try {
-                var customer = ModelContext.Instance.Customers
-                    .Single(b => b.CustomerId == customerId);
-                string customerString = JsonSerializer.Serialize(customer);
-                Console.WriteLine(customerString);
-                return customerString;
-            }
-            catch {
-                return null;
-            }
-        }
-
         [HttpPost]
         public bool GetAction()
         {
