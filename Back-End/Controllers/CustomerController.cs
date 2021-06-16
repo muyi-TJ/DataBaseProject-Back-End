@@ -16,34 +16,17 @@ namespace Back_End.Controllers {
     public class CustomerController : ControllerBase {
 
         //GET: api/<Customer>
-        [HttpGet]
-        public string Get(int customerId) {
+        [HttpGet("SearchById")]
+        public string SearchById(int customerId) {
             try {
-                using (var context = new ModelContext()) {
-                    var customer = context.Customers
-                        .Single(b => b.CustomerId == customerId);
-                    String customerString = JsonSerializer.Serialize(customer);
-                    Console.WriteLine(customerString);
-                    return customerString;
-                }
+                var customer = ModelContext.Instance.Customers
+                    .Single(b => b.CustomerId == customerId);
+                string customerString = JsonSerializer.Serialize(customer);
+                Console.WriteLine(customerString);
+                return customerString;
             }
             catch {
-                return "meizhaodao";
-            }
-        }
-
-        [HttpPut]
-        public bool Post([FromForm] Customer customer) {
-            try {
-                using (var context = new ModelContext()) {
-                    Console.WriteLine(customer);
-                    context.Add(customer);
-                    context.SaveChanges();
-                }
-                return true;
-            }
-            catch {
-                return false;
+                return null;
             }
         }
 
