@@ -15,6 +15,9 @@ namespace Back_End.Models
         public int HostId { get; set; }
         public string HostUsername { get; set; }
         public string HostPassword { get; set; }
+        public string HostPhone { get; set; }
+        public string HostEmail { get; set; }
+        public string HostPrephone { get; set; }
         public string HostAvatar { get; set; }
         public DateTime HostCreateTime { get; set; }
         public string HostIdnumber { get; set; }
