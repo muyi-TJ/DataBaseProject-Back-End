@@ -38,6 +38,7 @@ namespace Back_End.Controllers {
             {
                 case "login":return Login();
                 case "register":return Register();
+                case "changepsw":return ChangePassword();
                 default:return false;
             }
         }
@@ -78,6 +79,32 @@ namespace Back_End.Controllers {
                 return false;
             }
         }
+
+        public bool ChangePassword()
+        {
+            try
+            {
+                Customer customer = SearchById(int.Parse(Request.Form["id"]));
+                if(customer==null)
+                {
+                    return false;
+                }
+                if(customer.CustomerPassword==Request.Form["password"])
+                {
+                    customer.CustomerPassword = Request.Form["newpassword"];
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
 
         [HttpDelete]
         public bool Delete(int customerId) {
@@ -144,5 +171,20 @@ namespace Back_End.Controllers {
 
         }
 
+        public static Customer SearchById(int id)
+        {
+            try
+            {
+                var customer = ModelContext.Instance.Customers
+                    .Single(b => b.CustomerId == id);
+                return customer;
+            }
+            catch
+            {
+                return null;
+            }
+
+        }
     }
+
 }

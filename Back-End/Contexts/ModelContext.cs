@@ -9,7 +9,7 @@ namespace Back_End.Contexts
 {
     public partial class ModelContext : DbContext
     {
-        static public ModelContext Instance = new ModelContext();
+        static public ModelContext Instance { get; } = new ModelContext();
 
         public ModelContext()
         {

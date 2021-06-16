@@ -1,12 +1,47 @@
-﻿using System;
-using System.Text;
-using System.Web;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Back_End.Contexts;
+using System.Text.Json;
 using Back_End.Models;
-using Back_End.Controllers;
-using System.Drawing;
-using System.IO;
-using System.Net;
+using Microsoft.AspNetCore.Http;
 
+
+namespace Back_End
+{
+    [ApiController]
+    [Route("[controller]")]
+    public class VCcodeController : ControllerBase
+    {
+        [HttpPost]
+        public bool SendCode()
+        {
+            Console.WriteLine(InitialCode(4));
+            return true;
+        }
+
+
+        private string InitialCode(int length = 4)
+        {
+            string VCcode = "";
+            Random random = new Random();
+            for (int i = 0; i < length; i++)
+            {
+                VCcode += random.Next(0, 9).ToString();
+            }
+
+            CookieOptions cookieOptions = new CookieOptions();
+            cookieOptions.Path = "/";
+            cookieOptions.HttpOnly = true;
+            cookieOptions.MaxAge = new TimeSpan(0, 10, 0);
+            Response.Cookies.Append("VCcode", VCcode, cookieOptions);
+            return VCcode;
+        }
+    }
+}
 /*
 namespace Back_End
 {
