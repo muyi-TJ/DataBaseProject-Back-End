@@ -60,7 +60,7 @@ namespace Back_End
             CookieOptions cookieOptions = new CookieOptions();
             cookieOptions.Path = "/";
             cookieOptions.HttpOnly = true;
-            cookieOptions.MaxAge = new TimeSpan(0, 5, 0);
+            cookieOptions.MaxAge = new TimeSpan(0, 10, 0);
             Response.Cookies.Append("VCcode", VCcode, cookieOptions);
             return VCcode;
         }
