@@ -11,6 +11,7 @@ namespace Back_End.Models
         {
             Collects = new HashSet<Collect>();
             Coupons = new HashSet<Coupon>();
+            Favorites = new HashSet<Favorite>();
             Orders = new HashSet<Order>();
         }
 
@@ -31,6 +32,7 @@ namespace Back_End.Models
         public virtual CustomerGroup CustomerLevelNavigation { get; set; }
         public virtual ICollection<Collect> Collects { get; set; }
         public virtual ICollection<Coupon> Coupons { get; set; }
+        public virtual ICollection<Favorite> Favorites { get; set; }
         public virtual ICollection<Order> Orders { get; set; }
     }
 }

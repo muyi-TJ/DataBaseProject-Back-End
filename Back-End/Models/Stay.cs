@@ -11,6 +11,7 @@ namespace Back_End.Models
         {
             AdministratorStays = new HashSet<AdministratorStay>();
             Collects = new HashSet<Collect>();
+            Favoritestays = new HashSet<Favoritestay>();
             Nears = new HashSet<Near>();
             Rooms = new HashSet<Room>();
         }
@@ -40,6 +41,7 @@ namespace Back_End.Models
         public virtual StayType StayTypeNavigation { get; set; }
         public virtual ICollection<AdministratorStay> AdministratorStays { get; set; }
         public virtual ICollection<Collect> Collects { get; set; }
+        public virtual ICollection<Favoritestay> Favoritestays { get; set; }
         public virtual ICollection<Near> Nears { get; set; }
         public virtual ICollection<Room> Rooms { get; set; }
     }
