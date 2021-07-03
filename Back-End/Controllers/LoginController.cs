@@ -18,7 +18,7 @@ namespace Back_End.Controllers
         public class LoginMessage
         {
             public int errorCode { get; set; }
-            public Dictionary<string, dynamic> data { get; set; }
+            public Dictionary<string, dynamic> data { get; set; } = new Dictionary<string, dynamic>();
         }
 
 
@@ -35,6 +35,7 @@ namespace Back_End.Controllers
                 loginMessage.data.Add("loginState",true);
                 loginMessage.data.Add("userName", customer.CustomerName);
                 loginMessage.data.Add("userAvatar", customer.CustomerPhoto);
+                loginMessage.errorCode = 200;
             }
             
             return JsonSerializer.Serialize(loginMessage);
