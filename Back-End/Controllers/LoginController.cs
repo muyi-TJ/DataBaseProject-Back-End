@@ -17,9 +17,8 @@ namespace Back_End.Controllers
     {
         public class LoginMessage
         {
-            public bool loginState { set; get; } = false;
-            public string userName { set; get; } = null;
-            public string userAvatar { set; get; } = null;
+            public int errorCode { get; set; }
+            public Dictionary<string, dynamic> data { get; set; }
         }
 
 
@@ -33,9 +32,9 @@ namespace Back_End.Controllers
             Customer customer = CustomerController.SearchByPhone(phone, preNumber);
             if(CustomerController.CustomerLogin(customer,password))
             {
-                loginMessage.loginState = true;
-                loginMessage.userName = customer.CustomerName;
-                loginMessage.userAvatar = customer.CustomerPhoto;
+                loginMessage.data.Add("loginState",true);
+                loginMessage.data.Add("userName", customer.CustomerName);
+                loginMessage.data.Add("userAvatar", customer.CustomerPhoto);
             }
             
             return JsonSerializer.Serialize(loginMessage);
