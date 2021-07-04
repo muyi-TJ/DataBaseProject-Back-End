@@ -15,13 +15,6 @@ namespace Back_End.Controllers
     [Route("[controller]")]
     public class LoginController : ControllerBase
     {
-        public class LoginMessage
-        {
-            public int errorCode { get; set; }
-            public Dictionary<string, dynamic> data { get; set; } = new Dictionary<string, dynamic>();
-        }
-
-
         [HttpPost("customer")]
         public string CuntomerLoginByPhone()
         {
@@ -30,14 +23,15 @@ namespace Back_End.Controllers
             string password = Request.Form["password"];
             string preNumber = Request.Form["prenumber"];
             Customer customer = CustomerController.SearchByPhone(phone, preNumber);
-            if(CustomerController.CustomerLogin(customer,password))
+            if (CustomerController.CustomerLogin(customer, password))
             {
-                loginMessage.data.Add("loginState",true);
-                loginMessage.data.Add("userName", customer.CustomerName);
-                loginMessage.data.Add("userAvatar", customer.CustomerPhoto);
+                loginMessage.data["loginState"] = true;
+                loginMessage.data["userName"] = customer.CustomerName;
+                loginMessage.data["userAvatar"] = customer.CustomerPhoto;
                 loginMessage.errorCode = 200;
 
-                var token = Token.GetToken(new TokenInfo() {
+                var token = Token.GetToken(new TokenInfo()
+                {
                     id = customer.CustomerId.ToString(),
                     phone = phone,
                     password = password,
@@ -45,10 +39,10 @@ namespace Back_End.Controllers
                 });
                 //loginMessage.data.Add("token", token);
 
-                Response.Cookies.Append("Token", token, new CookieOptions() { Path = "/", HttpOnly=true});
+                Response.Cookies.Append("Token", token, new CookieOptions() { Path = "/", HttpOnly = true });
             }
-            
-            return JsonSerializer.Serialize(loginMessage);
+
+            return loginMessage.ReturnJson();
         }
 
     }

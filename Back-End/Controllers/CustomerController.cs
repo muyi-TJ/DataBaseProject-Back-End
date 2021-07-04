@@ -14,10 +14,61 @@ namespace Back_End.Controllers {
     [ApiController]
     [Route("[controller]")]
     public class CustomerController : ControllerBase {
-        
-        
+        public static bool CustomerLogin(Customer customer, string password)
+        {
+            try
+            {
+                if (customer == null)
+                {
+                    return false;
+                }
+                return customer.CustomerPassword == password;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+
+        [HttpPost("phone")]
+        public string CheckCustomerPhoneRegisitered()
+        {
+            CheckPhoneMessage checkPhoneMessage = new CheckPhoneMessage();
+            string phone = Request.Form["phonenumber"];
+            string prePhone = Request.Form["prenumber"];
+            if(SearchByPhone(phone,prePhone)==null)
+            {
+                checkPhoneMessage.errorCode = 200;
+                checkPhoneMessage.data["phoneunique"] = true;
+            }
+            return checkPhoneMessage.ReturnJson();
+        }
+
+
+
+        public static Customer SearchByPhone(string phone, string prePhone)
+        {
+            try
+            {
+                var customer = ModelContext.Instance.Customers
+                    .Single(b => b.CustomerPhone == phone && b.CustomerPrephone == prePhone);
+                return customer;
+            }
+            catch
+            {
+                return null;
+            }
+
+        }
+
+
+
+
+
         [HttpDelete]
-        public bool Delete(int id) {
+        public bool Delete(int id)
+        {
             if (id < 0)
                 return false;
             try
@@ -30,15 +81,33 @@ namespace Back_End.Controllers {
                 context.SaveChanges();
                 return true;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
                 return false;
             }
         }
 
+
+
+        [HttpGet("get")]
+        public static Customer SearchById(int id)
+        {
+            try
+            {
+                var customer = ModelContext.Instance.Customers
+                    .Single(b => b.CustomerId == id);
+                return customer;
+            }
+            catch
+            {
+                return null;
+            }
+
+        }
+
+        /*
         //GET: api/<Customer>
-        [HttpPost]
         public bool GetAction()
         {
             string action = Request.Form["action"];
@@ -113,36 +182,7 @@ namespace Back_End.Controllers {
             }
         }
 
-        public static bool CustomerLogin(Customer customer, string password)
-        {
-            try
-            {
-                if (customer == null)
-                {
-                    return false;
-                }
-                return customer.CustomerPassword == password;
-            }
-            catch
-            {
-                return false;
-            }
-        }
 
-        public static Customer SearchByPhone(string phone, string prePhone)
-        {
-            try
-            {
-                var customer = ModelContext.Instance.Customers
-                    .Single(b => b.CustomerPhone == phone && b.CustomerPrephone == prePhone);
-                return customer;
-            }
-            catch
-            {
-                return null;
-            }
-
-        }
 
         public static Customer SearchByEmail(string email)
         {
@@ -174,6 +214,7 @@ namespace Back_End.Controllers {
             }
 
         }
+        */
     }
 
 }
