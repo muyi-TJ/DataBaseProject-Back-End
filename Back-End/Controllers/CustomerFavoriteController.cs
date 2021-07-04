@@ -65,7 +65,6 @@ namespace Back_End.Controllers {
             }
 
             var favorites = context.Favorites.Where(b => b.CustomerId == customerId).ToList();
-
             message.errorCode = 200;
             message.data.Add("isSuccess", true);
             message.data.Add("message", "success");
@@ -115,7 +114,7 @@ namespace Back_End.Controllers {
             message.errorCode = 200;
             message.data.Add("isSuccess", true);
             message.data.Add("message", "success");
-            message.data.Add("favoriteId", context.Favorites.Single(b => b.CustomerId == customerId && b.Name == name).FavoriteId);
+            message.data.Add("favoriteId", favorite.FavoriteId);
             return JsonSerializer.Serialize(message);
         }
 

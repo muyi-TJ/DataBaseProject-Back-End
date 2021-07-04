@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Security.Claims;
 using Jwt;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Back_End.Controllers {
     public static class Token {
