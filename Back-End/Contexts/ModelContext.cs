@@ -1084,7 +1084,7 @@ namespace Back_End.Contexts
                     .HasColumnName("CHARACTERISTIC");
             });
 
-            modelBuilder.HasSequence("SEQ");
+            modelBuilder.HasSequence("SEQ").IncrementsBy(1);
 
             OnModelCreatingPartial(modelBuilder);
         }
