@@ -14,7 +14,7 @@ using Microsoft.Extensions.Primitives;
 //简单测试
 namespace Back_End.Controllers {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class CustomerController : ControllerBase {
         public class CustomerMessage
         {
@@ -82,6 +82,7 @@ namespace Back_End.Controllers {
             {
                 checkPhoneMessage.errorCode = 200;
                 checkPhoneMessage.data["phoneunique"] = true;
+                checkPhoneMessage.msg = checkPhoneMessage.msgType[1];
             }
             return checkPhoneMessage.ReturnJson();
         }
@@ -102,8 +103,53 @@ namespace Back_End.Controllers {
             }
 
         }
+        public static Customer SearchById(int id)
+        {
+            try
+            {
+                var customer = ModelContext.Instance.Customers
+                    .Single(b => b.CustomerId == id);
+                return customer;
+            }
+            catch
+            {
+                return null;
+            }
 
+        }
 
+        [HttpGet("details")]
+        public string GetCustomerDetails()
+        {
+            CustomerDetailMessage customerDetailMessage = new CustomerDetailMessage();
+            StringValues token = default(StringValues);
+            if (Request.Headers.TryGetValue("token", out token))
+            {
+                var data = Token.VerifyToken(token);
+                int id = int.Parse(data["id"]);
+                var customer = SearchById(id);
+                var orders = customer.Orders;
+                List<HostComment> comments = new List<HostComment>();
+                foreach (var order in orders)
+                {
+                    comments.Add(order.HostComment);
+                }
+                if (customer!=null)
+                {
+                    customerDetailMessage.errorCode = 200;
+                    customerDetailMessage.data["userNickName"] = customer.CustomerName;
+                    customerDetailMessage.data["userAvatar"] = customer.CustomerPhoto;
+                    customerDetailMessage.data["evalNum"] = comments.Count;
+                    customerDetailMessage.data["userGroupLevel"] = customer.CustomerLevel;
+                    customerDetailMessage.data["emailTag"] = customer.CustomerEmail!=null;
+                    customerDetailMessage.data["userScore"] = customer.CustomerDegree;
+                    customerDetailMessage.data["registerDate"] = customer.CustomerCreatetime;
+                    customerDetailMessage.data["hostCommentList"] = comments;
+                    customerDetailMessage.msg = customerDetailMessage.msgType[1];
+                }
+            }
+            return customerDetailMessage.ReturnJson();
+        }
 
 
 
@@ -131,7 +177,9 @@ namespace Back_End.Controllers {
 
 
 
-        [HttpGet("get")]
+
+        /*
+         *         [HttpGet("get")]
         public static Customer SearchById(int id)
         {
             try
@@ -147,7 +195,6 @@ namespace Back_End.Controllers {
 
         }
 
-        /*
         //GET: api/<Customer>
         public bool GetAction()
         {
