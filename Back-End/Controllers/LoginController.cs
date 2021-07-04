@@ -36,6 +36,14 @@ namespace Back_End.Controllers
                 loginMessage.data.Add("userName", customer.CustomerName);
                 loginMessage.data.Add("userAvatar", customer.CustomerPhoto);
                 loginMessage.errorCode = 200;
+
+                var token = Token.GetToken(new TokenInfo() {
+                    id = customer.CustomerId.ToString(),
+                    phone = phone,
+                    password = password,
+                    preNumber = preNumber,
+                });
+                loginMessage.data.Add("token", token);
             }
             
             return JsonSerializer.Serialize(loginMessage);
