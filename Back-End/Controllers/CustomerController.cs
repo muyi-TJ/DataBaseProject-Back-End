@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Back_End.Contexts;
 using System.Text.Json;
 using Back_End.Models;
+using Microsoft.Extensions.Primitives;
 
 
 //简单测试
@@ -14,8 +15,14 @@ namespace Back_End.Controllers {
     [ApiController]
     [Route("[controller]")]
     public class CustomerController : ControllerBase {
-        
-        
+
+        public class CustomerMessage {
+            public int errorCode { get; set; }
+            public string msg { get; set; }
+            public Dictionary<string, dynamic> data { get; set; } = new Dictionary<string, dynamic>();
+        }
+
+
         [HttpDelete]
         public bool Delete(int id) {
             if (id < 0)
@@ -37,7 +44,31 @@ namespace Back_End.Controllers {
             }
         }
 
-        //GET: api/<Customer>
+        [HttpGet("createTime")]
+        public string GetCreateTime() {
+            StringValues token = default(StringValues);
+            if (Request.Headers.TryGetValue("token", out token)) {
+                Console.WriteLine(token);
+                var data = Token.VerifyToken(token);
+                if(data != null) {
+                    var context = ModelContext.Instance;
+                    context.DetachAll();
+                    int customerId = int.Parse(data["id"]);
+                    var createTime = context.Customers.Single(b => b.CustomerId == customerId).CustomerCreatetime;
+                    CustomerMessage message = new CustomerMessage() {
+                        errorCode = 200,
+                        msg = "success",
+                        data = { {"createTime", createTime } }
+                    };
+                    return JsonSerializer.Serialize(message);
+                }
+            }
+            return JsonSerializer.Serialize(new CustomerMessage() {
+                errorCode = 400,
+                msg = "invild"
+            });
+        }
+
         [HttpPost]
         public bool GetAction()
         {

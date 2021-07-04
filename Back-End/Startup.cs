@@ -27,14 +27,10 @@ namespace Back_End {
 
             services.AddCors(options => {
                 options.AddPolicy(MyAllowSpecificOrigins, builder => {
-                    builder.SetIsOriginAllowed(_ => true)
-                    .AllowAnyMethod()
-                    .AllowAnyHeader()
-                    .AllowCredentials();
-                //builder.SetIsOriginAllowed((x) => true)
-                //.AllowAnyOrigin()
-                //.AllowAnyHeader()
-                //.AllowAnyMethod();
+                builder.SetIsOriginAllowed((x) => true)
+                .AllowAnyOrigin()
+                .AllowAnyHeader()
+                .AllowAnyMethod();
             });
 
             });

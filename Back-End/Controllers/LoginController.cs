@@ -43,9 +43,8 @@ namespace Back_End.Controllers
                     password = password,
                     preNumber = preNumber,
                 });
-                //loginMessage.data.Add("token", token);
-
-                Response.Cookies.Append("Token", token, new CookieOptions() { Path = "/", HttpOnly=true});
+                loginMessage.data.Add("token", token);
+                //Response.Cookies.Append("Token", token, new CookieOptions() { Path = "/", HttpOnly=true});
             }
             
             return JsonSerializer.Serialize(loginMessage);

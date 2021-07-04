@@ -12,7 +12,7 @@ namespace Back_End.Controllers {
             var jwtCreated =
                 Math.Round((DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds + 5);
             var jwtCreatedOver =
-                Math.Round((DateTime.UtcNow.AddHours(2) - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds + 5);
+                Math.Round((DateTime.UtcNow.AddHours(24) - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds + 5);
             var payload = new Dictionary<string, dynamic>
                {
                     {"iat", jwtCreated},//非必须。issued at。 token创建时间，unix时间戳格式
