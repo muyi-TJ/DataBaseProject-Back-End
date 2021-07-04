@@ -150,8 +150,41 @@ namespace Back_End.Controllers {
             }
             return customerDetailMessage.ReturnJson();
         }
+        
+        public string UploadPhoto(string base64)
+        {
+            //UNDONE:上传照片
+            return null;
+        }
 
-
+        [HttpPut("avatar")]
+        public string ChangeCustomerPhoto()
+        {
+            Message message = new Message();
+            message.errorCode = 400;
+            message.msg = message.msgType[0];
+            StringValues token = default(StringValues);
+            if (Request.Headers.TryGetValue("token", out token))
+            {
+                var data = Token.VerifyToken(token);
+                int id = int.Parse(data["id"]);
+                var customer = SearchById(id);
+                string photo = Request.Query["avatarCode"];
+                if(photo!=null)
+                {
+                    string newPhoto = UploadPhoto(photo);
+                    if (newPhoto!=null)
+                    {
+                        message.errorCode = 200;
+                        message.msg = message.msgType[1];
+                        customer.CustomerPhoto = newPhoto;
+                        ModelContext.Instance.DetachAll();
+                        ModelContext.Instance.SaveChanges();
+                    }
+                }
+            }
+            return message.ReturnJson();
+        }
 
         [HttpDelete]
         public bool Delete(int id)

@@ -71,4 +71,14 @@ namespace Back_End
             msg = msgType[0];
         }
     }
+
+    public class VCcodeMessage:Message
+    {
+        public VCcodeMessage()
+        {
+            errorCode = 400;
+            data.Add("sendstate", false);
+            msg = msgType[0];
+        }
+    }
 }

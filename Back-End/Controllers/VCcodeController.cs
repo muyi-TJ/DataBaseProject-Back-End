@@ -21,7 +21,7 @@ using System.Web;
 namespace Back_End.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/phone/sendmessage")]
     public class VCcodeController : ControllerBase
     {
         private static readonly string url = "http://www.etuocloud.com/gatetest.action";
@@ -33,17 +33,24 @@ namespace Back_End.Controllers
         public bool SendCode()
         {
             string code = InitialCode(4);
-
-            NameValueCollection parameters = new NameValueCollection();
-            parameters.Add("app_key", appKey);
-            parameters.Add("view", format);
-            parameters.Add("method", "cn.etuo.cloud.api.sms.simple");
-            parameters.Add("to", Request.Form["phone"]);
-            parameters.Add("template", "1");
-            parameters.Add("smscode", code);
-            parameters.Add("sign", getsign(parameters));
-            Console.WriteLine(code);
-            HttpClient.HttpPost(url, parameters);
+            string phone = Request.Form["phonenumber"];
+            VCcodeMessage message = new VCcodeMessage();
+            if (phone != null)
+            {
+                NameValueCollection parameters = new NameValueCollection();
+                parameters.Add("app_key", appKey);
+                parameters.Add("view", format);
+                parameters.Add("method", "cn.etuo.cloud.api.sms.simple");
+                parameters.Add("to", phone);
+                parameters.Add("template", "1");
+                parameters.Add("smscode", code);
+                parameters.Add("sign", getsign(parameters));
+                Console.WriteLine(code);
+                HttpClient.HttpPost(url, parameters);
+                message.errorCode = 200;
+                message.data["sendstate"] = true;
+                message.msg = message.msgType[1];
+            }
             return true;
         }
 
@@ -56,12 +63,13 @@ namespace Back_End.Controllers
             {
                 VCcode += random.Next(0, 9).ToString();
             }
-
+            MD5 md5 = MD5.Create();
+            byte[] str = md5.ComputeHash(Encoding.UTF8.GetBytes(VCcode));
             CookieOptions cookieOptions = new CookieOptions();
             cookieOptions.Path = "/";
             cookieOptions.HttpOnly = true;
             cookieOptions.MaxAge = new TimeSpan(0, 10, 0);
-            Response.Cookies.Append("VCcode", VCcode, cookieOptions);
+            Response.Cookies.Append("VCcode", Convert.ToBase64String(str), cookieOptions);
             return VCcode;
         }
 
