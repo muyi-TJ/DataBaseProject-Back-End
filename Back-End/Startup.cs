@@ -27,11 +27,15 @@ namespace Back_End {
 
             services.AddCors(options => {
                 options.AddPolicy(MyAllowSpecificOrigins, builder => {
-                    builder.SetIsOriginAllowed((x) => true)
-                   .AllowAnyOrigin()
-                   .AllowAnyHeader()
-                   .AllowAnyMethod();
-                });
+                    builder.SetIsOriginAllowed(_ => true)
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials();
+                //builder.SetIsOriginAllowed((x) => true)
+                //.AllowAnyOrigin()
+                //.AllowAnyHeader()
+                //.AllowAnyMethod();
+            });
 
             });
         }
@@ -46,9 +50,9 @@ namespace Back_End {
 
             app.UseRouting();
 
-            app.UseCors(MyAllowSpecificOrigins);
-
             app.UseAuthorization();
+
+            app.UseCors(MyAllowSpecificOrigins);
 
             app.UseEndpoints(endpoints => {
                 endpoints.MapControllers();
