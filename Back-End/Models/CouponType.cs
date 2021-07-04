@@ -13,7 +13,7 @@ namespace Back_End.Models
             CustomerGroupCoupons = new HashSet<CustomerGroupCoupon>();
         }
 
-        public byte CouponTypeId { get; set; }
+        public int CouponTypeId { get; set; }
         public decimal CouponAmount { get; set; }
         public decimal CouponLimit { get; set; }
         public string CouponLocation { get; set; }
