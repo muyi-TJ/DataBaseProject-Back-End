@@ -7,7 +7,7 @@ using System.Collections.Specialized;
 using Back_End.Contexts;
 using Back_End.Models;
 using System.Text.Json;
-
+using Microsoft.AspNetCore.Http;
 
 namespace Back_End.Controllers
 {
@@ -43,7 +43,9 @@ namespace Back_End.Controllers
                     password = password,
                     preNumber = preNumber,
                 });
-                loginMessage.data.Add("token", token);
+                //loginMessage.data.Add("token", token);
+
+                Response.Cookies.Append("Token", token, new CookieOptions() { Path = "/", HttpOnly=true});
             }
             
             return JsonSerializer.Serialize(loginMessage);
