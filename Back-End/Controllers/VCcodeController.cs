@@ -30,7 +30,7 @@ namespace Back_End.Controllers
         private static readonly string format = "json";
 
         [HttpPost]
-        public bool SendCode()
+        public string SendCode()
         {
             string code = InitialCode(4);
             string phone = Request.Form["phonenumber"];
@@ -51,7 +51,7 @@ namespace Back_End.Controllers
                 message.data["sendstate"] = true;
                 message.msg = message.msgType[1];
             }
-            return true;
+            return message.ReturnJson();
         }
 
 
@@ -69,7 +69,7 @@ namespace Back_End.Controllers
             cookieOptions.Path = "/";
             cookieOptions.HttpOnly = true;
             cookieOptions.MaxAge = new TimeSpan(0, 10, 0);
-            Response.Cookies.Append("VCcode", Convert.ToBase64String(str), cookieOptions);
+            Response.Cookies.Append("code", Convert.ToBase64String(str), cookieOptions);
             return VCcode;
         }
 
