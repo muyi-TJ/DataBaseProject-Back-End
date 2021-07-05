@@ -10,7 +10,7 @@ using System.Text.Json;
 
 namespace Back_End.Controllers {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class CustomerFavoriteController : ControllerBase {
 
         public class CustomerFavoriteMessage {
