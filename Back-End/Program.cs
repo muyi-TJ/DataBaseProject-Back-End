@@ -17,7 +17,7 @@ namespace Back_End {
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder => {
                     webBuilder.UseStartup<Startup>();
-                    //webBuilder.UseUrls("https://0.0.0.0:6001/");
+                    webBuilder.UseUrls("http://0.0.0.0:6001/");
                 });
     }
 }
