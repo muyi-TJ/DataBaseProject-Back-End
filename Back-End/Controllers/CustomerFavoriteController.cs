@@ -21,7 +21,6 @@ namespace Back_End.Controllers {
             public CustomerFavoriteMessage() {
                 errorCode = 400;
                 data.Add("isSuccess", false);
-                data.Add("msg", "invalid token");
             }
             public string ReturnJson() {
                 return JsonSerializer.Serialize(this);
@@ -48,11 +47,9 @@ namespace Back_End.Controllers {
                     context.SaveChanges();
                     message.errorCode = 200;
                     message.data["isSuccess"] = true;
-                    message.data["msg"] = "success";
                     return message.ReturnJson();
                 }
                 catch (Exception e) {
-                    message.data["msg"] = "no such favorite";
                     Console.WriteLine(e.ToString());
                     return message.ReturnJson();
                 }
@@ -84,7 +81,6 @@ namespace Back_End.Controllers {
                         }
                         message.errorCode = 200;
                         message.data["isSuccess"] = true;
-                        message.data["msg"] = "success";
                         message.data.Add("favoriteList", favoriteList);
                         return message.ReturnJson();
                     }
@@ -111,7 +107,6 @@ namespace Back_End.Controllers {
                     int customerId = int.Parse(data["id"]);
 
                     if (context.Favorites.Any(b => b.CustomerId == customerId && b.Name == name)) {
-                        message.data["msg"] = "aleady have the name";
                         return message.ReturnJson();
                     }
                     try {
@@ -122,7 +117,6 @@ namespace Back_End.Controllers {
                         context.Add(favorite);
                         context.SaveChanges();
                         message.errorCode = 200;
-                        message.data["msg"] = "success";
                         message.data["isSuccess"] = true;
                         message.data.Add("favoriteId", favorite.FavoriteId);
                         return message.ReturnJson();
@@ -152,13 +146,11 @@ namespace Back_End.Controllers {
                         var roomPhoto = context.RoomPhotos.Where(b => b.StayId == favoriteStay.StayId).First();
 
                         message.errorCode = 200;
-                        message.data["msg"] = "success";
                         message.data["isSuccess"] = true;
                         message.data.Add("imageUrl", roomPhoto.RPhoto);
                         return message.ReturnJson();
                     }
                     catch (Exception e) {
-                        message.data["msg"] = "there is no stay in this favorite";
                         message.errorCode = 200;
                         message.data["isSuccess"] = true;
                         message.data.Add("imageUrl", null);

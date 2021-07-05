@@ -214,6 +214,7 @@ namespace Back_End.Contexts
                 entity.Property(e => e.CustomerId)
                     .HasPrecision(10)
                     .HasColumnName("CUSTOMER_ID");
+                    
 
                 entity.Property(e => e.StayId)
                     .HasPrecision(10)
@@ -304,7 +305,8 @@ namespace Back_End.Contexts
 
                 entity.Property(e => e.CustomerId)
                     .HasPrecision(10)
-                    .ValueGeneratedNever()
+                    .ValueGeneratedOnAdd()
+                    .UseHiLo("SEQ")
                     .HasColumnName("CUSTOMER_ID");
 
                 entity.Property(e => e.CustomerBirthday)

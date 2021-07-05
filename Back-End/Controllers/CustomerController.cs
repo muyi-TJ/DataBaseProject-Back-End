@@ -38,7 +38,7 @@ namespace Back_End.Controllers {
                     var createTime = context.Customers.Single(b => b.CustomerId == customerId).CustomerCreatetime;
                     CustomerMessage message = new CustomerMessage()
                     {
-                        errorCode = 200
+                        errorCode = 200,
                         data = { { "createTime", createTime } }
                     };
                     return JsonSerializer.Serialize(message);
