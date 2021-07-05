@@ -49,7 +49,6 @@ namespace Back_End.Controllers
                 HttpClient.HttpPost(url, parameters);
                 message.errorCode = 200;
                 message.data["sendstate"] = true;
-                message.msg = message.msgType[1];
             }
             return message.ReturnJson();
         }
