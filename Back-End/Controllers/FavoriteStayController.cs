@@ -55,6 +55,7 @@ namespace Back_End.Controllers {
                     }
                     catch (Exception e) {
                         Console.WriteLine(e.ToString());
+                        message.errorCode = 300;
                         return message.ReturnJson();
                     }
                 }
@@ -76,7 +77,8 @@ namespace Back_End.Controllers {
                     // 如果不存在这个收藏夹
                     if (!context.Favorites.Any(b => b.FavoriteId == favoriteId)) {
                         message.data.Add("favoriteList", stayList);
-                        return JsonSerializer.Serialize(message);
+                        message.errorCode = 300;
+                        return message.ReturnJson();
                     }
                     try {
                         var stayIdList = context.Favoritestays.Where(b => b.FavoriteId == favoriteId).Select(b => b.StayId).ToList();
@@ -95,6 +97,7 @@ namespace Back_End.Controllers {
                     }
                     catch(Exception e) {
                         Console.WriteLine(e.ToString());
+                        message.errorCode = 300;
                         return message.ReturnJson();
                     }
                 }
@@ -116,10 +119,12 @@ namespace Back_End.Controllers {
 
                     // 如果不存在这个收藏夹
                     if (!context.Favorites.Any(b => b.FavoriteId == favoriteId)) {
+                        message.errorCode = 300;
                         return message.ReturnJson();
                     }
                     // 如果已经添加了
                     if (context.Favoritestays.Any(b => b.FavoriteId == favoriteId && b.StayId == stayId)) {
+                        message.errorCode = 300;
                         return message.ReturnJson();
                     }
                     try {
@@ -137,6 +142,7 @@ namespace Back_End.Controllers {
                     }
                     catch(Exception e) {
                         Console.WriteLine(e.ToString());
+                        message.errorCode = 300;
                         return message.ReturnJson();
                     }
                 }

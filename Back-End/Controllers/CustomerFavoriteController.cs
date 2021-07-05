@@ -51,6 +51,7 @@ namespace Back_End.Controllers {
                 }
                 catch (Exception e) {
                     Console.WriteLine(e.ToString());
+                    message.errorCode = 300;
                     return message.ReturnJson();
                 }
 
@@ -86,6 +87,7 @@ namespace Back_End.Controllers {
                     }
                     catch(Exception e) {
                         Console.WriteLine(e.ToString());
+                        message.errorCode = 300;
                         return message.ReturnJson();
                     }
                 }
@@ -107,6 +109,7 @@ namespace Back_End.Controllers {
                     int customerId = int.Parse(data["id"]);
 
                     if (context.Favorites.Any(b => b.CustomerId == customerId && b.Name == name)) {
+                        message.errorCode = 300;
                         return message.ReturnJson();
                     }
                     try {
@@ -123,6 +126,7 @@ namespace Back_End.Controllers {
                     }
                     catch (Exception e) {
                         Console.WriteLine(e.ToString());
+                        message.errorCode = 300;
                         return message.ReturnJson();
                     }
                 }
