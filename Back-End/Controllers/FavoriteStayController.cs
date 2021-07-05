@@ -21,7 +21,6 @@ namespace Back_End.Controllers {
             public FavoriteStayMessage() {
                 errorCode = 400;
                 data.Add("isSuccess", false);
-                data.Add("msg", "invalid token");
             }
             public string ReturnJson() {
                 return JsonSerializer.Serialize(this);
@@ -52,12 +51,10 @@ namespace Back_End.Controllers {
                         context.SaveChanges();
                         message.errorCode = 200;
                         message.data["isSuccess"] = true;
-                        message.data["msg"] = "success";
                         return message.ReturnJson();
                     }
                     catch (Exception e) {
                         Console.WriteLine(e.ToString());
-                        message.data["msg"] = "invalid favoriteId or stayId";
                         return message.ReturnJson();
                     }
                 }
@@ -78,7 +75,6 @@ namespace Back_End.Controllers {
                     List<StayInfo> stayList = new List<StayInfo>();
                     // 如果不存在这个收藏夹
                     if (!context.Favorites.Any(b => b.FavoriteId == favoriteId)) {
-                        message.data["msg"] = "invalid favoriteId";
                         message.data.Add("favoriteList", stayList);
                         return JsonSerializer.Serialize(message);
                     }
@@ -86,7 +82,6 @@ namespace Back_End.Controllers {
                         var stayIdList = context.Favoritestays.Where(b => b.FavoriteId == favoriteId).Select(b => b.StayId).ToList();
                         message.errorCode = 200;
                         message.data["isSuccess"] = true;
-                        message.data["msg"] = "success";
 
                         foreach (var stayId in stayIdList) {
                             var stay = context.Stays.Single(b => b.StayId == stayId);
@@ -100,7 +95,6 @@ namespace Back_End.Controllers {
                     }
                     catch(Exception e) {
                         Console.WriteLine(e.ToString());
-                        message.data["msg"] = "invalid favoriteId";
                         return message.ReturnJson();
                     }
                 }
@@ -122,12 +116,10 @@ namespace Back_End.Controllers {
 
                     // 如果不存在这个收藏夹
                     if (!context.Favorites.Any(b => b.FavoriteId == favoriteId)) {
-                        message.data["msg"] = "invalid favoriteId";
                         return message.ReturnJson();
                     }
                     // 如果已经添加了
                     if (context.Favoritestays.Any(b => b.FavoriteId == favoriteId && b.StayId == stayId)) {
-                        message.data["msg"] = "this stay already in the favorite";
                         return message.ReturnJson();
                     }
                     try {
@@ -140,13 +132,11 @@ namespace Back_End.Controllers {
 
                         message.errorCode = 200;
                         message.data["isSuccess"] = true;
-                        message.data["msg"] = "success";
 
                         return message.ReturnJson();
                     }
                     catch(Exception e) {
                         Console.WriteLine(e.ToString());
-                        message.data["msg"] = "invalid favoriteId or stayId";
                         return message.ReturnJson();
                     }
                 }

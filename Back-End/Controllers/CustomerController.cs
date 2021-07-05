@@ -19,7 +19,6 @@ namespace Back_End.Controllers {
         public class CustomerMessage
         {
             public int errorCode { get; set; }
-            public string msg { get; set; }
             public Dictionary<string, dynamic> data { get; set; } = new Dictionary<string, dynamic>();
         }
 
@@ -39,8 +38,7 @@ namespace Back_End.Controllers {
                     var createTime = context.Customers.Single(b => b.CustomerId == customerId).CustomerCreatetime;
                     CustomerMessage message = new CustomerMessage()
                     {
-                        errorCode = 200,
-                        msg = "success",
+                        errorCode = 200
                         data = { { "createTime", createTime } }
                     };
                     return JsonSerializer.Serialize(message);
@@ -49,7 +47,6 @@ namespace Back_End.Controllers {
             return JsonSerializer.Serialize(new CustomerMessage()
             {
                 errorCode = 400,
-                msg = "invild"
             });
         }
 
