@@ -86,4 +86,13 @@ namespace Back_End
         }
     }
 
+    public class VerifyControllerMessage:Message
+    {
+        public VerifyControllerMessage()
+        {
+            errorCode = 300;
+            data.Add("verifycode", null);
+            data.Add("codeimg", null);
+        }
+    }
 }

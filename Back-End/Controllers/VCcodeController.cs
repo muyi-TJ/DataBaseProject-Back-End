@@ -32,7 +32,7 @@ namespace Back_End.Controllers
         [HttpPost]
         public string SendCode()
         {
-            string code = InitialCode(4);
+            string code = InitialCode(6);
             string phone = Request.Form["phonenumber"];
             VCcodeMessage message = new VCcodeMessage();
             if (phone != null)

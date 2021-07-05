@@ -122,25 +122,29 @@ namespace Back_End.Controllers {
             if (Request.Headers.TryGetValue("token", out token))
             {
                 var data = Token.VerifyToken(token);
-                int id = int.Parse(data["id"]);
-                var customer = SearchById(id);
-                var orders = customer.Orders;
-                List<HostComment> comments = new List<HostComment>();
-                foreach (var order in orders)
+                if(data!=null)
                 {
-                    comments.Add(order.HostComment);
-                }
-                if (customer!=null)
-                {
-                    customerDetailMessage.errorCode = 200;
-                    customerDetailMessage.data["userNickName"] = customer.CustomerName;
-                    customerDetailMessage.data["userAvatar"] = customer.CustomerPhoto;
-                    customerDetailMessage.data["evalNum"] = comments.Count;
-                    customerDetailMessage.data["userGroupLevel"] = customer.CustomerLevel;
-                    customerDetailMessage.data["emailTag"] = customer.CustomerEmail!=null;
-                    customerDetailMessage.data["userScore"] = customer.CustomerDegree;
-                    customerDetailMessage.data["registerDate"] = customer.CustomerCreatetime;
-                    customerDetailMessage.data["hostCommentList"] = comments;
+                    int id = int.Parse(data["id"]);
+                    var customer = SearchById(id);
+                    ICollection<Order> orders = customer.Orders;
+                    List<HostComment> comments = new List<HostComment>();
+                    foreach (var order in orders)
+                    {
+                        comments.Add(order.HostComment);
+                    }
+                    if (customer != null)
+                    {
+                        customerDetailMessage.errorCode = 200;
+                        customerDetailMessage.data["userNickName"] = customer.CustomerName;
+                        customerDetailMessage.data["userAvatar"] = customer.CustomerPhoto;
+                        customerDetailMessage.data["evalNum"] = comments.Count;
+                        customerDetailMessage.data["userGroupLevel"] = customer.CustomerLevel;
+                        customerDetailMessage.data["emailTag"] = customer.CustomerEmail != null;
+                        customerDetailMessage.data["userScore"] = customer.CustomerDegree;
+                        customerDetailMessage.data["registerDate"] = customer.CustomerCreatetime;
+                        customerDetailMessage.data["hostCommentList"] = comments;
+                    }
+
                 }
             }
             return customerDetailMessage.ReturnJson();
@@ -152,7 +156,7 @@ namespace Back_End.Controllers {
             return null;
         }
 
-        [HttpPut("avatar")]
+        [HttpGet("avatar")]
         public string ChangeCustomerPhoto()
         {
             Message message = new Message();
@@ -160,33 +164,41 @@ namespace Back_End.Controllers {
             StringValues token = default(StringValues);
             if (Request.Headers.TryGetValue("token", out token))
             {
+                message.errorCode = 300;
                 var data = Token.VerifyToken(token);
-                int id = int.Parse(data["id"]);
-                var customer = SearchById(id);
-                string photo = Request.Query["avatarCode"];
-                if(photo!=null)
+                if(data!=null)
                 {
-                    try
+                    int id = int.Parse(data["id"]);
+                    var customer = SearchById(id);
+                    string photo = Request.Query["avatarCode"];
+                    Console.WriteLine(photo+"200");
+                    if (photo != null)
                     {
-                        string newPhoto = UploadPhoto(photo);
-                        if (newPhoto != null)
+                        try
                         {
-                            message.errorCode = 200;
-                            customer.CustomerPhoto = newPhoto;
-                            ModelContext.Instance.DetachAll();
-                            ModelContext.Instance.SaveChanges();
+                            string newPhoto = UploadPhoto(photo);
+                            newPhoto = "/img/photo";
+                            if (newPhoto != null)
+                            {
+                                Console.WriteLine(newPhoto);
+                                customer.CustomerPhoto = newPhoto;
+                                ModelContext.Instance.DetachAll();
+                                ModelContext.Instance.SaveChanges();
+                                message.errorCode = 200;
+                            }
+                        }
+                        catch
+                        {
+
                         }
                     }
-                    catch
-                    {
 
-                    }
                 }
             }
             return message.ReturnJson();
         }
 
-        [HttpPut("basicinfo")]
+        [HttpGet("basicinfo")]
         public string ChangeCustomerInfo()
         {
             Message message = new Message();
@@ -194,28 +206,33 @@ namespace Back_End.Controllers {
             StringValues token = default(StringValues);
             if (Request.Headers.TryGetValue("token", out token))
             {
+                message.errorCode = 300;
                 var data = Token.VerifyToken(token);
-                int id = int.Parse(data["id"]);
-                var customer = SearchById(id);
-                string sex = Request.Query["userSex"];
-                DateTime birthday;
-                customer.CustomerName = Request.Query["userNickName"];
-                if(sex!=null)
+                if(data!=null)
                 {
-                    customer.CustomerGender = sex;
-                }
-                if (DateTime.TryParse(Request.Query["userBirthDate"], out birthday))
-                {
-                    customer.CustomerBirthday = birthday;
-                }
-                try
-                {
-                    message.errorCode = 200;
-                    ModelContext.Instance.DetachAll();
-                    ModelContext.Instance.SaveChanges();
-                }
-                catch
-                {
+                    int id = int.Parse(data["id"]);
+                    var customer = SearchById(id);
+                    string sex = Request.Query["userSex"];
+                    DateTime birthday;
+                    customer.CustomerName = Request.Query["userNickName"];
+                    if (sex != null)
+                    {
+                        customer.CustomerGender = sex;
+                    }
+                    if (DateTime.TryParse(Request.Query["userBirthDate"], out birthday))
+                    {
+                        customer.CustomerBirthday = birthday;
+                    }
+                    try
+                    {
+                        message.errorCode = 200;
+                        ModelContext.Instance.DetachAll();
+                        ModelContext.Instance.SaveChanges();
+                    }
+                    catch
+                    {
+
+                    }
 
                 }
             }
