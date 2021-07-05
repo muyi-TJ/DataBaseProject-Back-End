@@ -18,7 +18,7 @@ namespace Back_End.Controllers {
                     {"exp", jwtCreatedOver},//非必须。expire 指定token的生命周期。unix时间戳格式
                     {"jti", M.jti},//非必须。JWT ID。针对当前token的唯一标识
                     {"id", M.id},//自定义字段，用户id
-                    {"phont", M.phone},//自定义字段 用手机号
+                    {"phone", M.phone},//自定义字段 用手机号
                     {"email", M.email},//自定义字段 邮箱
                     {"password", M.password},//自定义字段 密码
                 };
@@ -30,7 +30,7 @@ namespace Back_End.Controllers {
                 var data = JsonWebToken.DecodeToObject<Dictionary<string, object>>(token, Token.secretKey);
                 return data;
             }
-            catch (SignatureVerificationException) {
+            catch {
                 // Given token is either expired or hashed with an unsupported algorithm.
                 return null;
             }

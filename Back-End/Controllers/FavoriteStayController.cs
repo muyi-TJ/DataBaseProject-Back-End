@@ -7,6 +7,7 @@ using System.Collections.Specialized;
 using Back_End.Contexts;
 using Back_End.Models;
 using System.Text.Json;
+using Microsoft.Extensions.Primitives;
 
 namespace Back_End.Controllers {
     [ApiController]
@@ -16,100 +17,141 @@ namespace Back_End.Controllers {
         public class FavoriteStayMessage {
             public int errorCode { get; set; }
             public Dictionary<string, dynamic> data { get; set; } = new Dictionary<string, dynamic>();
+
+            public FavoriteStayMessage() {
+                errorCode = 400;
+                data.Add("isSuccess", false);
+                data.Add("msg", "invalid token");
+            }
+            public string ReturnJson() {
+                return JsonSerializer.Serialize(this);
+            }
         }
 
-        public class StayMessage {
+        public class StayInfo {
             public int stayId { get; set; }
             public string name { get; set; }
         }
 
         [HttpDelete]
         public string DeleteFavorite(int favoriteId = -1, int stayId = -1) {
-            //Console.WriteLine("Favorite Id:", favoriteId, "Stay Id:", stayId);
-            var context = ModelContext.Instance;
-            context.DetachAll();
             FavoriteStayMessage message = new FavoriteStayMessage();
-            try {
-                Favoritestay favoritestay = new Favoritestay() {
-                    FavoriteId = favoriteId,
-                    StayId = stayId
-                };
-                context.Remove(favoritestay);
-                context.SaveChanges();
-                message.errorCode = 200;
-                message.data.Add("isSuccess", true);
-                message.data.Add("msg", "success");
-                return JsonSerializer.Serialize(message);
+            StringValues token = default(StringValues);
+            if (Request.Headers.TryGetValue("token", out token)) {
+                var data = Token.VerifyToken(token);
+                if (data != null) {
+                    var context = ModelContext.Instance;
+                    context.DetachAll();
+
+                    try {
+                        Favoritestay favoritestay = new Favoritestay() {
+                            FavoriteId = favoriteId,
+                            StayId = stayId
+                        };
+                        context.Remove(favoritestay);
+                        context.SaveChanges();
+                        message.errorCode = 200;
+                        message.data["isSuccess"] = true;
+                        message.data["msg"] = "success";
+                        return message.ReturnJson();
+                    }
+                    catch (Exception e) {
+                        Console.WriteLine(e.ToString());
+                        message.data["msg"] = "invalid favoriteId or stayId";
+                        return message.ReturnJson();
+                    }
+                }
             }
-            catch (Exception e) {
-                Console.WriteLine(e.ToString());
-                message.errorCode = 400;
-                message.data.Add("isSuccess", false);
-                message.data.Add("message", "invalid favoriteId or stayId");
-                return JsonSerializer.Serialize(message);
-            }
+            return message.ReturnJson();  
         }
 
         [HttpGet]
         public string GetFavoriteStay(int favoriteId = -1) {
-            Console.WriteLine("Favorite Id:", favoriteId);
-            var context = ModelContext.Instance;
-            context.DetachAll();
             FavoriteStayMessage message = new FavoriteStayMessage();
-            List<Stay> stayList = new List<Stay>();
-            // 如果不存在这个收藏夹
-            if (!context.Favorites.Any(b => b.FavoriteId == favoriteId)) {
-                message.errorCode = 400;
-                message.data.Add("isSuccess", false);
-                message.data.Add("message", "invalid favoriteId");
-                message.data.Add("favoriteList", stayList);
-                return JsonSerializer.Serialize(message);
-            }
+            StringValues token = default(StringValues);
+            if (Request.Headers.TryGetValue("token", out token)) {
+                var data = Token.VerifyToken(token);
+                if (data != null) {
+                    var context = ModelContext.Instance;
+                    context.DetachAll();
 
-            var stayIdList = context.Favoritestays.Where(b => b.FavoriteId == favoriteId).Select(b => b.StayId).ToList();
-            message.errorCode = 200;
-            message.data.Add("isSuccess", true);
-            message.data.Add("message", "success");
+                    List<StayInfo> stayList = new List<StayInfo>();
+                    // 如果不存在这个收藏夹
+                    if (!context.Favorites.Any(b => b.FavoriteId == favoriteId)) {
+                        message.data["msg"] = "invalid favoriteId";
+                        message.data.Add("favoriteList", stayList);
+                        return JsonSerializer.Serialize(message);
+                    }
+                    try {
+                        var stayIdList = context.Favoritestays.Where(b => b.FavoriteId == favoriteId).Select(b => b.StayId).ToList();
+                        message.errorCode = 200;
+                        message.data["isSuccess"] = true;
+                        message.data["msg"] = "success";
 
-            foreach (var stayId in stayIdList) {
-                stayList.Add(context.Stays.Single(b => b.StayId == stayId));
-                
+                        foreach (var stayId in stayIdList) {
+                            var stay = context.Stays.Single(b => b.StayId == stayId);
+                            stayList.Add(new StayInfo() {
+                                stayId = stay.StayId,
+                                name = stay.StayName
+                            });
+                        }
+                        message.data.Add("stayList", stayList);
+                        return message.ReturnJson();
+                    }
+                    catch(Exception e) {
+                        Console.WriteLine(e.ToString());
+                        message.data["msg"] = "invalid favoriteId";
+                        return message.ReturnJson();
+                    }
+                }
             }
-            message.data.Add("stayList", stayList);
-            return JsonSerializer.Serialize(message);
+            return message.ReturnJson();
         }
 
         [HttpPost]
         public string InsertFavoriteStay() {
-            int favoriteId = int.Parse(Request.Form["favoriteId"]);
-            int stayId = int.Parse(Request.Form["stayId"]);
-            var context = ModelContext.Instance;
-            context.DetachAll();
             FavoriteStayMessage message = new FavoriteStayMessage();
-            // 如果不存在这个收藏夹
-            if (!context.Favorites.Any(b => b.FavoriteId == favoriteId)) {
-                message.errorCode = 400;
-                message.data.Add("isSuccess", false);
-                message.data.Add("message", "invalid favoriteId");
-                return JsonSerializer.Serialize(message);
-            }
-            if (context.Favoritestays.Any(b => b.FavoriteId == favoriteId && b.StayId == stayId)) {
-                message.errorCode = 400;
-                message.data.Add("isSuccess", false);
-                message.data.Add("message", "this stay already in the favorite");
-                return JsonSerializer.Serialize(message);
-            }
-            Favoritestay favoritestay = new Favoritestay() {
-                FavoriteId = favoriteId,
-                StayId = stayId
-            };
-            context.Add(favoritestay);
-            context.SaveChanges();
+            StringValues token = default(StringValues);
+            if (Request.Headers.TryGetValue("token", out token)) {
+                var data = Token.VerifyToken(token);
+                if (data != null) {
+                    int favoriteId = int.Parse(Request.Form["favoriteId"]);
+                    int stayId = int.Parse(Request.Form["stayId"]);
+                    var context = ModelContext.Instance;
+                    context.DetachAll();
 
-            message.errorCode = 200;
-            message.data.Add("isSuccess", true);
-            message.data.Add("message", "success");
-            return JsonSerializer.Serialize(message);
+                    // 如果不存在这个收藏夹
+                    if (!context.Favorites.Any(b => b.FavoriteId == favoriteId)) {
+                        message.data["msg"] = "invalid favoriteId";
+                        return message.ReturnJson();
+                    }
+                    // 如果已经添加了
+                    if (context.Favoritestays.Any(b => b.FavoriteId == favoriteId && b.StayId == stayId)) {
+                        message.data["msg"] = "this stay already in the favorite";
+                        return message.ReturnJson();
+                    }
+                    try {
+                        Favoritestay favoritestay = new Favoritestay() {
+                            FavoriteId = favoriteId,
+                            StayId = stayId
+                        };
+                        context.Add(favoritestay);
+                        context.SaveChanges();
+
+                        message.errorCode = 200;
+                        message.data["isSuccess"] = true;
+                        message.data["msg"] = "success";
+
+                        return message.ReturnJson();
+                    }
+                    catch(Exception e) {
+                        Console.WriteLine(e.ToString());
+                        message.data["msg"] = "invalid favoriteId or stayId";
+                        return message.ReturnJson();
+                    }
+                }
+            }
+            return message.ReturnJson();  
         }
     }
 }
