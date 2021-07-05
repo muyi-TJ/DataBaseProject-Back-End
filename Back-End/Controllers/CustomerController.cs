@@ -172,15 +172,60 @@ namespace Back_End.Controllers {
                 string photo = Request.Query["avatarCode"];
                 if(photo!=null)
                 {
-                    string newPhoto = UploadPhoto(photo);
-                    if (newPhoto!=null)
+                    try
                     {
-                        message.errorCode = 200;
-                        message.msg = message.msgType[1];
-                        customer.CustomerPhoto = newPhoto;
-                        ModelContext.Instance.DetachAll();
-                        ModelContext.Instance.SaveChanges();
+                        string newPhoto = UploadPhoto(photo);
+                        if (newPhoto != null)
+                        {
+                            message.errorCode = 200;
+                            message.msg = message.msgType[1];
+                            customer.CustomerPhoto = newPhoto;
+                            ModelContext.Instance.DetachAll();
+                            ModelContext.Instance.SaveChanges();
+                        }
                     }
+                    catch
+                    {
+
+                    }
+                }
+            }
+            return message.ReturnJson();
+        }
+
+        [HttpPut("basicinfo")]
+        public string ChangeCustomerInfo()
+        {
+            Message message = new Message();
+            message.errorCode = 400;
+            message.msg = message.msgType[0];
+            StringValues token = default(StringValues);
+            if (Request.Headers.TryGetValue("token", out token))
+            {
+                var data = Token.VerifyToken(token);
+                int id = int.Parse(data["id"]);
+                var customer = SearchById(id);
+                string sex = Request.Query["userSex"];
+                DateTime birthday;
+                customer.CustomerName = Request.Query["userNickName"];
+                if(sex!=null)
+                {
+                    customer.CustomerGender = sex;
+                }
+                if (DateTime.TryParse(Request.Query["userBirthDate"], out birthday))
+                {
+                    customer.CustomerBirthday = birthday;
+                }
+                try
+                {
+                    message.errorCode = 200;
+                    message.msg = message.msgType[1];
+                    ModelContext.Instance.DetachAll();
+                    ModelContext.Instance.SaveChanges();
+                }
+                catch
+                {
+
                 }
             }
             return message.ReturnJson();

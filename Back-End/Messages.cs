@@ -81,4 +81,16 @@ namespace Back_End
             msg = msgType[0];
         }
     }
+
+    public class AdminMessage:Message
+    {
+        AdminMessage()
+        {
+            errorCode = 400;
+            data.Add("avatar", null);
+            data.Add("ID", null);
+            data.Add("name",null);
+        }
+    }
+
 }
