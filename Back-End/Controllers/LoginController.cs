@@ -29,7 +29,6 @@ namespace Back_End.Controllers
                 loginMessage.data["userName"] = customer.CustomerName;
                 loginMessage.data["userAvatar"] = customer.CustomerPhoto;
                 loginMessage.errorCode = 200;
-                loginMessage.msg = loginMessage.msgType[1];
 
                 var token = Token.GetToken(new TokenInfo()
                 {

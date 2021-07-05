@@ -82,7 +82,6 @@ namespace Back_End.Controllers {
             {
                 checkPhoneMessage.errorCode = 200;
                 checkPhoneMessage.data["phoneunique"] = true;
-                checkPhoneMessage.msg = checkPhoneMessage.msgType[1];
             }
             return checkPhoneMessage.ReturnJson();
         }
@@ -145,7 +144,6 @@ namespace Back_End.Controllers {
                     customerDetailMessage.data["userScore"] = customer.CustomerDegree;
                     customerDetailMessage.data["registerDate"] = customer.CustomerCreatetime;
                     customerDetailMessage.data["hostCommentList"] = comments;
-                    customerDetailMessage.msg = customerDetailMessage.msgType[1];
                 }
             }
             return customerDetailMessage.ReturnJson();
@@ -162,7 +160,6 @@ namespace Back_End.Controllers {
         {
             Message message = new Message();
             message.errorCode = 400;
-            message.msg = message.msgType[0];
             StringValues token = default(StringValues);
             if (Request.Headers.TryGetValue("token", out token))
             {
@@ -178,7 +175,6 @@ namespace Back_End.Controllers {
                         if (newPhoto != null)
                         {
                             message.errorCode = 200;
-                            message.msg = message.msgType[1];
                             customer.CustomerPhoto = newPhoto;
                             ModelContext.Instance.DetachAll();
                             ModelContext.Instance.SaveChanges();
@@ -198,7 +194,6 @@ namespace Back_End.Controllers {
         {
             Message message = new Message();
             message.errorCode = 400;
-            message.msg = message.msgType[0];
             StringValues token = default(StringValues);
             if (Request.Headers.TryGetValue("token", out token))
             {
@@ -219,7 +214,6 @@ namespace Back_End.Controllers {
                 try
                 {
                     message.errorCode = 200;
-                    message.msg = message.msgType[1];
                     ModelContext.Instance.DetachAll();
                     ModelContext.Instance.SaveChanges();
                 }

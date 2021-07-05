@@ -31,7 +31,6 @@ namespace Back_End.Controllers
                 ModelContext.Instance.SaveChanges();
                 registerMessage.errorCode = 200;
                 registerMessage.data["registerSate"] = true;
-                registerMessage.msg = registerMessage.msgType[1];
                 return registerMessage.ReturnJson();
             }
             catch

@@ -8,13 +8,11 @@ namespace Back_End
 {
     public class Message
     {
-        public readonly string[] msgType = new string[2] { "invalid", "success" };
 
         public int errorCode { get; set; }
 
         public Dictionary<string, dynamic> data { get; set; } = new Dictionary<string, dynamic>();
 
-        public string msg { get; set; }
 
         public string ReturnJson()
         {
@@ -27,11 +25,10 @@ namespace Back_End
     {
         public LoginMessage()
         {
-            errorCode = 400;
+            errorCode = 300;
             data.Add("loginState", false);
             data.Add("userName", null);
             data.Add("userAvatar", null);
-            msg = msgType[0];
         }
     }
 
@@ -39,9 +36,8 @@ namespace Back_End
     {
         public CheckPhoneMessage()
         {
-            errorCode = 400;
+            errorCode = 300;
             data.Add("phoneunique", false);
-            msg = msgType[0];
         }
     }
 
@@ -49,9 +45,8 @@ namespace Back_End
     {
         public RegisterMessage()
         {
-            errorCode = 400;
+            errorCode = 300;
             data.Add("registerSate", false);
-            msg = msgType[0];
         }
     }
 
@@ -59,7 +54,7 @@ namespace Back_End
     {
         public CustomerDetailMessage()
         {
-            errorCode = 404;
+            errorCode = 400;
             data.Add("userNickName", null);
             data.Add("userAvatar", null);
             data.Add("evalNum", null);
@@ -68,7 +63,6 @@ namespace Back_End
             data.Add("userScore", null);
             data.Add("registerDate", null);
             data.Add("hostCommentList", null);
-            msg = msgType[0];
         }
     }
 
@@ -76,9 +70,8 @@ namespace Back_End
     {
         public VCcodeMessage()
         {
-            errorCode = 400;
+            errorCode = 300;
             data.Add("sendstate", false);
-            msg = msgType[0];
         }
     }
 
@@ -86,7 +79,7 @@ namespace Back_End
     {
         AdminMessage()
         {
-            errorCode = 400;
+            errorCode = 300;
             data.Add("avatar", null);
             data.Add("ID", null);
             data.Add("name",null);
