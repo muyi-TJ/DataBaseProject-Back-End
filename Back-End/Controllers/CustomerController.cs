@@ -75,10 +75,13 @@ namespace Back_End.Controllers {
             CheckPhoneMessage checkPhoneMessage = new CheckPhoneMessage();
             string phone = Request.Form["phonenumber"];
             string prePhone = Request.Form["prenumber"];
-            if(SearchByPhone(phone,prePhone)==null)
+            if(phone!=null&&prePhone!=null)
             {
                 checkPhoneMessage.errorCode = 200;
-                checkPhoneMessage.data["phoneunique"] = true;
+                if (SearchByPhone(phone, prePhone) == null)
+                {
+                    checkPhoneMessage.data["phoneunique"] = true;
+                }
             }
             return checkPhoneMessage.ReturnJson();
         }
@@ -121,6 +124,7 @@ namespace Back_End.Controllers {
             StringValues token = default(StringValues);
             if (Request.Headers.TryGetValue("token", out token))
             {
+                customerDetailMessage.errorCode = 300;
                 var data = Token.VerifyToken(token);
                 if(data!=null)
                 {
