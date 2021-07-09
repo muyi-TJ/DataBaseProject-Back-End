@@ -38,7 +38,14 @@ namespace Back_End.Controllers
                     preNumber = preNumber,
                 });
                 loginMessage.data.Add("token", token);
+                //Response.Headers.Add("Access-Control-Expose-Headers", "Token");
+                //Response.Headers.Add("Token", token);
                 //Response.Cookies.Append("Token", token, new CookieOptions() { Path = "/", HttpOnly=true});
+                CookieOptions cookieOptions = new CookieOptions();
+                cookieOptions.Path = "/";
+                cookieOptions.HttpOnly = false;
+                cookieOptions.MaxAge = new TimeSpan(0, 10, 0);
+                Response.Cookies.Append("Token", token, cookieOptions);
             }
 
             return loginMessage.ReturnJson();

@@ -25,15 +25,18 @@ namespace Back_End {
         public void ConfigureServices(IServiceCollection services) {
             services.AddControllers();
 
-            services.AddCors(options => {
-                options.AddPolicy(MyAllowSpecificOrigins, builder => {
-                builder.SetIsOriginAllowed((x) => true)
-                .AllowAnyOrigin()
-                .AllowAnyHeader()
-                .AllowAnyMethod();
-            });
+            services.AddCors(op => { op.AddPolicy(MyAllowSpecificOrigins, set => { set.SetIsOriginAllowed(origin => true).AllowAnyHeader().AllowAnyMethod().AllowCredentials(); }); });
 
-            });
+           // services.AddCors(options => {
+               // options.AddPolicy(MyAllowSpecificOrigins, builder => {
+                //builder
+                //.WithOrigins("http://localhost:6001")
+                //.AllowAnyHeader()
+                //.AllowAnyMethod()
+                //.AllowCredentials();
+            //});
+
+            //});
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -42,7 +45,7 @@ namespace Back_End {
                 app.UseDeveloperExceptionPage();
             }
 
-            //app.UseHttpsRedirection();
+            app.UseHttpsRedirection();
 
             app.UseRouting();
 
