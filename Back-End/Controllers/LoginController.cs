@@ -44,6 +44,7 @@ namespace Back_End.Controllers
                 CookieOptions cookieOptions = new CookieOptions();
                 cookieOptions.Path = "/";
                 cookieOptions.HttpOnly = false;
+                cookieOptions.SameSite = SameSiteMode.Lax;
                 cookieOptions.MaxAge = new TimeSpan(0, 10, 0);
                 Response.Cookies.Append("Token", token, cookieOptions);
             }
