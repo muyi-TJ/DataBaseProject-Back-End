@@ -172,6 +172,7 @@ namespace Back_End.Controllers {
                 var data = Token.VerifyToken(token);
                 if(data!=null)
                 {
+                    ModelContext.Instance.DetachAll();
                     int id = int.Parse(data["id"]);
                     var customer = SearchById(id);
                     string photo = Request.Query["avatarCode"];
@@ -186,7 +187,6 @@ namespace Back_End.Controllers {
                             {
                                 Console.WriteLine(newPhoto);
                                 customer.CustomerPhoto = newPhoto;
-                                ModelContext.Instance.DetachAll();
                                 ModelContext.Instance.SaveChanges();
                                 message.errorCode = 200;
                             }
@@ -214,6 +214,7 @@ namespace Back_End.Controllers {
                 var data = Token.VerifyToken(token);
                 if(data!=null)
                 {
+                    ModelContext.Instance.DetachAll();
                     int id = int.Parse(data["id"]);
                     var customer = SearchById(id);
                     string sex = Request.Query["userSex"];
@@ -230,7 +231,6 @@ namespace Back_End.Controllers {
                     try
                     {
                         message.errorCode = 200;
-                        ModelContext.Instance.DetachAll();
                         ModelContext.Instance.SaveChanges();
                     }
                     catch

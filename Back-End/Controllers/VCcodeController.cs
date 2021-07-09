@@ -49,6 +49,7 @@ namespace Back_End.Controllers
                 HttpClient.HttpPost(url, parameters);
                 message.errorCode = 200;
                 message.data["sendstate"] = true;
+                message.data.Add("code", code);//TODO:正式版本应删除
             }
             return message.ReturnJson();
         }
