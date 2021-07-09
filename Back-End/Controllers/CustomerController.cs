@@ -75,10 +75,13 @@ namespace Back_End.Controllers {
             CheckPhoneMessage checkPhoneMessage = new CheckPhoneMessage();
             string phone = Request.Form["phonenumber"];
             string prePhone = Request.Form["prenumber"];
-            if(SearchByPhone(phone,prePhone)==null)
+            if(phone!=null&&prePhone!=null)
             {
                 checkPhoneMessage.errorCode = 200;
-                checkPhoneMessage.data["phoneunique"] = true;
+                if (SearchByPhone(phone, prePhone) == null)
+                {
+                    checkPhoneMessage.data["phoneunique"] = true;
+                }
             }
             return checkPhoneMessage.ReturnJson();
         }
@@ -121,6 +124,7 @@ namespace Back_End.Controllers {
             StringValues token = default(StringValues);
             if (Request.Headers.TryGetValue("token", out token))
             {
+                customerDetailMessage.errorCode = 300;
                 var data = Token.VerifyToken(token);
                 if(data!=null)
                 {
@@ -168,6 +172,7 @@ namespace Back_End.Controllers {
                 var data = Token.VerifyToken(token);
                 if(data!=null)
                 {
+                    ModelContext.Instance.DetachAll();
                     int id = int.Parse(data["id"]);
                     var customer = SearchById(id);
                     string photo = Request.Query["avatarCode"];
@@ -182,7 +187,6 @@ namespace Back_End.Controllers {
                             {
                                 Console.WriteLine(newPhoto);
                                 customer.CustomerPhoto = newPhoto;
-                                ModelContext.Instance.DetachAll();
                                 ModelContext.Instance.SaveChanges();
                                 message.errorCode = 200;
                             }
@@ -210,6 +214,7 @@ namespace Back_End.Controllers {
                 var data = Token.VerifyToken(token);
                 if(data!=null)
                 {
+                    ModelContext.Instance.DetachAll();
                     int id = int.Parse(data["id"]);
                     var customer = SearchById(id);
                     string sex = Request.Query["userSex"];
@@ -226,7 +231,6 @@ namespace Back_End.Controllers {
                     try
                     {
                         message.errorCode = 200;
-                        ModelContext.Instance.DetachAll();
                         ModelContext.Instance.SaveChanges();
                     }
                     catch

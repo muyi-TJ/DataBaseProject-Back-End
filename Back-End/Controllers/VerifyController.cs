@@ -25,6 +25,7 @@ namespace Back_End.Controllers
         public string GetVerifyCode()
         {
             VerifyControllerMessage message = new VerifyControllerMessage();
+            message.errorCode = 300;
             string code = MakeCode(4);
             MD5 md5 = MD5.Create();
             byte[] str = md5.ComputeHash(Encoding.UTF8.GetBytes(code));
