@@ -14,5 +14,25 @@ namespace Back_End.Controllers
     [Route("api/[controller]")]
     public class StayController : ControllerBase
     {
+        [HttpGet("getstay")]
+        public string GetStaysByPos()
+        {
+            GetStaysByPosMessage message = new GetStaysByPosMessage();
+            return message.ReturnJson();
+        }
+
+        public static Stay SearchById(int id)
+        {
+            try
+            {
+                var stay = ModelContext.Instance.Stays
+                    .Single(b => b.StayId == id);
+                return stay;
+            }
+            catch
+            {
+                return null;
+            }
+        }
     }
 }
