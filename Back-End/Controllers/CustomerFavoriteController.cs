@@ -34,10 +34,18 @@ namespace Back_End.Controllers {
             public int totalStay { get; set; }
         }
 
+        [HttpPut]
+        public string TestPut(int id = -1) {
+            Console.WriteLine(id);
+            Console.WriteLine(Request.Form["password"]);
+            return "yes";
+        }
+
         [HttpDelete]
         public string DeleteFavorite(int favoriteId = -1) {
             CustomerFavoriteMessage message = new CustomerFavoriteMessage();
             StringValues token = default(StringValues);
+            
             if (Request.Headers.TryGetValue("token", out token)) {
                 try {
                     var context = ModelContext.Instance;
