@@ -25,7 +25,14 @@ namespace Back_End {
         public void ConfigureServices(IServiceCollection services) {
             services.AddControllers();
 
-            services.AddCors(op => { op.AddPolicy(MyAllowSpecificOrigins, set => { set.SetIsOriginAllowed(origin => true).AllowAnyHeader().AllowAnyMethod().AllowCredentials(); }); });
+            services.AddCors(op => { 
+                op.AddPolicy(MyAllowSpecificOrigins, set => { 
+                    set.SetIsOriginAllowed(origin => true)
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials(); 
+                });
+            });
 
            // services.AddCors(options => {
                // options.AddPolicy(MyAllowSpecificOrigins, builder => {
