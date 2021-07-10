@@ -22,13 +22,16 @@ namespace Back_End.Controllers
             string phone = Request.Form["phonenumber"]; //接受 Form 提交的数据
             string password = Request.Form["password"];
             string preNumber = Request.Form["prenumber"];
+            if(phone!=null&&password!=null&&preNumber!=null)
+            {
+                loginMessage.errorCode = 200;
+            }
             Customer customer = CustomerController.SearchByPhone(phone, preNumber);
             if (CustomerController.CustomerLogin(customer, password))
             {
                 loginMessage.data["loginState"] = true;
                 loginMessage.data["userName"] = customer.CustomerName;
                 loginMessage.data["userAvatar"] = customer.CustomerPhoto;
-                loginMessage.errorCode = 200;
 
                 var token = Token.GetToken(new TokenInfo()
                 {

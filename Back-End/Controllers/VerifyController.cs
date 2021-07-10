@@ -59,7 +59,7 @@ namespace Back_End.Controllers
                     code.Append((char)('A' + (char)((number + index) % 26)));//生成随机字母
                 }
             }
-            return code.ToString();
+            return code.ToString().ToLower();
         }
 
 

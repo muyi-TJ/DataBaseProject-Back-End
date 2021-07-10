@@ -95,4 +95,33 @@ namespace Back_End
             data.Add("codeimg", null);
         }
     }
+
+    public class ChangePasswordMessage:Message
+    {
+        public ChangePasswordMessage()
+        {
+            errorCode = 400;
+            data.Add("changestate", false);
+        }
+            
+    }
+
+    public class GetStaysByPosMessage:Message
+    {
+        public GetStaysByPosMessage()
+        {
+            errorCode = 300;
+            data.Add("staynum", 0);
+            data.Add("stayinfo", null);
+        }
+    }
+
+    public class GetExamineByPageMessage:Message
+    {
+        public GetExamineByPageMessage()
+        {
+            errorCode = 400;
+            data.Add("examineStayList", null);
+        }
+    }
 }

@@ -243,6 +243,42 @@ namespace Back_End.Controllers {
             return message.ReturnJson();
         }
 
+        [HttpPost("changepassword")]
+        public string ChangeCustomerPassword()
+        {
+            ChangePasswordMessage message = new ChangePasswordMessage();
+            StringValues token = default(StringValues);
+            if (Request.Headers.TryGetValue("token", out token))
+            {
+                message.errorCode = 300;
+                var data = Token.VerifyToken(token);
+                if (data != null)
+                {
+                    ModelContext.Instance.DetachAll();
+                    int id = int.Parse(data["id"]);
+                    var customer = SearchById(id);
+                    string password = Request.Form["password"];
+                    if(password!=null)
+                    {
+                        message.errorCode = 200;
+                        customer.CustomerPassword = password;
+                        try
+                        {
+                            ModelContext.Instance.SaveChanges();
+                            message.data["changestate"] = true;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                }
+            }
+            return message.ReturnJson();
+        }
+
+
+
         [HttpDelete]
         public bool Delete(int id)
         {
