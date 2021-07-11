@@ -44,6 +44,7 @@ namespace Back_End.Controllers
             public string stayPhoto { get; set; }
         }
 
+        // 根据最低价格选取6个价格最低的
         [HttpGet("getStayByPrice")]
         public string GetStayByPrice() {
             var context = ModelContext.Instance;
@@ -77,6 +78,42 @@ namespace Back_End.Controllers
             }
         }
 
+        // 根据用户评分选取4个最高的
+        [HttpGet("getStayByScore")]
+        public string GetStayByScore() {
+            var context = ModelContext.Instance;
+            context.DetachAll();
+            var message = new GetStayMessage();
+            message.data.Add("stayList", new List<StayInfo>());
+            try {
+                var staySelectList = context.Stays.
+                    OrderByDescending(r => r.CommentScore > 0 ? ((float)r.CommentScore / (float)r.CommentNum) : 0)
+                    .Select(g => new StayInfo {
+                        stayId = g.StayId
+                    })
+                    .ToList();
+
+                if (staySelectList.Count > 4)
+                    staySelectList.RemoveRange(4, staySelectList.Count - 4);
+
+                foreach (var staySelect in staySelectList) {
+                    var stay = context.Stays.Single(b => b.StayId == staySelect.stayId);
+                    staySelect.stayPhoto = context.RoomPhotos.Where(b => b.StayId == staySelect.stayId).FirstOrDefault().RPhoto;
+                    staySelect.stayPrice = context.Rooms.Where(b => b.StayId == staySelect.stayId).Min(x => x.Price);
+                    staySelect.stayCharcateristic = stay.Characteristic;
+                    staySelect.stayName = stay.StayName;
+                }
+                message.errorCode = 200;
+                message.data["stayList"] = staySelectList;
+                return message.ReturnJson();
+            }
+            catch (Exception e) {
+                Console.WriteLine(e.ToString());
+                return message.ReturnJson();
+            }
+        }
+
+        // 根据用户评论数选取前4个评论最多的
         [HttpGet("getStayByHot")]
         public string GetStayByHot() {
             var context = ModelContext.Instance;
@@ -84,28 +121,16 @@ namespace Back_End.Controllers
             var message = new GetStayMessage();
             message.data.Add("stayList", new List<StayInfo>());
             try {
-                var staySelectList = context.Generates
-                    .GroupBy(r => r.StayId)
-                    .OrderBy(r => r.Count())
+                var staySelectList = context.Stays.
+                    OrderByDescending(r => r.CommentNum)
                     .Select(g => new StayInfo {
-                        stayId = g.Key
+                        stayId = g.StayId
                     })
                     .ToList();
+
                 if (staySelectList.Count > 4)
                     staySelectList.RemoveRange(4, staySelectList.Count - 4);
-                if(staySelectList.Count < 4) {
-                    var stayIdList = new List<int>();
-                    foreach (var staySelect in staySelectList)
-                        stayIdList.Add(staySelect.stayId);
-                    var stayExtend = context.Stays.Where(b => !stayIdList.Contains(b.StayId));
-                    foreach(var stay in stayExtend) {
-                        staySelectList.Add(new StayInfo() {
-                            stayId = stay.StayId
-                        });
-                        if (staySelectList.Count == 4)
-                            break;
-                    }
-                }
+
                 foreach (var staySelect in staySelectList) {
                     var stay = context.Stays.Single(b => b.StayId == staySelect.stayId);
                     staySelect.stayPhoto = context.RoomPhotos.Where(b => b.StayId == staySelect.stayId).FirstOrDefault().RPhoto;

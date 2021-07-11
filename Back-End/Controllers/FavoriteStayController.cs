@@ -37,7 +37,7 @@ namespace Back_End.Controllers {
             public int stayMinPrice { get; set; }
             public string stayPhoto { get; set; }
             public int commentNum { get; set; } // 评论数
-            public string hostAvatat { get; set; }
+            public string hostAvatar { get; set; }
         }
 
         [HttpDelete]
@@ -101,8 +101,13 @@ namespace Back_End.Controllers {
                                 stayHasPath = stay.PublicBathroom == 1 ? true : false,
                                 stayHasWashroom = stay.PublicToilet == 1 ? true : false,
                                 stayHasFacility = stay.NonBarrierFacility == 1 ? true : false,
-                                stayMinPrice = stayMinPrice
-                            });
+
+                                stayRate = stay.CommentNum > 0 ? ((float)stay.CommentScore / (float)stay.CommentNum) : 0,
+                                stayMinPrice = stayMinPrice,
+                                stayPhoto = stayPhoto,
+                                commentNum = (int)stay.CommentNum,
+                                hostAvatar = context.Hosts.Single(b => b.HostId == stay.HostId).HostAvatar
+                            }) ;
                         }
                         message.data.Add("stayList", stayList);
                         message.errorCode = 200;
