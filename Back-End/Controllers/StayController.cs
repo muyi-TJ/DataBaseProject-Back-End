@@ -93,6 +93,18 @@ namespace Back_End.Controllers
                     .ToList();
                 if (staySelectList.Count > 4)
                     staySelectList.RemoveRange(4, staySelectList.Count - 4);
+                if(staySelectList.Count < 4) {
+                    var stayIdList = new List<int>();
+                    foreach (var staySelect in staySelectList)
+                        stayIdList.Add(staySelect.stayId);
+                    var stayExtend = context.Stays.Where(b => !stayIdList.Contains(b.StayId));
+                    foreach(var stay in stayExtend) {
+                        staySelectList.Add(new StayInfo() {
+                            stayId = stay.StayId
+                        });
+                        if (staySelectList.Count == 4)
+                    }
+                }
                 foreach (var staySelect in staySelectList) {
                     var stay = context.Stays.Single(b => b.StayId == staySelect.stayId);
                     staySelect.stayPhoto = context.RoomPhotos.Where(b => b.StayId == staySelect.stayId).FirstOrDefault().RPhoto;
@@ -101,6 +113,7 @@ namespace Back_End.Controllers
                     staySelect.stayName = stay.StayName;
                 }
                 message.errorCode = 200;
+                message.data["stayList"] = staySelectList;
                 return message.ReturnJson();
             }
             catch (Exception e) {
