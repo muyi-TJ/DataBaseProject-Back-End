@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Http;
 namespace Back_End.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class HostController : ControllerBase
     {
         //GET: api/<Host>

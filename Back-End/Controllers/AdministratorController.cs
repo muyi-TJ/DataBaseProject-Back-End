@@ -15,11 +15,17 @@ namespace Back_End.Controllers
     [Route("api/[controller]")]
     public class AdministratorController : ControllerBase
     {
-        class PagedExamines
+        class PagedStays
         {
             public int stayId { get; set; }
             public int hostId { get; set; }
             public string stayCity { get; set; }
+        }
+        class PagedReports
+        {
+            public int reportId { get; set; }
+            public int reporterId { get; set; }
+            public int stayId { get; set; }
         }
         public readonly int pageSize = 10;
 
@@ -46,9 +52,9 @@ namespace Back_End.Controllers
         }
 
         [HttpGet("examineStay")]
-        public string GetExamineByPage()
+        public string GetStayByPage()
         {
-            GetExamineByPageMessage message = new GetExamineByPageMessage();
+            GetStayByPageMessage message = new GetStayByPageMessage();
             StringValues token = default(StringValues);
             if (Request.Headers.TryGetValue("token", out token))
             {
@@ -63,7 +69,7 @@ namespace Back_End.Controllers
                         message.errorCode = 200;
                         int page = int.Parse(Request.Query["pagenum"]);
                         var pageInfo = ModelContext.Instance.Stays.Where(s => s.StayStatus == 0).OrderBy(b => b.StayId).Skip((page - 1) * pageSize)
-                            .Take(pageSize).Select(c => new PagedExamines{ stayId = c.StayId, hostId = (int)c.HostId, stayCity = c.Area.AreaName });
+                            .Take(pageSize).Select(c => new PagedStays{ stayId = c.StayId, hostId = (int)c.HostId, stayCity = c.Area.AreaName });
                         var examines = pageInfo.ToList();
                         message.data["examineStayList"] = examines;
                     }
@@ -72,5 +78,92 @@ namespace Back_End.Controllers
             return message.ReturnJson();
         }
 
+        [HttpGet("examineStay/one")]
+        public string GetStayById()
+        {
+            GetStayByIdMessage message = new GetStayByIdMessage();
+            StringValues token = default(StringValues);
+            if (Request.Headers.TryGetValue("token", out token))
+            {
+                message.errorCode = 300;
+                var data = Token.VerifyToken(token);
+                if (data != null)
+                {
+                    int id = int.Parse(data["id"]);
+                    var admin = SearchById(id);
+                    if (admin != null)
+                    {
+                        message.errorCode = 200;
+                        int stayid= int.Parse(Request.Query["stayId"]);
+                        Stay stay = StayController.SearchById(id);
+                        message.data["detailedAddress"] = stay.DetailedAddress;
+                        message.data["stayType"] = stay.StayType;
+                        message.data["stayCapability"] = stay.StayCapacity;
+                        var rooms = stay.Rooms.ToList();
+                        var roomsInfo = new List<string>();
+                        var photos = new List<string>();
+                        foreach (var room in rooms)
+                        {
+                            string temp = "";
+                            temp += "roomId:";
+                            temp += room.RoomId.ToString();
+                            temp += ",\nbathroomNum:";
+                            temp += room.BathroomNum.ToString();
+                            int bedCount = 0;
+                            string bedType = "";
+                            foreach (var bed in room.RoomBeds)
+                            {
+                                bedCount += bed.BedNum;
+                                bedType += BedController.BedType[BedController.SearchById(bed.BedId).BedType] + ' ';
+                            }
+                            temp += ",\nbedNum:";
+                            temp += stay.BedNum.ToString();
+                            temp += ",\nbedType:";
+                            temp += bedType;
+                            roomsInfo.Add(temp);
+                            foreach(var pic in room.RoomPhotos)
+                            {
+                                photos.Add(pic.RPhoto);
+                            }
+                            
+                        }
+                        message.data["roomList"] = roomsInfo;
+                        message.data["publicToliet"] = stay.PublicToilet;
+                        message.data["publicBath"] = stay.PublicBathroom;
+                        message.data["hasBarrierFree"] = stay.NonBarrierFacility;
+                        message.data["stayPicList"] = photos;
+                    }
+                }
+            }
+            return message.ReturnJson();
+        }
+
+        [HttpGet("examineReport")]
+        public string GetReportByPage()
+        {
+            GetReportByPageMessage message = new GetReportByPageMessage();
+            StringValues token = default(StringValues);
+            if (Request.Headers.TryGetValue("token", out token))
+            {
+                message.errorCode = 300;
+                var data = Token.VerifyToken(token);
+                if (data != null)
+                {
+                    int id = int.Parse(data["id"]);
+                    var admin = SearchById(id);
+                    if (admin != null)
+                    {
+                        message.errorCode = 200;
+                        int page = int.Parse(Request.Query["pagenum"]);
+                        var pageInfo = ModelContext.Instance.Reports.Where(s => s.IsDealed == 0).OrderBy(b => b.ReportTime).Skip((page - 1) * pageSize)
+                            .Take(pageSize).Select(c => new PagedReports
+                            { stayId = c.Order.Generates.First().StayId, reportId = c.OrderId, reporterId = (int)c.Order.CustomerId });
+                        var examines = pageInfo.ToList();
+                        message.data["reportList"] = examines;
+                    }
+                }
+            }
+            return message.ReturnJson();
+        }
     }
 }

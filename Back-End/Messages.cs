@@ -116,9 +116,9 @@ namespace Back_End
         }
     }
 
-    public class GetExamineByPageMessage:Message
+    public class GetStayByPageMessage:Message
     {
-        public GetExamineByPageMessage()
+        public GetStayByPageMessage()
         {
             errorCode = 400;
             data.Add("examineStayList", null);
@@ -129,6 +129,31 @@ namespace Back_End
         public GetStayMessage() {
             errorCode = 300;
             //this.data.Add("stayList", null);
+        }
+    }
+
+    public class GetStayByIdMessage:Message
+    {
+        public GetStayByIdMessage()
+        {
+            errorCode = 400;
+            data.Add("detailedAddress", null);
+            data.Add("stayType", null);
+            data.Add("stayCapability", null);
+            data.Add("roomList", null);
+            data.Add("publicToliet", null);
+            data.Add("publicBath", null);
+            data.Add("hasBarrierFree", null);
+            data.Add("stayPicList", null);
+        }
+    }
+
+    public class GetReportByPageMessage:Message
+    {
+        public GetReportByPageMessage()
+        {
+            errorCode = 400;
+            data.Add("reportList", null);
         }
     }
 }
