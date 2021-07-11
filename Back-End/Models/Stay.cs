@@ -37,6 +37,8 @@ namespace Back_End.Models
         public byte DaysMin { get; set; }
         public byte DaysMax { get; set; }
         public decimal StayStatus { get; set; }
+        public int? CommentNum { get; set; }
+        public int? CommentScore { get; set; }
 
         public virtual Area Area { get; set; }
         public virtual Host Host { get; set; }

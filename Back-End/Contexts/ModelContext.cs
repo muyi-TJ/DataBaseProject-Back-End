@@ -196,7 +196,9 @@ namespace Back_End.Contexts
                     .HasColumnName("BED_LENGTH");
 
                 entity.Property(e => e.BedType)
-                    .HasPrecision(6)
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
                     .HasColumnName("BED_TYPE");
 
                 entity.Property(e => e.PersonNum)
@@ -924,7 +926,7 @@ namespace Back_End.Contexts
             modelBuilder.Entity<RoomBed>(entity =>
             {
                 entity.HasKey(e => new { e.StayId, e.RoomId, e.BedId })
-                    .HasName("SYS_C0011178");
+                    .HasName("SYS_C0011257");
 
                 entity.ToTable("ROOM_BED");
 
@@ -947,12 +949,12 @@ namespace Back_End.Contexts
                 entity.HasOne(d => d.Bed)
                     .WithMany(p => p.RoomBeds)
                     .HasForeignKey(d => d.BedId)
-                    .HasConstraintName("SYS_C0011179");
+                    .HasConstraintName("SYS_C0011258");
 
                 entity.HasOne(d => d.Room)
                     .WithMany(p => p.RoomBeds)
                     .HasForeignKey(d => new { d.StayId, d.RoomId })
-                    .HasConstraintName("SYS_C0011180");
+                    .HasConstraintName("SYS_C0011259");
             });
 
             modelBuilder.Entity<RoomPhoto>(entity =>
@@ -1004,6 +1006,16 @@ namespace Back_End.Contexts
                     .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("CHARACTERISTIC");
+
+                entity.Property(e => e.CommentNum)
+                    .HasPrecision(10)
+                    .HasColumnName("COMMENT_NUM")
+                    .HasDefaultValueSql("0");
+
+                entity.Property(e => e.CommentScore)
+                    .HasPrecision(10)
+                    .HasColumnName("COMMENT_SCORE")
+                    .HasDefaultValueSql("0");
 
                 entity.Property(e => e.DaysMax)
                     .HasPrecision(4)

@@ -13,7 +13,7 @@ namespace Back_End.Models
         }
 
         public byte BedId { get; set; }
-        public int BedType { get; set; }
+        public string BedType { get; set; }
         public decimal BedLength { get; set; }
         public bool PersonNum { get; set; }
 
