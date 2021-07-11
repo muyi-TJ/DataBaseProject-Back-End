@@ -103,6 +103,7 @@ namespace Back_End.Controllers
                             stayId = stay.StayId
                         });
                         if (staySelectList.Count == 4)
+                            break;
                     }
                 }
                 foreach (var staySelect in staySelectList) {
