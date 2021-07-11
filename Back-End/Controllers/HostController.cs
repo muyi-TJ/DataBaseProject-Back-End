@@ -171,5 +171,22 @@ namespace Back_End.Controllers
             }
         }
 
+        [HttpPost("phone")]
+        public string CheckHostPhoneRegisitered()
+        {
+            CheckPhoneMessage checkPhoneMessage = new CheckPhoneMessage();
+            string phone = Request.Form["phonenumber"];
+            string prePhone = Request.Form["prenumber"];
+            if (phone != null && prePhone != null)
+            {
+                checkPhoneMessage.errorCode = 200;
+                if (SearchByPhone(phone, prePhone) == null)
+                {
+                    checkPhoneMessage.data["phoneunique"] = true;
+                }
+            }
+            return checkPhoneMessage.ReturnJson();
+        }
+
     }
 }
