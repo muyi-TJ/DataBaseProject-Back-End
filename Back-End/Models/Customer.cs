@@ -28,6 +28,7 @@ namespace Back_End.Models
         public decimal? CustomerState { get; set; }
         public byte? CustomerLevel { get; set; }
         public int? CustomerDegree { get; set; }
+        public decimal? CustomerMood { get; set; }
 
         public virtual CustomerGroup CustomerLevelNavigation { get; set; }
         public virtual ICollection<Collect> Collects { get; set; }
