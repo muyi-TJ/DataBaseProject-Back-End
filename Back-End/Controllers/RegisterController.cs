@@ -30,7 +30,7 @@ namespace Back_End.Controllers
                 ModelContext.Instance.Add(customer);
                 ModelContext.Instance.SaveChanges();
                 registerMessage.errorCode = 200;
-                registerMessage.data["registerSate"] = true;
+                registerMessage.data["registerState"] = true;
             }
             catch
             {
@@ -59,7 +59,7 @@ namespace Back_End.Controllers
                 ModelContext.Instance.Add(host);
                 ModelContext.Instance.SaveChanges();
                 registerMessage.errorCode = 200;
-                registerMessage.data["registerSate"] = true;
+                registerMessage.data["registerState"] = true;
             }
             catch
             {
