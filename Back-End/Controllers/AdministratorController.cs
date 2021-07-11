@@ -95,7 +95,7 @@ namespace Back_End.Controllers
                     {
                         message.errorCode = 200;
                         int stayid= int.Parse(Request.Query["stayId"]);
-                        Stay stay = StayController.SearchById(id);
+                        Stay stay = StayController.SearchById(stayid);
                         message.data["detailedAddress"] = stay.DetailedAddress;
                         message.data["stayType"] = stay.StayType;
                         message.data["stayCapability"] = stay.StayCapacity;
@@ -158,6 +158,7 @@ namespace Back_End.Controllers
                         var pageInfo = ModelContext.Instance.Reports.Where(s => s.IsDealed == 0).OrderBy(b => b.ReportTime).Skip((page - 1) * pageSize)
                             .Take(pageSize).Select(c => new PagedReports
                             { stayId = c.Order.Generates.First().StayId, reportId = c.OrderId, reporterId = (int)c.Order.CustomerId });
+                        //TODO:generate
                         var examines = pageInfo.ToList();
                         message.data["reportList"] = examines;
                     }
@@ -165,5 +166,37 @@ namespace Back_End.Controllers
             }
             return message.ReturnJson();
         }
+
+        [HttpGet("examineReport/one")]
+        public string GetReportById()
+        {
+            GetReportByIdMessage message = new GetReportByIdMessage();
+            StringValues token = default(StringValues);
+            if (Request.Headers.TryGetValue("token", out token))
+            {
+                message.errorCode = 300;
+                var data = Token.VerifyToken(token);
+                if (data != null)
+                {
+                    int id = int.Parse(data["id"]);
+                    var admin = SearchById(id);
+                    if (admin != null)
+                    {
+                        message.errorCode = 200;
+                        int reportId = int.Parse(Request.Query["reportId"]);
+                        Report report = ReportController.SearchById(reportId);
+                        message.data["orderId"] = report.OrderId;
+                        message.data["reportTime"] = report.ReportTime;
+                        message.data["reportReason"] = report.Reason;
+                        //message.data["hostId"]=report.Order.Generates.First().
+                        //TODO:generate
+                        //message.data["stayId"]
+                        //message.data["hostCredit"]=
+                    }
+                }
+            }
+            return message.ReturnJson();
+        }
+
     }
 }

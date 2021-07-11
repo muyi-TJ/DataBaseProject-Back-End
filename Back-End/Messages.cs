@@ -46,7 +46,7 @@ namespace Back_End
         public RegisterMessage()
         {
             errorCode = 300;
-            data.Add("registerSate", false);
+            data.Add("registerState", false);
         }
     }
 
@@ -154,6 +154,20 @@ namespace Back_End
         {
             errorCode = 400;
             data.Add("reportList", null);
+        }
+    }
+
+    public class GetReportByIdMessage:Message
+    {
+        public GetReportByIdMessage()
+        {
+            errorCode = 400;
+            data.Add("orderId", null);
+            data.Add("reportTime", null);
+            data.Add("reportReason", null);
+            data.Add("hostId", null);
+            data.Add("stayId", null);
+            data.Add("hostCredit", null);
         }
     }
 
