@@ -23,6 +23,8 @@ namespace Back_End.Models
         public string StayType { get; set; }
         public string PeripheralRoad { get; set; }
         public string DetailedAddress { get; set; }
+        public decimal Longitude { get; set; }
+        public decimal Latitude { get; set; }
         public byte StayCapacity { get; set; }
         public byte RoomNum { get; set; }
         public byte BedNum { get; set; }
