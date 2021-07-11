@@ -114,7 +114,7 @@ namespace Back_End.Controllers
                             foreach (var bed in room.RoomBeds)
                             {
                                 bedCount += bed.BedNum;
-                                bedType += BedController.BedType[BedController.SearchById(bed.BedId).BedType] + ' ';
+                                bedType += BedController.SearchById(bed.BedId).BedType + ' ';
                             }
                             temp += ",\nbedNum:";
                             temp += stay.BedNum.ToString();
