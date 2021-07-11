@@ -100,7 +100,8 @@ namespace Back_End.Controllers {
                                 stayCharacteristic = stay.Characteristic,
                                 stayHasPath = stay.PublicBathroom == 1 ? true : false,
                                 stayHasWashroom = stay.PublicToilet == 1 ? true : false,
-                                stayHasFacility = stay.NonBarrierFacility == 1 ? true : false
+                                stayHasFacility = stay.NonBarrierFacility == 1 ? true : false,
+                                stayMinPrice = stayMinPrice
                             });
                         }
                         message.data.Add("stayList", stayList);
