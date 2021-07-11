@@ -12,14 +12,17 @@ using Microsoft.AspNetCore.Http;
 
 
 //简单测试
-namespace Back_End.Controllers {
+namespace Back_End.Controllers
+{
     [ApiController]
     [Route("[controller]")]
-    public class HostController : ControllerBase {
+    public class HostController : ControllerBase
+    {
         //GET: api/<Host>
 
         [HttpDelete("DelById")]
-        public bool DelById(int id) {
+        public bool DelById(int id)
+        {
             if (id < 0)
                 return false;
             try
@@ -32,13 +35,13 @@ namespace Back_End.Controllers {
                 context.SaveChanges();
                 return true;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
                 return false;
             }
         }
-        
+
         [HttpPost("Login")]
         public bool Login()
         {
@@ -89,13 +92,13 @@ namespace Back_End.Controllers {
                 context.SaveChanges();
                 return true;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
                 return false;
             }
         }
-        
+
         [HttpPut("ChangePassword")]
         public bool ChangePassword()
         {
@@ -106,21 +109,21 @@ namespace Back_End.Controllers {
                 int id = int.Parse(Request.Form["id"]);
                 Host host = context.Hosts
                     .Single(b => b.HostId == id);
-                if(host.HostPassword == Request.Form["password"])
+                if (host.HostPassword == Request.Form["password"])
                 {
                     host.HostPassword = Request.Form["newpassword"];
                     return true;
                 }
                 return false;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
                 return false;
             }
         }
 
-        
+
         [HttpGet("GetById")]
         public string GetById(int id)
         {
@@ -130,12 +133,43 @@ namespace Back_End.Controllers {
                     .Single(b => b.HostId == id);
                 return JsonSerializer.Serialize(host);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
                 return null;
             }
 
         }
+
+        public static Host SearchByPhone(string phone, string prePhone)
+        {
+            try
+            {
+                var host = ModelContext.Instance.Hosts
+                    .Single(b => b.HostPhone == phone && b.HostPrephone == prePhone);
+                return host;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public static bool HostLogin(Host host, string password)
+        {
+            try
+            {
+                if (host == null)
+                {
+                    return false;
+                }
+                return host.HostPassword == password;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
     }
 }

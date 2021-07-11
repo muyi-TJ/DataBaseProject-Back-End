@@ -31,12 +31,43 @@ namespace Back_End.Controllers
                 ModelContext.Instance.SaveChanges();
                 registerMessage.errorCode = 200;
                 registerMessage.data["registerSate"] = true;
-                return registerMessage.ReturnJson();
             }
             catch
             {
-                return registerMessage.ReturnJson();
+
             }
+            return registerMessage.ReturnJson();
+
         }
+
+        [HttpPost("host")]
+        public string HostRegister()
+        {
+            RegisterMessage registerMessage = new RegisterMessage();
+            try
+            {
+                ModelContext.Instance.DetachAll();
+                Host host = new Host();
+                host.HostUsername = Request.Form["username"];
+                host.HostPassword = Request.Form["password"];
+                host.HostPrephone = Request.Form["prenumber"];
+                host.HostPhone = Request.Form["phonenumber"];
+                host.HostRealname = Request.Form["truename"];
+                host.HostIdnumber = Request.Form["ID"];
+                host.HostGender = Request.Form["gender"].ToString().ToUpper();
+                host.HostCreateTime = DateTime.Now;
+                ModelContext.Instance.Add(host);
+                ModelContext.Instance.SaveChanges();
+                registerMessage.errorCode = 200;
+                registerMessage.data["registerSate"] = true;
+            }
+            catch
+            {
+
+            }
+            return registerMessage.ReturnJson();
+
+        }
+
     }
 }

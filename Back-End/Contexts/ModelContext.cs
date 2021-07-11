@@ -582,7 +582,8 @@ namespace Back_End.Contexts
 
                 entity.Property(e => e.HostId)
                     .HasPrecision(10)
-                    .ValueGeneratedNever()
+                    .ValueGeneratedOnAdd()
+                    .UseHiLo("SEQ")
                     .HasColumnName("HOST_ID");
 
                 entity.Property(e => e.HostAvatar)

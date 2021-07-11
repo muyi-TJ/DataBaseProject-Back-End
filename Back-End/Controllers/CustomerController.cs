@@ -160,7 +160,7 @@ namespace Back_End.Controllers {
             return null;
         }
 
-        [HttpGet("avatar")]
+        [HttpPut("avatar")]
         public string ChangeCustomerPhoto()
         {
             Message message = new Message();
@@ -175,7 +175,7 @@ namespace Back_End.Controllers {
                     ModelContext.Instance.DetachAll();
                     int id = int.Parse(data["id"]);
                     var customer = SearchById(id);
-                    string photo = Request.Query["avatarCode"];
+                    string photo = Request.Form["avatarCode"];
                     Console.WriteLine(photo+"200");
                     if (photo != null)
                     {
@@ -202,7 +202,7 @@ namespace Back_End.Controllers {
             return message.ReturnJson();
         }
 
-        [HttpGet("basicinfo")]
+        [HttpPut("basicinfo")]
         public string ChangeCustomerInfo()
         {
             Message message = new Message();
@@ -217,14 +217,14 @@ namespace Back_End.Controllers {
                     ModelContext.Instance.DetachAll();
                     int id = int.Parse(data["id"]);
                     var customer = SearchById(id);
-                    string sex = Request.Query["userSex"];
+                    string sex = Request.Form["userSex"];
                     DateTime birthday;
-                    customer.CustomerName = Request.Query["userNickName"];
+                    customer.CustomerName = Request.Form["userNickName"];
                     if (sex != null)
                     {
                         customer.CustomerGender = sex;
                     }
-                    if (DateTime.TryParse(Request.Query["userBirthDate"], out birthday))
+                    if (DateTime.TryParse(Request.Form["userBirthDate"], out birthday))
                     {
                         customer.CustomerBirthday = birthday;
                     }

@@ -55,5 +55,45 @@ namespace Back_End.Controllers
             return loginMessage.ReturnJson();
         }
 
+        [HttpPost("host")]
+        public string HostLoginByPhone()
+        {
+            LoginMessage loginMessage = new LoginMessage();
+            string phone = Request.Form["phonenumber"]; //接受 Form 提交的数据
+            string password = Request.Form["password"];
+            string preNumber = Request.Form["prenumber"];
+            if (phone != null && password != null && preNumber != null)
+            {
+                loginMessage.errorCode = 200;
+            }
+            Host host = HostController.SearchByPhone(phone, preNumber);
+            if (HostController.HostLogin(host, password))
+            {
+                loginMessage.data["loginState"] = true;
+                loginMessage.data["userName"] = host.HostUsername;
+                loginMessage.data["userAvatar"] = host.HostAvatar;
+
+                var token = Token.GetToken(new TokenInfo()
+                {
+                    id = host.HostId.ToString(),
+                    phone = phone,
+                    password = password,
+                    preNumber = preNumber,
+                });
+                loginMessage.data.Add("token", token);
+                //Response.Headers.Add("Access-Control-Expose-Headers", "Token");
+                //Response.Headers.Add("Token", token);
+                //Response.Cookies.Append("Token", token, new CookieOptions() { Path = "/", HttpOnly=true});
+                CookieOptions cookieOptions = new CookieOptions();
+                cookieOptions.Path = "/";
+                cookieOptions.HttpOnly = false;
+                cookieOptions.SameSite = SameSiteMode.Lax;
+                cookieOptions.MaxAge = new TimeSpan(0, 10, 0);
+                Response.Cookies.Append("Token", token, cookieOptions);
+            }
+
+            return loginMessage.ReturnJson();
+        }
+
     }
 }
