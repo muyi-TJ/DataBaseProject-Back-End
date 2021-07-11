@@ -20,7 +20,6 @@ namespace Back_End.Controllers {
 
             public FavoriteStayMessage() {
                 errorCode = 400;
-                data.Add("isSuccess", false);
             }
             public string ReturnJson() {
                 return JsonSerializer.Serialize(this);
@@ -29,7 +28,16 @@ namespace Back_End.Controllers {
 
         public class StayInfo {
             public int stayId { get; set; }
-            public string name { get; set; }
+            public string stayName { get; set; }
+            public string stayCharacteristic { get; set; }
+            public bool stayHasPath { get; set; } // 公共浴室
+            public bool stayHasWashroom { get; set; } // 公共卫生间
+            public bool stayHasFacility { get; set; } // 无障碍设施
+            public float stayRate { get; set; } // 评分
+            public int stayMinPrice { get; set; }
+            public string stayPhoto { get; set; }
+            public int commentNum { get; set; } // 评论数
+            public string hostAvatat { get; set; }
         }
 
         [HttpDelete]
@@ -50,7 +58,6 @@ namespace Back_End.Controllers {
                         context.Remove(favoritestay);
                         context.SaveChanges();
                         message.errorCode = 200;
-                        message.data["isSuccess"] = true;
                         return message.ReturnJson();
                     }
                     catch (Exception e) {
@@ -82,17 +89,22 @@ namespace Back_End.Controllers {
                     }
                     try {
                         var stayIdList = context.Favoritestays.Where(b => b.FavoriteId == favoriteId).Select(b => b.StayId).ToList();
-                        message.errorCode = 200;
-                        message.data["isSuccess"] = true;
-
+                        
                         foreach (var stayId in stayIdList) {
                             var stay = context.Stays.Single(b => b.StayId == stayId);
+                            int stayMinPrice = context.Rooms.Where(b => b.StayId == stayId).Min(x => x.Price);
+                            string stayPhoto = context.RoomPhotos.Where(b => b.StayId == stayId).FirstOrDefault().RPhoto;
                             stayList.Add(new StayInfo() {
                                 stayId = stay.StayId,
-                                name = stay.StayName
+                                stayName = stay.StayName,
+                                stayCharacteristic = stay.Characteristic,
+                                stayHasPath = stay.PublicBathroom == 1 ? true : false,
+                                stayHasWashroom = stay.PublicToilet == 1 ? true : false,
+                                stayHasFacility = stay.NonBarrierFacility == 1 ? true : false
                             });
                         }
                         message.data.Add("stayList", stayList);
+                        message.errorCode = 200;
                         return message.ReturnJson();
                     }
                     catch(Exception e) {
@@ -136,7 +148,6 @@ namespace Back_End.Controllers {
                         context.SaveChanges();
 
                         message.errorCode = 200;
-                        message.data["isSuccess"] = true;
 
                         return message.ReturnJson();
                     }

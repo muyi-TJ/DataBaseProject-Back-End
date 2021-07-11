@@ -20,7 +20,6 @@ namespace Back_End.Controllers {
 
             public CustomerFavoriteMessage() {
                 errorCode = 400;
-                data.Add("isSuccess", false);
             }
             public string ReturnJson() {
                 return JsonSerializer.Serialize(this);
@@ -54,7 +53,6 @@ namespace Back_End.Controllers {
                     context.Remove(favorite);
                     context.SaveChanges();
                     message.errorCode = 200;
-                    message.data["isSuccess"] = true;
                     return message.ReturnJson();
                 }
                 catch (Exception e) {
@@ -89,7 +87,6 @@ namespace Back_End.Controllers {
                             });
                         }
                         message.errorCode = 200;
-                        message.data["isSuccess"] = true;
                         message.data.Add("favoriteList", favoriteList);
                         return message.ReturnJson();
                     }
@@ -128,7 +125,6 @@ namespace Back_End.Controllers {
                         context.Add(favorite);
                         context.SaveChanges();
                         message.errorCode = 200;
-                        message.data["isSuccess"] = true;
                         message.data.Add("favoriteId", favorite.FavoriteId);
                         return message.ReturnJson();
                     }
@@ -158,13 +154,11 @@ namespace Back_End.Controllers {
                         var roomPhoto = context.RoomPhotos.Where(b => b.StayId == favoriteStay.StayId).First();
 
                         message.errorCode = 200;
-                        message.data["isSuccess"] = true;
                         message.data.Add("imageUrl", roomPhoto.RPhoto);
                         return message.ReturnJson();
                     }
                     catch (Exception e) {
-                        message.errorCode = 200;
-                        message.data["isSuccess"] = true;
+                        message.errorCode = 300;
                         message.data.Add("imageUrl", null);
                         Console.WriteLine(e.ToString());
                         return message.ReturnJson();

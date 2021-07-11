@@ -124,4 +124,11 @@ namespace Back_End
             data.Add("examineStayList", null);
         }
     }
+
+    public class GetStayMessage : Message {
+        public GetStayMessage() {
+            errorCode = 300;
+            //this.data.Add("stayList", null);
+        }
+    }
 }
