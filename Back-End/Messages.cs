@@ -156,4 +156,13 @@ namespace Back_End
             data.Add("reportList", null);
         }
     }
+
+    public class IDVerifyMessage : Message {
+        public IDVerifyMessage() {
+            errorCode = 400;
+            data.Add("verifyResult", 0);
+            data.Add("trueName", null);
+            data.Add("trueID", null);
+        }
+    }
 }
