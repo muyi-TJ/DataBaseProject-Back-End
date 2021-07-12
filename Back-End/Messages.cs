@@ -63,6 +63,9 @@ namespace Back_End
             data.Add("userScore", null);
             data.Add("registerDate", null);
             data.Add("hostCommentList", null);
+            data.Add("mood", null);
+            data.Add("userBirthDate", null);
+            data.Add("userSex", null);
         }
     }
 
@@ -177,6 +180,34 @@ namespace Back_End
             data.Add("verifyResult", 0);
             data.Add("trueName", null);
             data.Add("trueID", null);
+        }
+    }
+
+    public class GetStayByLngAndLatMessage:Message
+    {
+        public GetStayByLngAndLatMessage()
+        {
+            errorCode = 300;
+            data.Add("stayPositionNum", 0);
+            data.Add("stayPositionInfo", null);
+        }
+    }
+
+    public class GetNearByPageMessage:Message
+    {
+        public GetNearByPageMessage()
+        {
+            errorCode = 400;
+            data.Add("nearbyList", null);
+        }
+    }
+
+    public class UploadStayExamineMessage:Message
+    {
+        public UploadStayExamineMessage()
+        {
+            errorCode = 400;
+            data.Add("isSuccess", false);
         }
     }
 }

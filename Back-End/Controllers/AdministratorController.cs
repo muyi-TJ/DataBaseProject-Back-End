@@ -21,11 +21,21 @@ namespace Back_End.Controllers
             public int hostId { get; set; }
             public string stayCity { get; set; }
         }
+
         class PagedReports
         {
             public int reportId { get; set; }
             public int reporterId { get; set; }
             public int stayId { get; set; }
+        }
+
+        class PagedNears
+        {
+            public int nearbyId { get; set; }
+            public string nearbyName { get; set; }
+            public string nearbyType { get; set; }
+            public int nearbyPopularity { get; set; }
+            public string nearbyDetailedAdd { get; set; }
         }
         public readonly int pageSize = 10;
 
@@ -44,12 +54,6 @@ namespace Back_End.Controllers
 
         }
 
-        [HttpGet]
-        public string GetAdmin()
-        {
-            //UNDONE:等待修改api
-            return null;
-        }
 
         [HttpGet("examineStay")]
         public string GetStayByPage()
@@ -60,16 +64,16 @@ namespace Back_End.Controllers
             {
                 message.errorCode = 300;
                 var data = Token.VerifyToken(token);
-                if(data!=null)
+                if (data != null)
                 {
                     int id = int.Parse(data["id"]);
                     var admin = SearchById(id);
-                    if(admin!=null)
+                    if (admin != null)
                     {
                         message.errorCode = 200;
                         int page = int.Parse(Request.Query["pagenum"]);
                         var pageInfo = ModelContext.Instance.Stays.Where(s => s.StayStatus == 0).OrderBy(b => b.StayId).Skip((page - 1) * pageSize)
-                            .Take(pageSize).Select(c => new PagedStays{ stayId = c.StayId, hostId = (int)c.HostId, stayCity = c.Area.AreaName });
+                            .Take(pageSize).Select(c => new PagedStays { stayId = c.StayId, hostId = (int)c.HostId, stayCity = c.Area.AreaName });
                         var examines = pageInfo.ToList();
                         message.data["examineStayList"] = examines;
                     }
@@ -94,7 +98,7 @@ namespace Back_End.Controllers
                     if (admin != null)
                     {
                         message.errorCode = 200;
-                        int stayid= int.Parse(Request.Query["stayId"]);
+                        int stayid = int.Parse(Request.Query["stayId"]);
                         Stay stay = StayController.SearchById(stayid);
                         message.data["detailedAddress"] = stay.DetailedAddress;
                         message.data["stayType"] = stay.StayType;
@@ -121,11 +125,11 @@ namespace Back_End.Controllers
                             temp += ",\nbedType:";
                             temp += bedType;
                             roomsInfo.Add(temp);
-                            foreach(var pic in room.RoomPhotos)
+                            foreach (var pic in room.RoomPhotos)
                             {
                                 photos.Add(pic.RPhoto);
                             }
-                            
+
                         }
                         message.data["roomList"] = roomsInfo;
                         message.data["publicToliet"] = stay.PublicToilet;
@@ -198,5 +202,82 @@ namespace Back_End.Controllers
             return message.ReturnJson();
         }
 
+        [HttpGet("nearby")]
+        public string GetNearByPage()
+        {
+            GetNearByPageMessage message = new GetNearByPageMessage();
+            StringValues token = default(StringValues);
+            if (Request.Headers.TryGetValue("token", out token))
+            {
+                message.errorCode = 300;
+                var data = Token.VerifyToken(token);
+                if (data != null)
+                {
+                    int id = int.Parse(data["id"]);
+                    var admin = SearchById(id);
+                    if (admin != null)
+                    {
+                        message.errorCode = 200;
+                        int page = int.Parse(Request.Query["pagenum"]);
+                        var pageInfo = ModelContext.Instance.Peripherals.OrderBy(b => b.PeripheralId).Skip((page - 1) * pageSize)
+                            .Take(pageSize).Select(c => new PagedNears
+                            {
+                                nearbyId = c.PeripheralId,
+                                nearbyType = c.PeripheralClass,
+                                nearbyName = c.PeripheralName,
+                                nearbyPopularity = (int)c.PeripheralPopularity,
+                                nearbyDetailedAdd = c.PeripheralRoad
+                            });
+                        var nears = pageInfo.ToList();
+                        message.data["nearbyList"] = nears;
+                    }
+                }
+            }
+            return message.ReturnJson();
+        }
+
+        [HttpPost("examineStay/result")]
+        public string UploadStayExamine()
+        {
+            UploadStayExamineMessage message = new UploadStayExamineMessage();
+            StringValues token = default(StringValues);
+            if (Request.Headers.TryGetValue("token", out token))
+            {
+                message.errorCode = 300;
+                var data = Token.VerifyToken(token);
+                if (data != null)
+                {
+                    int id = int.Parse(data["id"]);
+                    var admin = SearchById(id);
+                    if (admin != null)
+                    {
+                        message.errorCode = 200;
+                        ModelContext.Instance.DetachAll();
+                        int stayId = int.Parse(Request.Form["stayId"]);
+                        bool isPass = bool.Parse(Request.Form["isPass"]);
+                        Stay stay = StayController.SearchById(stayId);
+                        AdministratorStay form = new AdministratorStay();
+                        form.AdminId = id;
+                        form.StayId = stayId;
+                        form.ValReplyTime = DateTime.Now;
+                        if(isPass)
+                        {
+                            stay.StayStatus = 2;
+                            form.ValidateResult = 1;
+                        }
+                        else
+                        {
+                            stay.StayStatus = 1;
+                            form.ValidateResult = 0;
+                            form.ValidateReply = Request.Form["msg"];
+                        }//房源状态0未审核，1审核不通过，2审核通过
+                        ModelContext.Instance.AdministratorStays.Add(form);
+                        ModelContext.Instance.SaveChanges();
+                        message.data["isSuccess"] = true;
+                    }
+                }
+            }
+            return message.ReturnJson();
+        }
     }
 }

@@ -20,10 +20,12 @@ using System.Text.RegularExpressions;
 
 
 //简单测试
-namespace Back_End.Controllers {
+namespace Back_End.Controllers
+{
     [ApiController]
     [Route("api/[controller]")]
-    public class CustomerController : ControllerBase {
+    public class CustomerController : ControllerBase
+    {
         public class CustomerMessage
         {
             public int errorCode { get; set; }
@@ -83,7 +85,7 @@ namespace Back_End.Controllers {
             CheckPhoneMessage checkPhoneMessage = new CheckPhoneMessage();
             string phone = Request.Form["phonenumber"];
             string prePhone = Request.Form["prenumber"];
-            if(phone!=null&&prePhone!=null)
+            if (phone != null && prePhone != null)
             {
                 checkPhoneMessage.errorCode = 200;
                 if (SearchByPhone(phone, prePhone) == null)
@@ -134,7 +136,7 @@ namespace Back_End.Controllers {
             {
                 customerDetailMessage.errorCode = 300;
                 var data = Token.VerifyToken(token);
-                if(data!=null)
+                if (data != null)
                 {
                     int id = int.Parse(data["id"]);
                     var customer = SearchById(id);
@@ -155,46 +157,16 @@ namespace Back_End.Controllers {
                         customerDetailMessage.data["userScore"] = customer.CustomerDegree;
                         customerDetailMessage.data["registerDate"] = customer.CustomerCreatetime;
                         customerDetailMessage.data["hostCommentList"] = comments;
+                        customerDetailMessage.data["mood"] = customer.CustomerMood;
+                        customerDetailMessage.data["userBirthDate"] = customer.CustomerBirthday;
+                        customerDetailMessage.data["userSex"] = customer.CustomerGender;
                     }
 
                 }
             }
             return customerDetailMessage.ReturnJson();
         }
-        
-        [HttpPost("testup")]
-        public string UploadPhoto(string ImgBase64, string objectPath)
-        {
-            // yourEndpoint填写Bucket所在地域对应的Endpoint。以华东1（杭州）为例，Endpoint填写为https://oss-cn-hangzhou.aliyuncs.com。
-            var endpoint = "https://oss-cn-shanghai.aliyuncs.com";
-            var accessKeyId = "LTAI5tScrNCoU2hhA8A7D67e";
-            var accessKeySecret = "45fK4YI50AK6efhWLBcOP69ytN2XWp";
-            var bucketName = "guisu";
 
-            try {
-                //string ImgBase64 = Request.Form["base"];
-                string pattern = @"^data:image/(?<type>\w+);";
-                string type = Regex.Matches(ImgBase64, pattern)[0].Groups["type"].Value;
-                string objectName = objectPath + "." + type;
-
-                byte[] arr = Convert.FromBase64String(ImgBase64.Split(',')[1]);//.Split(',')[1]
-                MemoryStream ms = new MemoryStream(arr);
-
-                // 创建OssClient实例。
-                var client = new OssClient(endpoint, accessKeyId, accessKeySecret);
-
-
-                var res = client.PutObject(bucketName, objectName, ms, new ObjectMetadata() { ContentType = "image/" + type });
-                string imgurl = "https://guisu.oss-cn-shanghai.aliyuncs.com/" + objectName;
-
-                Console.WriteLine("Put object succeeded");
-                return imgurl;
-            }
-            catch (Exception ex) {
-                Console.WriteLine("Put object failed, {0}", ex.Message);
-                return null;
-            }
-        }
 
         [HttpPut("avatar")]
         public string ChangeCustomerPhoto()
@@ -206,22 +178,20 @@ namespace Back_End.Controllers {
             {
                 message.errorCode = 300;
                 var data = Token.VerifyToken(token);
-                if(data!=null)
+                if (data != null)
                 {
                     ModelContext.Instance.DetachAll();
                     int id = int.Parse(data["id"]);
                     var customer = SearchById(id);
                     string photo = Request.Form["avatarCode"];
-                    Console.WriteLine(photo+"200");
+                    Console.WriteLine(photo + "200");
                     if (photo != null)
                     {
                         try
                         {
-                            string newPhoto = UploadPhoto(photo, "");
-                            newPhoto = "/img/photo";
+                            string newPhoto = PhotoUpload.UploadPhoto(photo, "customerPhoto/" + id.ToString());
                             if (newPhoto != null)
                             {
-                                Console.WriteLine(newPhoto);
                                 customer.CustomerPhoto = newPhoto;
                                 ModelContext.Instance.SaveChanges();
                                 message.errorCode = 200;
@@ -248,12 +218,14 @@ namespace Back_End.Controllers {
             {
                 message.errorCode = 300;
                 var data = Token.VerifyToken(token);
-                if(data!=null)
+                if (data != null)
                 {
                     ModelContext.Instance.DetachAll();
                     int id = int.Parse(data["id"]);
                     var customer = SearchById(id);
                     string sex = Request.Form["userSex"];
+                    int mood = -1;
+                    int.TryParse(Request.Form["mood"].ToString(), out mood);
                     DateTime birthday;
                     customer.CustomerName = Request.Form["userNickName"];
                     if (sex != null)
@@ -263,6 +235,10 @@ namespace Back_End.Controllers {
                     if (DateTime.TryParse(Request.Form["userBirthDate"], out birthday))
                     {
                         customer.CustomerBirthday = birthday;
+                    }
+                    if (mood != -1)
+                    {
+                        customer.CustomerMood = mood;
                     }
                     try
                     {
@@ -294,7 +270,7 @@ namespace Back_End.Controllers {
                     int id = int.Parse(data["id"]);
                     var customer = SearchById(id);
                     string password = Request.Form["password"];
-                    if(password!=null)
+                    if (password != null)
                     {
                         message.errorCode = 200;
                         customer.CustomerPassword = password;
