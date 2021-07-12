@@ -8,6 +8,7 @@ using Back_End.Contexts;
 using System.Text.Json;
 using Back_End.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Primitives;
 
 namespace Back_End.Controllers
 {
@@ -21,12 +22,6 @@ namespace Back_End.Controllers
             myContext = modelContext;
         }
         
-        [HttpGet("getstay")]
-        public string GetStaysByPos()
-        {
-            GetStaysByPosMessage message = new GetStaysByPosMessage();
-            return message.ReturnJson();
-        }
 
         public static Stay SearchById(int id)
         {
@@ -163,10 +158,29 @@ namespace Back_End.Controllers
             public decimal[] stayPosition { get; set; }
         }
 
+        class StayRoughInfo
+        {
+            public string stayName { get; set; }
+            public string stayDescribe { get; set; }
+            public List<string> stayPhotos { get; set; }
+            public string hostAvatar { get; set; }
+            public double stayScore { get; set; }
+            public bool isLike { get; set; }
+
+        }
+
+        class StayDetailedInfo:StayRoughInfo
+        {
+            public List<string> stayLabel { get; set; }
+            public int stayPrice { get; set; }
+            public int stayCommentNum { get; set; }
+            public decimal[] stayPosition { get; set; }
+        }
+
         [HttpGet("getPositions")]
         public string GetStayByLngAndLat()
         {
-            GetStayByLngAndLatMessage message = new GetStayByLngAndLatMessage();
+            GetStayInfoMessage message = new GetStayInfoMessage();
             try
             {
                 decimal left = decimal.Parse(Request.Query["westLng"]);
@@ -227,6 +241,143 @@ namespace Back_End.Controllers
             return message.ReturnJson();
         }
 
+        [HttpGet("getRoughStay")]
+        public string GetStayRoughInfo()
+        {
+            GetStayInfoMessage message = new GetStayInfoMessage();
+            try
+            {
+                int stayId = int.Parse(Request.Query["stayID"]);
+                var stay = SearchById(stayId);
+                if(stay!=null)
+                {
+                    message.errorCode = 200;
+                    StayRoughInfo info = new StayRoughInfo();
+                    info.stayName = stay.StayName;
+                    var rooms = stay.Rooms.ToList();
+                    int bathroom = (int)stay.PublicToilet;
+                    var photos = new List<string>();
+                    foreach (var room in rooms)
+                    {
+                        bathroom += (int)room.BathroomNum;
+                        foreach (var pic in room.RoomPhotos)
+                        {
+                            photos.Add(pic.RPhoto);
+                        }
+                    }
+                    info.stayDescribe = rooms.Count.ToString() + "室" + bathroom.ToString() + "卫";
+                    info.stayPhotos = photos;
+                    info.hostAvatar = stay.Host.HostAvatar;
+                    info.stayScore = (double)stay.CommentScore / (double)stay.CommentNum;
+                    bool islike = false;
+                    StringValues token = default(StringValues);
+                    if (Request.Headers.TryGetValue("token", out token))
+                    {
+                        var data = Token.VerifyToken(token);
+                        if (data != null)
+                        {
+                            int id = int.Parse(data["id"]);
+                            var customer = CustomerController.SearchById(id);
+                            var favorites = customer.Favorites.ToList();
+                            foreach(var favorite in favorites)
+                            {
+                                if (!islike)
+                                { foreach (var elem in favorite.Favoritestays.ToList())
+                                    {
+                                        if (elem.StayId==stayId)
+                                        {
+                                            islike = true;
+                                            break;
+                                        }
+                                }
+                                }
+                            }
+                        }
+                    }
+                    info.isLike = islike;
+                    message.data["stayPositionNum"] = 1;
+                    message.data["stayPositionInfo"] = info;
+                }
+
+            }
+            catch
+            {
+
+            }
+            return message.ReturnJson();
+        }
+
+        [HttpGet("getDetailedStay")]
+        public string GetStayDetailedInfo()
+        {
+            GetStayInfoMessage message = new GetStayInfoMessage();
+            try
+            {
+                int stayId = int.Parse(Request.Query["stayID"]);
+                var stay = SearchById(stayId);
+                if (stay != null)
+                {
+                    message.errorCode = 200;
+                    StayDetailedInfo info = new StayDetailedInfo();
+                    info.stayName = stay.StayName;
+                    var rooms = stay.Rooms.ToList();
+                    int bathroom = (int)stay.PublicToilet;
+                    var photos = new List<string>();
+                    foreach (var room in rooms)
+                    {
+                        bathroom += (int)room.BathroomNum;
+                        foreach (var pic in room.RoomPhotos)
+                        {
+                            photos.Add(pic.RPhoto);
+                        }
+                    }
+                    info.stayDescribe = rooms.Count.ToString() + "室" + bathroom.ToString() + "卫";
+                    info.stayPhotos = photos;
+                    info.hostAvatar = stay.Host.HostAvatar;
+                    info.stayScore = (double)stay.CommentScore / (double)stay.CommentNum;
+                    bool islike = false;
+                    StringValues token = default(StringValues);
+                    if (Request.Headers.TryGetValue("token", out token))
+                    {
+                        var data = Token.VerifyToken(token);
+                        if (data != null)
+                        {
+                            int id = int.Parse(data["id"]);
+                            var customer = CustomerController.SearchById(id);
+                            var favorites = customer.Favorites.ToList();
+                            foreach (var favorite in favorites)
+                            {
+                                if (!islike)
+                                {
+                                    foreach (var elem in favorite.Favoritestays.ToList())
+                                    {
+                                        if (elem.StayId == stayId)
+                                        {
+                                            islike = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    info.isLike = islike;
+                    info.stayCommentNum =(int) stay.CommentNum;
+                    info.stayLabel = myContext.StayLabels.Where(s => s.StayId == stay.StayId).Select(c => c.LabelName).ToList();
+                    info.stayPrice = stay.Rooms.First().Price;
+                    info.stayPosition = new decimal[] { stay.Longitude, stay.Latitude };
+                    message.data["stayPositionNum"] = 1;
+                    message.data["stayPositionInfo"] = info;
+                }
+
+            }
+            catch
+            {
+
+            }
+            return message.ReturnJson();
+
+        }
 
     }
 }
