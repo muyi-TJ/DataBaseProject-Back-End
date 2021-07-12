@@ -60,6 +60,39 @@ namespace Back_End.Controllers
 
         }
 
+        public static Administrator SearchByName(string name)
+        {
+            try
+            {
+                ModelContext modelContext = new ModelContext();
+                var admin = modelContext.Administrators
+                    .Single(b => b.AdminUsername == name);
+                return admin;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public static bool AdminLoginByName(Administrator admin,string password)
+        {
+            try
+            {
+                if(admin==null)
+                {
+                    return false;
+                }
+                else
+                {
+                    return admin.AdminPassword == password;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
 
         [HttpGet("examineStay")]
         public string GetStayByPage()

@@ -96,5 +96,41 @@ namespace Back_End.Controllers
             return loginMessage.ReturnJson();
         }
 
+        [HttpPost("administrator")]
+        public string AdminLoginByName()
+        {
+            LoginMessage loginMessage = new LoginMessage();
+            string adminName = Request.Form["adminName"];
+            string password = Request.Form["password"];
+            if(adminName!=null&&password!=null)
+            {
+                loginMessage.errorCode = 200;
+            }
+            Administrator admin = AdministratorController.SearchByName(adminName);
+            if(AdministratorController.AdminLoginByName(admin,password))
+            {
+                loginMessage.data["loginState"] = true;
+                loginMessage.data["userName"] = admin.AdminUsername;
+                loginMessage.data["userAvatar"] = admin.AdminAvatar;
+                var token = Token.GetToken(new TokenInfo()
+                {
+                    id = admin.AdminId.ToString(),
+                    password = password,
+                });
+                loginMessage.data.Add("token", token);
+                //Response.Headers.Add("Access-Control-Expose-Headers", "Token");
+                //Response.Headers.Add("Token", token);
+                //Response.Cookies.Append("Token", token, new CookieOptions() { Path = "/", HttpOnly=true});
+                CookieOptions cookieOptions = new CookieOptions();
+                cookieOptions.Path = "/";
+                cookieOptions.HttpOnly = false;
+                cookieOptions.SameSite = SameSiteMode.Lax;
+                cookieOptions.MaxAge = new TimeSpan(0, 10, 0);
+                Response.Cookies.Append("Token", token, cookieOptions);
+
+            }
+            return loginMessage.ReturnJson();
+        }
+
     }
 }
