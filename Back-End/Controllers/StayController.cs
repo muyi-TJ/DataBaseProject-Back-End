@@ -15,8 +15,11 @@ namespace Back_End.Controllers
     [Route("api/[controller]")]
     public class StayController : ControllerBase
     {
-        readonly ModelContext context = new ModelContext();
-        
+        private readonly ModelContext myContext;
+        StayController(ModelContext modelContext)
+        {
+            myContext = modelContext;
+        }
         
         [HttpGet("getstay")]
         public string GetStaysByPos()
@@ -29,7 +32,8 @@ namespace Back_End.Controllers
         {
             try
             {
-                var stay = ModelContext.Instance.Stays
+                ModelContext context = new ModelContext();
+                var stay = context.Stays
                     .Single(b => b.StayId == id);
                 return stay;
             }
@@ -50,12 +54,12 @@ namespace Back_End.Controllers
         // 根据最低价格选取6个价格最低的
         [HttpGet("getStayByPrice")]
         public string GetStayByPrice() {
-            //var context = ModelContext.Instance; 
+            //var context = context; 
             //context.DetachAll();
             var message = new GetStayMessage();
             message.data.Add("stayList", new List<StayInfo>());
             try {
-                var staySelectList = context.Rooms
+                var staySelectList = myContext.Rooms
                     .GroupBy(r => r.StayId)
                     .OrderBy(r => r.Min(x => x.Price))
                     .Select(g => new StayInfo {
@@ -66,10 +70,10 @@ namespace Back_End.Controllers
                 if (staySelectList.Count > 6)
                     staySelectList.RemoveRange(6, staySelectList.Count - 6);
                 foreach (var staySelect in staySelectList) {
-                    var stay = context.Stays.Single(b => b.StayId == staySelect.stayId);
+                    var stay = myContext.Stays.Single(b => b.StayId == staySelect.stayId);
                     staySelect.stayCharcateristic = stay.Characteristic;
                     staySelect.stayName = stay.StayName;
-                    staySelect.stayPhoto = context.RoomPhotos.Where(b => b.StayId == staySelect.stayId).FirstOrDefault().RPhoto;
+                    staySelect.stayPhoto = myContext.RoomPhotos.Where(b => b.StayId == staySelect.stayId).FirstOrDefault().RPhoto;
                 }
                 message.data["stayList"] = staySelectList;
                 message.errorCode = 200;
@@ -84,12 +88,12 @@ namespace Back_End.Controllers
         // 根据用户评分选取4个最高的
         [HttpGet("getStayByScore")]
         public string GetStayByScore() {
-            //var context = ModelContext.Instance;
+            //var context = context;
             //context.DetachAll();
             var message = new GetStayMessage();
             message.data.Add("stayList", new List<StayInfo>());
             try {
-                var staySelectList = context.Stays.
+                var staySelectList = myContext.Stays.
                     OrderByDescending(r => r.CommentScore > 0 ? ((float)r.CommentScore / (float)r.CommentNum) : 0)
                     .Select(g => new StayInfo {
                         stayId = g.StayId
@@ -100,9 +104,9 @@ namespace Back_End.Controllers
                     staySelectList.RemoveRange(4, staySelectList.Count - 4);
 
                 foreach (var staySelect in staySelectList) {
-                    var stay = context.Stays.Single(b => b.StayId == staySelect.stayId);
-                    staySelect.stayPhoto = context.RoomPhotos.Where(b => b.StayId == staySelect.stayId).FirstOrDefault().RPhoto;
-                    staySelect.stayPrice = context.Rooms.Where(b => b.StayId == staySelect.stayId).Min(x => x.Price);
+                    var stay = myContext.Stays.Single(b => b.StayId == staySelect.stayId);
+                    staySelect.stayPhoto = myContext.RoomPhotos.Where(b => b.StayId == staySelect.stayId).FirstOrDefault().RPhoto;
+                    staySelect.stayPrice = myContext.Rooms.Where(b => b.StayId == staySelect.stayId).Min(x => x.Price);
                     staySelect.stayCharcateristic = stay.Characteristic;
                     staySelect.stayName = stay.StayName;
                 }
@@ -119,12 +123,12 @@ namespace Back_End.Controllers
         // 根据用户评论数选取前4个评论最多的
         [HttpGet("getStayByHot")]
         public string GetStayByHot() {
-            //var context = ModelContext.Instance;
+            //var context = context;
             //context.DetachAll();
             var message = new GetStayMessage();
             message.data.Add("stayList", new List<StayInfo>());
             try {
-                var staySelectList = context.Stays.
+                var staySelectList = myContext.Stays.
                     OrderByDescending(r => r.CommentNum)
                     .Select(g => new StayInfo {
                         stayId = g.StayId
@@ -135,9 +139,9 @@ namespace Back_End.Controllers
                     staySelectList.RemoveRange(4, staySelectList.Count - 4);
 
                 foreach (var staySelect in staySelectList) {
-                    var stay = context.Stays.Single(b => b.StayId == staySelect.stayId);
-                    staySelect.stayPhoto = context.RoomPhotos.Where(b => b.StayId == staySelect.stayId).FirstOrDefault().RPhoto;
-                    staySelect.stayPrice = context.Rooms.Where(b => b.StayId == staySelect.stayId).Min(x => x.Price);
+                    var stay = myContext.Stays.Single(b => b.StayId == staySelect.stayId);
+                    staySelect.stayPhoto = myContext.RoomPhotos.Where(b => b.StayId == staySelect.stayId).FirstOrDefault().RPhoto;
+                    staySelect.stayPrice = myContext.Rooms.Where(b => b.StayId == staySelect.stayId).Min(x => x.Price);
                     staySelect.stayCharcateristic = stay.Characteristic;
                     staySelect.stayName = stay.StayName;
                 }
@@ -170,7 +174,7 @@ namespace Back_End.Controllers
                 decimal up = decimal.Parse(Request.Query["northLat"]);
                 decimal down = decimal.Parse(Request.Query["southLat"]);
                 bool cross = left * right < 0 && right - left < 0;
-                var stays = ModelContext.Instance.Stays.Where(s => IsInMap(left, right, up, down, s.Latitude, s.Longitude,cross))
+                var stays = myContext.Stays.Where(s => IsInMap(left, right, up, down, s.Latitude, s.Longitude,cross))
                     .Select(c=>new StayInMapInfo{stayID=c.StayId,stayPrice=c.Rooms.First().Price,
                         stayPosition = new decimal[]{ c.Longitude, c.Latitude } }).ToList();
                 message.errorCode = 200;

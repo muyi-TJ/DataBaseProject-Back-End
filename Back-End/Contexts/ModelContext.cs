@@ -19,7 +19,6 @@ namespace Back_End.Contexts
         {
         }
 
-        static public ModelContext Instance { get; } = new ModelContext();
         public virtual DbSet<Administrator> Administrators { get; set; }
         public virtual DbSet<AdministratorStay> AdministratorStays { get; set; }
         public virtual DbSet<Area> Areas { get; set; }

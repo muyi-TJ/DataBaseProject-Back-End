@@ -13,7 +13,11 @@ namespace Back_End.Controllers {
     [ApiController]
     [Route("api/[controller]")]
     public class CustomerFavoriteController : ControllerBase {
-
+        private readonly ModelContext mycontext;
+        public CustomerFavoriteController(ModelContext modelContext)
+        {
+            mycontext = modelContext;
+        }
         public class CustomerFavoriteMessage {
             public int errorCode { get; set; }
             public Dictionary<string, dynamic> data { get; set; } = new Dictionary<string, dynamic>();
@@ -48,7 +52,7 @@ namespace Back_End.Controllers {
             
             if (Request.Headers.TryGetValue("token", out token)) {
                 try {
-                    var context = ModelContext.Instance;
+                    var context = mycontext;
                     context.DetachAll();
                     Favorite favorite = new Favorite() { FavoriteId = favoriteId };
                     context.Remove(favorite);
@@ -73,7 +77,7 @@ namespace Back_End.Controllers {
             if (Request.Headers.TryGetValue("token", out token)) {
                 var data = Token.VerifyToken(token);
                 if (data != null) {
-                    var context = ModelContext.Instance;
+                    var context = mycontext;
                     context.DetachAll();
                     int customerId = int.Parse(data["id"]);
                     List<FavoriteInfo> favoriteList = new List<FavoriteInfo>();
@@ -114,7 +118,7 @@ namespace Back_End.Controllers {
             if (Request.Headers.TryGetValue("token", out token)) {
                 var data = Token.VerifyToken(token);
                 if (data != null) {
-                    var context = ModelContext.Instance;
+                    var context = mycontext;
                     context.DetachAll();
                     int customerId = int.Parse(data["id"]);
 
@@ -150,7 +154,7 @@ namespace Back_End.Controllers {
             if (Request.Headers.TryGetValue("token", out token)) {
                 var data = Token.VerifyToken(token);
                 if (data != null) {
-                    var context = ModelContext.Instance;
+                    var context = mycontext;
                     context.DetachAll();
                     int customerId = int.Parse(data["id"]);
 

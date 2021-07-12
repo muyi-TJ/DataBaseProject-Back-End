@@ -14,21 +14,26 @@ namespace Back_End.Controllers
     [Route("api/[controller]")]
     public class RegisterController : ControllerBase
     {
+        private readonly ModelContext myContext;
+        public RegisterController(ModelContext modelContext)
+        {
+            myContext = modelContext;
+        }
         [HttpPost("customer")]
         public string CustomerRegister()
         {
             RegisterMessage registerMessage = new RegisterMessage();
             try
             {
-                ModelContext.Instance.DetachAll();
+                myContext.DetachAll();
                 Customer customer = new Customer();
                 customer.CustomerName = Request.Form["username"];
                 customer.CustomerPassword = Request.Form["password"];
                 customer.CustomerPrephone = Request.Form["prenumber"];
                 customer.CustomerPhone = Request.Form["phonenumber"];
                 customer.CustomerCreatetime = DateTime.Now;
-                ModelContext.Instance.Add(customer);
-                ModelContext.Instance.SaveChanges();
+                myContext.Add(customer);
+                myContext.SaveChanges();
                 registerMessage.errorCode = 200;
                 registerMessage.data["registerState"] = true;
             }
@@ -46,7 +51,7 @@ namespace Back_End.Controllers
             RegisterMessage registerMessage = new RegisterMessage();
             try
             {
-                ModelContext.Instance.DetachAll();
+                myContext.DetachAll();
                 Host host = new Host();
                 host.HostUsername = Request.Form["username"];
                 host.HostPassword = Request.Form["password"];
@@ -56,8 +61,8 @@ namespace Back_End.Controllers
                 host.HostIdnumber = Request.Form["ID"];
                 host.HostGender = Request.Form["gender"].ToString().ToUpper();
                 host.HostCreateTime = DateTime.Now;
-                ModelContext.Instance.Add(host);
-                ModelContext.Instance.SaveChanges();
+                myContext.Add(host);
+                myContext.SaveChanges();
                 registerMessage.errorCode = 200;
                 registerMessage.data["registerState"] = true;
             }
