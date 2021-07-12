@@ -147,6 +147,9 @@ namespace Back_End.Controllers {
                         customerDetailMessage.data["userScore"] = customer.CustomerDegree;
                         customerDetailMessage.data["registerDate"] = customer.CustomerCreatetime;
                         customerDetailMessage.data["hostCommentList"] = comments;
+                        customerDetailMessage.data["mood"] = customer.CustomerMood;
+                        customerDetailMessage.data["userBirthDate"] = customer.CustomerBirthday;
+                        customerDetailMessage.data["userSex"] = customer.CustomerGender;
                     }
 
                 }
@@ -212,12 +215,14 @@ namespace Back_End.Controllers {
             {
                 message.errorCode = 300;
                 var data = Token.VerifyToken(token);
-                if(data!=null)
+                if (data != null)
                 {
                     ModelContext.Instance.DetachAll();
                     int id = int.Parse(data["id"]);
                     var customer = SearchById(id);
                     string sex = Request.Form["userSex"];
+                    int mood = -1;
+                    int.TryParse(Request.Form["mood"].ToString(), out mood);
                     DateTime birthday;
                     customer.CustomerName = Request.Form["userNickName"];
                     if (sex != null)
@@ -227,6 +232,10 @@ namespace Back_End.Controllers {
                     if (DateTime.TryParse(Request.Form["userBirthDate"], out birthday))
                     {
                         customer.CustomerBirthday = birthday;
+                    }
+                    if (mood != -1)
+                    {
+                        customer.CustomerMood = mood;
                     }
                     try
                     {

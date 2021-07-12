@@ -63,6 +63,9 @@ namespace Back_End
             data.Add("userScore", null);
             data.Add("registerDate", null);
             data.Add("hostCommentList", null);
+            data.Add("mood", null);
+            data.Add("userBirthDate", null);
+            data.Add("userSex", null);
         }
     }
 
