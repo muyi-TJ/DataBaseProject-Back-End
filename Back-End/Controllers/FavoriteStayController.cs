@@ -75,6 +75,34 @@ namespace Back_End.Controllers {
             return message.ReturnJson();  
         }
 
+        [HttpDelete("stay")]
+        public string DeleteStay(int stayID = -1) {
+            FavoriteStayMessage message = new FavoriteStayMessage();
+            StringValues token = default(StringValues);
+            if (Request.Headers.TryGetValue("token", out token)) {
+                var data = Token.VerifyToken(token);
+                if (data != null) {
+                    var context = ModelContext.Instance;
+                    context.DetachAll();
+
+                    try {
+                        int customerId = int.Parse(data["id"]);
+                        context.RemoveRange(context.Favoritestays.Where(b => b.StayId == stayID && b.Favorite.CustomerId == customerId));
+                        context.SaveChanges();
+                        message.errorCode = 200;
+                        return message.ReturnJson();
+                    }
+                    catch (Exception e) {
+                        Console.WriteLine(e.ToString());
+                        message.errorCode = 300;
+                        return message.ReturnJson();
+                    }
+                }
+            }
+            return message.ReturnJson();
+        }
+
+
         [HttpGet]
         public string GetFavoriteStay(int favoriteId = -1) {
             FavoriteStayMessage message = new FavoriteStayMessage();
