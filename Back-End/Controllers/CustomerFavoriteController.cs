@@ -31,6 +31,7 @@ namespace Back_End.Controllers {
             public int favoriteId { get; set; }
             public string name { get; set; }
             public int totalStay { get; set; }
+            public string imgurl { get; set; }
         }
 
         [HttpPut]
@@ -78,12 +79,16 @@ namespace Back_End.Controllers {
                     List<FavoriteInfo> favoriteList = new List<FavoriteInfo>();
                     try {
                         var favorites = context.Favorites.Where(b => b.CustomerId == customerId).ToList();
+                        
                         foreach (var favorite in favorites) {
                             int totalStay = context.Favoritestays.Count(b => b.FavoriteId == favorite.FavoriteId);
+                            var favoriteStay = context.Favoritestays.Where(b => b.FavoriteId == favorite.FavoriteId).FirstOrDefault();
+                            var roomPhoto = favoriteStay==null?null: context.RoomPhotos.Where(b => b.StayId == favoriteStay.StayId).First().RPhoto;
                             favoriteList.Add(new FavoriteInfo {
                                 favoriteId = favorite.FavoriteId,
                                 name = favorite.Name,
-                                totalStay = totalStay
+                                totalStay = totalStay,
+                                imgurl = roomPhoto
                             });
                         }
                         message.errorCode = 200;

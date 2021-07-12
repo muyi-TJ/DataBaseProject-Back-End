@@ -13,7 +13,7 @@ namespace Back_End.Models
         }
 
         public int OrderId { get; set; }
-        public int? CustomerId { get; set; }
+        public int CustomerId { get; set; }
         public DateTime? OrderTime { get; set; }
         public decimal MemberNum { get; set; }
         public decimal TotalCost { get; set; }

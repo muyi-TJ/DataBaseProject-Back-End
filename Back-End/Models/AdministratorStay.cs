@@ -11,7 +11,6 @@ namespace Back_End.Models
         public int StayId { get; set; }
         public decimal ValidateResult { get; set; }
         public string ValidateReply { get; set; }
-        public DateTime ValCreateTime { get; set; }
         public DateTime ValReplyTime { get; set; }
 
         public virtual Administrator Admin { get; set; }

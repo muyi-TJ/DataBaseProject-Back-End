@@ -15,6 +15,9 @@ namespace Back_End.Controllers
     [Route("api/[controller]")]
     public class StayController : ControllerBase
     {
+        readonly ModelContext context = new ModelContext();
+        
+        
         [HttpGet("getstay")]
         public string GetStaysByPos()
         {
@@ -47,8 +50,8 @@ namespace Back_End.Controllers
         // 根据最低价格选取6个价格最低的
         [HttpGet("getStayByPrice")]
         public string GetStayByPrice() {
-            var context = ModelContext.Instance;
-            context.DetachAll();
+            //var context = ModelContext.Instance; 
+            //context.DetachAll();
             var message = new GetStayMessage();
             message.data.Add("stayList", new List<StayInfo>());
             try {
@@ -81,8 +84,8 @@ namespace Back_End.Controllers
         // 根据用户评分选取4个最高的
         [HttpGet("getStayByScore")]
         public string GetStayByScore() {
-            var context = ModelContext.Instance;
-            context.DetachAll();
+            //var context = ModelContext.Instance;
+            //context.DetachAll();
             var message = new GetStayMessage();
             message.data.Add("stayList", new List<StayInfo>());
             try {
@@ -116,8 +119,8 @@ namespace Back_End.Controllers
         // 根据用户评论数选取前4个评论最多的
         [HttpGet("getStayByHot")]
         public string GetStayByHot() {
-            var context = ModelContext.Instance;
-            context.DetachAll();
+            //var context = ModelContext.Instance;
+            //context.DetachAll();
             var message = new GetStayMessage();
             message.data.Add("stayList", new List<StayInfo>());
             try {
