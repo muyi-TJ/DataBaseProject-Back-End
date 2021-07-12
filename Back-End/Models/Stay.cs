@@ -14,6 +14,7 @@ namespace Back_End.Models
             Favoritestays = new HashSet<Favoritestay>();
             Nears = new HashSet<Near>();
             Rooms = new HashSet<Room>();
+            StayLabels = new HashSet<StayLabel>();
         }
 
         public int StayId { get; set; }
@@ -48,5 +49,6 @@ namespace Back_End.Models
         public virtual ICollection<Favoritestay> Favoritestays { get; set; }
         public virtual ICollection<Near> Nears { get; set; }
         public virtual ICollection<Room> Rooms { get; set; }
+        public virtual ICollection<StayLabel> StayLabels { get; set; }
     }
 }
