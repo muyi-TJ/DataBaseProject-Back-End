@@ -210,4 +210,13 @@ namespace Back_End
             data.Add("isSuccess", false);
         }
     }
+
+    public class GetStayTypeMessage:Message
+    {
+        public GetStayTypeMessage()
+        {
+            errorCode = 300;
+            data.Add("typeList", null);
+        }
+    }
 }
