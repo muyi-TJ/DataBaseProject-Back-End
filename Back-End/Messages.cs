@@ -210,4 +210,29 @@ namespace Back_End
             data.Add("isSuccess", false);
         }
     }
+
+    public class GetHostInfoMessage:Message {
+        public GetHostInfoMessage() {
+            errorCode = 400;
+            data.Add("hostAvatar", null);
+            data.Add("hostNickName", null);
+            data.Add("hostRealName", null);
+            data.Add("hostSex", null);
+            data.Add("hostLevel", null);
+            data.Add("hostLevelName", null);
+            data.Add("hostScore", null);
+            data.Add("publishedNum", null);
+            data.Add("unpublishedNum", null);
+            data.Add("pendingReviewNum", null);
+            data.Add("reviewNum", null);
+            data.Add("emailTag", null);
+            data.Add("phoneTag", null);
+            data.Add("authenticationTag", null);
+            data.Add("hostCreateTime", null);
+            data.Add("averageRate", null);
+            data.Add("unpublishedStayInfo", null);
+            data.Add("pendingStayInfo", null);
+            data.Add("publishedHouseInfo", null);
+        }
+    }
 }

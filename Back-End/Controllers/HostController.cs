@@ -10,6 +10,7 @@ using Back_End.Contexts;
 using Back_End.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
+using System.Collections.Generic;
 
 
 //简单测试
@@ -166,6 +167,75 @@ namespace Back_End.Controllers
             return message.ReturnJson();
         }
 
+        [HttpGet("hostInfo")]
+        public string GetHostInfo() {
+            GetHostInfoMessage message = new GetHostInfoMessage();
+            StringValues token = default(StringValues);
+            if (Request.Headers.TryGetValue("token", out token)) {
+                var data = Token.VerifyToken(token);
+                if (data != null) {
+                    try {
+                        //ModelContext context = new ModelContext();
+                        int hostId = int.Parse(data["id"]);
+                        var host = context.Hosts.Single(b => b.HostId == hostId);
 
+                        message.data["hostAvatar"] = host.HostAvatar;
+                        message.data["hostNickName"] = host.HostUsername;
+                        message.data["hostRealName"] = host.HostRealname;
+                        message.data["hostSex"] = host.HostGender == "M" ? "男" : "女";
+                        message.data["hostLevel"] = host.HostLevel == null ? null : host.HostLevel;
+                        message.data["hostLevelName"] = host.HostLevel == null ? null : host.HostLevelNavigation.HostLevelName;
+                        int commentNum = 0, commentScore = 0;
+                        int publishedNum = 0, unpublishedNum = 0, pendingReviewNum = 0;
+                        foreach (var stay in host.Stays) {
+                            commentNum += (int)stay.CommentNum;
+                            commentScore += (int)stay.CommentScore;
+                            if (stay.StayStatus == 0)
+                                unpublishedNum += 1;
+                            else if (stay.StayStatus == 1)
+                                pendingReviewNum += 1;
+                            else if (stay.StayStatus == 2)
+                                pendingReviewNum += 1;
+                        }
+                        message.data["hostScore"] = host.HostScore;
+                        message.data["publishedNum"] = publishedNum;
+                        message.data["unpublishedNum"] = unpublishedNum;
+                        message.data["pendingReviewNum"] = pendingReviewNum;
+                        message.data["reviewNum"] = commentNum;
+                        message.data["emailTag"] = host.HostEmail == null ? false : true;
+                        message.data["phoneTag"] = host.HostPhone == null ? false : true;
+                        message.data["authenticationTag"] = true;
+                        message.data["authenticationTag"] = host.HostCreateTime;
+                        message.data["averageRate"] = commentNum == 0 ? 0 : ((float)commentScore / (float)commentNum);
+                        message.data["unpublishedStayInfo"] = new List<Dictionary<string, dynamic>>();
+                        message.data["pendingStayInfo"] = new List<Dictionary<string, dynamic>>();
+                        message.data["publishedHouseInfo"] = new List<Dictionary<string, dynamic>>();
+                        /*foreach (var stay in host.Stays) {
+                            var stayInfo = new Dictionary<string, dynamic>();
+                            if (stay.StayStatus == 0) {
+                                int imgListNum = 0, stayPrice = 0;
+                                var stayImgList = new List<string>();
+                                foreach (var room in stay.Rooms) {
+
+
+                                }
+                                stayInfo.Add("stayId", stay.StayId);
+                                stayInfo.Add("imgListNum",);
+                                stayInfo.Add("stayType", stay.StayType);
+                                stayInfo.Add("stayNickName", stay.StayName);
+                                stayInfo.Add("stayPlace", stay.DetailedAddress);
+
+                                stayInfo.Add("stayPrice",)
+                            }
+                        }*/
+
+                    }
+                    catch(Exception e) {
+
+                    }
+                }
+            }
+            return "hh";
+        }
     }
 }

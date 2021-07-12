@@ -1,3 +1,4 @@
+using Back_End.Contexts;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -33,7 +34,7 @@ namespace Back_End {
                     .AllowCredentials(); 
                 });
             });
-
+            services.AddScoped<ModelContext>();
            // services.AddCors(options => {
                // options.AddPolicy(MyAllowSpecificOrigins, builder => {
                 //builder

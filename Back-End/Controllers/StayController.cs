@@ -16,7 +16,7 @@ namespace Back_End.Controllers
     public class StayController : ControllerBase
     {
         private readonly ModelContext myContext;
-        StayController(ModelContext modelContext)
+        public StayController(ModelContext modelContext)
         {
             myContext = modelContext;
         }
