@@ -109,15 +109,6 @@ namespace Back_End
             
     }
 
-    public class GetStaysByPosMessage:Message
-    {
-        public GetStaysByPosMessage()
-        {
-            errorCode = 300;
-            data.Add("staynum", 0);
-            data.Add("stayinfo", null);
-        }
-    }
 
     public class GetStayByPageMessage:Message
     {
@@ -183,9 +174,9 @@ namespace Back_End
         }
     }
 
-    public class GetStayByLngAndLatMessage:Message
+    public class GetStayInfoMessage:Message
     {
-        public GetStayByLngAndLatMessage()
+        public GetStayInfoMessage()
         {
             errorCode = 300;
             data.Add("stayPositionNum", 0);

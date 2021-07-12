@@ -10,6 +10,7 @@ using Back_End.Contexts;
 using Back_End.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
+using Microsoft.EntityFrameworkCore;
 
 
 //简单测试
@@ -20,10 +21,10 @@ namespace Back_End.Controllers
     public class HostController : ControllerBase
     {
         //GET: api/<Host>
-        private readonly ModelContext context;
+        private readonly ModelContext myContext;
         public HostController(ModelContext modelContext)
         {
-            context = modelContext;
+            myContext = modelContext;
         }
 
         public static Host SearchById(int id)
@@ -48,7 +49,7 @@ namespace Back_End.Controllers
         {
             try
             {
-                var host = context.Hosts
+                var host = myContext.Hosts
                     .Single(b => b.HostId == id);
                 return JsonSerializer.Serialize(host);
             }
@@ -118,13 +119,14 @@ namespace Back_End.Controllers
             if (phone != null && preNumber != null)
             {
                 var host = SearchByPhone(phone, preNumber);
+                myContext.Entry(host).State = EntityState.Unchanged;
                 if (password != null)
                 {
                     message.errorCode = 200;
                     host.HostPassword = password;
                     try
                     {
-                        context.SaveChanges();
+                        myContext.SaveChanges();
                         message.data["changestate"] = true;
                     }
                     catch
@@ -143,16 +145,17 @@ namespace Back_End.Controllers
                     var data = Token.VerifyToken(token);
                     if (data != null)
                     {
-                        context.DetachAll();
+                        myContext.DetachAll();
                         int id = int.Parse(data["id"]);
                         var host = SearchById(id);
+                        myContext.Entry(host).State = EntityState.Unchanged;
                         if (password != null)
                         {
                             message.errorCode = 200;
                             host.HostPassword = password;
                             try
                             {
-                                context.SaveChanges();
+                                myContext.SaveChanges();
                                 message.data["changestate"] = true;
                             }
                             catch

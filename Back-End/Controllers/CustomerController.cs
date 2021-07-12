@@ -16,6 +16,7 @@ using Aliyun.OSS.Util;
 using System.Security.Cryptography;
 using Aliyun.OSS;
 using System.Text.RegularExpressions;
+using Microsoft.EntityFrameworkCore;
 
 
 
@@ -164,6 +165,7 @@ namespace Back_End.Controllers
                     myContext.DetachAll();
                     int id = int.Parse(data["id"]);
                     var customer = SearchById(id);
+                    myContext.Entry(customer).State = EntityState.Unchanged;
                     string photo = Request.Form["avatarCode"];
                     Console.WriteLine(photo + "200");
                     if (photo != null)
@@ -204,6 +206,7 @@ namespace Back_End.Controllers
                     myContext.DetachAll();
                     int id = int.Parse(data["id"]);
                     var customer = SearchById(id);
+                    myContext.Entry(customer).State = EntityState.Unchanged;
                     string sex = Request.Form["userSex"];
                     int mood = -1;
                     int.TryParse(Request.Form["mood"].ToString(), out mood);
@@ -245,7 +248,9 @@ namespace Back_End.Controllers
             string password = Request.Form["password"];
             if (phone!=null&&preNumber!=null)
             {
+                myContext.DetachAll();
                 var customer = SearchByPhone(phone, preNumber);
+                myContext.Entry(customer).State = EntityState.Unchanged;
                 if (password != null)
                 {
                     message.errorCode = 200;
