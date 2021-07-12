@@ -147,5 +147,64 @@ namespace Back_End.Controllers
                 return message.ReturnJson();
             }
         }
+
+
+        class StayInMapInfo
+        {
+            public int stayID { get; set; }
+            public int stayPrice { get; set; }
+            public decimal[] stayPosition { get; set; }
+        }
+
+        [HttpGet("getRoughStay")]
+        public string GetStayByLngAndLat()
+        {
+            GetStayByLngAndLatMessage message = new GetStayByLngAndLatMessage();
+            try
+            {
+                decimal left = decimal.Parse(Request.Query["westLng"]);
+                decimal right = decimal.Parse(Request.Query["eastLng"]);
+                decimal up = decimal.Parse(Request.Query["northLat"]);
+                decimal down = decimal.Parse(Request.Query["southLat"]);
+                bool cross = left * right < 0 && right - left < 0;
+                var stays = ModelContext.Instance.Stays.Where(s => IsInMap(left, right, up, down, s.Latitude, s.Longitude,cross))
+                    .Select(c=>new StayInMapInfo{stayID=c.StayId,stayPrice=c.Rooms.First().Price,
+                        stayPosition = new decimal[]{ c.Longitude, c.Latitude } }).ToList();
+                message.errorCode = 200;
+                message.data["stayPositionNum"] = stays.Count;
+                message.data["stayPositionInfo"] = stays;
+            }
+            catch
+            {
+
+            }
+            return message.ReturnJson();
+        }
+
+        private bool IsInMap(decimal left,decimal right,decimal up,decimal down,decimal lat,decimal lng,bool cross)
+        {
+            if(lat<up&&lat>down)
+            {
+                if(cross)
+                {
+                    if(lng>left||lng<right)
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    if (lng > left && lng <right)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+
+
+
     }
 }

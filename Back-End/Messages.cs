@@ -182,4 +182,14 @@ namespace Back_End
             data.Add("trueID", null);
         }
     }
+
+    public class GetStayByLngAndLatMessage:Message
+    {
+        public GetStayByLngAndLatMessage()
+        {
+            errorCode = 300;
+            data.Add("stayPositionNum", 0);
+            data.Add("stayPositionInfo", null);
+        }
+    }
 }
