@@ -192,4 +192,22 @@ namespace Back_End
             data.Add("stayPositionInfo", null);
         }
     }
+
+    public class GetNearByPageMessage:Message
+    {
+        public GetNearByPageMessage()
+        {
+            errorCode = 400;
+            data.Add("nearbyList", null);
+        }
+    }
+
+    public class UploadStayExamineMessage:Message
+    {
+        public UploadStayExamineMessage()
+        {
+            errorCode = 400;
+            data.Add("isSuccess", false);
+        }
+    }
 }

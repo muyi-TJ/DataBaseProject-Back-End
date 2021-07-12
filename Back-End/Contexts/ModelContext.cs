@@ -765,8 +765,9 @@ namespace Back_End.Contexts
 
                 entity.Property(e => e.OrderId)
                     .HasPrecision(10)
-                    .ValueGeneratedNever()
-                    .HasColumnName("ORDER_ID");
+                    .ValueGeneratedOnAdd()
+                    .UseHiLo("SEQ")
+                    .HasColumnName("CUSTOMER_ID");
 
                 entity.Property(e => e.CustomerId)
                     .HasPrecision(10)
