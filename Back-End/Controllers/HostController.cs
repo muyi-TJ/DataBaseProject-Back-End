@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using Back_End.Contexts;
 using Back_End.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
 
 
 //简单测试
@@ -122,6 +123,20 @@ namespace Back_End.Controllers
                 return false;
             }
         }
+        public static Host SearchById(int id)
+        {
+            try
+            {
+                var host = ModelContext.Instance.Hosts
+                    .Single(b => b.HostId == id);
+                return host;
+            }
+            catch
+            {
+                return null;
+            }
+
+        }
 
 
         [HttpGet("GetById")]
@@ -187,6 +202,65 @@ namespace Back_End.Controllers
             }
             return checkPhoneMessage.ReturnJson();
         }
+
+        [HttpPost("changepassword")]
+        public string ChangeCustomerPassword()
+        {
+            ChangePasswordMessage message = new ChangePasswordMessage();
+            string phone = Request.Form["phone"];
+            string preNumber = Request.Form["prenumber"];
+            string password = Request.Form["password"];
+            if (phone != null && preNumber != null)
+            {
+                var host = SearchByPhone(phone, preNumber);
+                if (password != null)
+                {
+                    message.errorCode = 200;
+                    host.HostPassword = password;
+                    try
+                    {
+                        ModelContext.Instance.SaveChanges();
+                        message.data["changestate"] = true;
+                    }
+                    catch
+                    {
+
+                    }
+
+                }
+            }
+            else
+            {
+                StringValues token = default(StringValues);
+                if (Request.Headers.TryGetValue("token", out token))
+                {
+                    message.errorCode = 300;
+                    var data = Token.VerifyToken(token);
+                    if (data != null)
+                    {
+                        ModelContext.Instance.DetachAll();
+                        int id = int.Parse(data["id"]);
+                        var host = SearchById(id);
+                        if (password != null)
+                        {
+                            message.errorCode = 200;
+                            host.HostPassword = password;
+                            try
+                            {
+                                ModelContext.Instance.SaveChanges();
+                                message.data["changestate"] = true;
+                            }
+                            catch
+                            {
+
+                            }
+                        }
+                    }
+                }
+            }
+            return message.ReturnJson();
+        }
+
 
     }
 }

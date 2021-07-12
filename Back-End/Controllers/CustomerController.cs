@@ -259,29 +259,53 @@ namespace Back_End.Controllers
         public string ChangeCustomerPassword()
         {
             ChangePasswordMessage message = new ChangePasswordMessage();
-            StringValues token = default(StringValues);
-            if (Request.Headers.TryGetValue("token", out token))
+            string phone = Request.Form["phone"];
+            string preNumber = Request.Form["prenumber"];
+            string password = Request.Form["password"];
+            if (phone!=null&&preNumber!=null)
             {
-                message.errorCode = 300;
-                var data = Token.VerifyToken(token);
-                if (data != null)
+                var customer = SearchByPhone(phone, preNumber);
+                if (password != null)
                 {
-                    ModelContext.Instance.DetachAll();
-                    int id = int.Parse(data["id"]);
-                    var customer = SearchById(id);
-                    string password = Request.Form["password"];
-                    if (password != null)
+                    message.errorCode = 200;
+                    customer.CustomerPassword = password;
+                    try
                     {
-                        message.errorCode = 200;
-                        customer.CustomerPassword = password;
-                        try
-                        {
-                            ModelContext.Instance.SaveChanges();
-                            message.data["changestate"] = true;
-                        }
-                        catch
-                        {
+                        ModelContext.Instance.SaveChanges();
+                        message.data["changestate"] = true;
+                    }
+                    catch
+                    {
 
+                    }
+
+                }
+            }
+            else
+            {
+                StringValues token = default(StringValues);
+                if (Request.Headers.TryGetValue("token", out token))
+                {
+                    message.errorCode = 300;
+                    var data = Token.VerifyToken(token);
+                    if (data != null)
+                    {
+                        ModelContext.Instance.DetachAll();
+                        int id = int.Parse(data["id"]);
+                        var customer = SearchById(id);
+                        if (password != null)
+                        {
+                            message.errorCode = 200;
+                            customer.CustomerPassword = password;
+                            try
+                            {
+                                ModelContext.Instance.SaveChanges();
+                                message.data["changestate"] = true;
+                            }
+                            catch
+                            {
+
+                            }
                         }
                     }
                 }
