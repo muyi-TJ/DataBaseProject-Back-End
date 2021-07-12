@@ -1004,7 +1004,8 @@ namespace Back_End.Contexts
 
                 entity.Property(e => e.StayId)
                     .HasPrecision(10)
-                    .ValueGeneratedNever()
+                    .ValueGeneratedOnAdd()
+                    .UseHiLo("SEQ")
                     .HasColumnName("STAY_ID");
 
                 entity.Property(e => e.AreaId)
