@@ -82,7 +82,7 @@ namespace Back_End.Controllers {
             if (Request.Headers.TryGetValue("token", out token)) {
                 var data = Token.VerifyToken(token);
                 if (data != null) {
-                    var context = ModelContext.Instance;
+                    var context = myContext;
                     context.DetachAll();
 
                     try {
