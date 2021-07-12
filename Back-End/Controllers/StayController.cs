@@ -163,7 +163,7 @@ namespace Back_End.Controllers
             public decimal[] stayPosition { get; set; }
         }
 
-        [HttpGet("getRoughStay")]
+        [HttpGet("getPositions")]
         public string GetStayByLngAndLat()
         {
             GetStayByLngAndLatMessage message = new GetStayByLngAndLatMessage();
@@ -210,7 +210,22 @@ namespace Back_End.Controllers
             return false;
         }
 
+        [HttpGet("type")]
+        public string GetAllStayType()
+        {
+            GetStayTypeMessage message = new GetStayTypeMessage();
+            try
+            {
+                message.errorCode = 200;
+                var stayType = myContext.StayTypes.Select(c => c.StayType1).ToList();
+                message.data["typeList"] = stayType;
+            }
+            catch
+            {
 
+            }
+            return message.ReturnJson();
+        }
 
 
     }

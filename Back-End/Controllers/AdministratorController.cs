@@ -16,7 +16,7 @@ namespace Back_End.Controllers
     public class AdministratorController : ControllerBase
     {
         private readonly ModelContext context;
-        AdministratorController(ModelContext modelContext)
+        public AdministratorController(ModelContext modelContext)
         {
             context = modelContext;
         }
@@ -201,7 +201,6 @@ namespace Back_End.Controllers
                         var pageInfo = context.Reports.Where(s => s.IsDealed == 0).OrderBy(b => b.ReportTime).Skip((page - 1) * pageSize)
                             .Take(pageSize).Select(c => new PagedReports
                             { stayId = c.Order.Generates.First().StayId, reportId = c.OrderId, reporterId = (int)c.Order.CustomerId });
-                        //TODO:generate
                         var examines = pageInfo.ToList();
                         message.data["reportList"] = examines;
                     }
@@ -231,10 +230,9 @@ namespace Back_End.Controllers
                         message.data["orderId"] = report.OrderId;
                         message.data["reportTime"] = report.ReportTime;
                         message.data["reportReason"] = report.Reason;
-                        //message.data["hostId"]=report.Order.Generates.First().
-                        //TODO:generate
-                        //message.data["stayId"]
-                        //message.data["hostCredit"]=
+                        message.data["hostId"] = report.Order.Generates.First().Room.Stay.HostId;
+                        message.data["stayId"] = report.Order.Generates.First().StayId;
+                        message.data["hostCredit"] = report.Order.Generates.First().Room.Stay.Host.HostScore;
                     }
                 }
             }
