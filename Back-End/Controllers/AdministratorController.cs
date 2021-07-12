@@ -15,6 +15,11 @@ namespace Back_End.Controllers
     [Route("api/[controller]")]
     public class AdministratorController : ControllerBase
     {
+        private readonly ModelContext context;
+        AdministratorController(ModelContext modelContext)
+        {
+            context = modelContext;
+        }
         class PagedStays
         {
             public int stayId { get; set; }
@@ -43,7 +48,8 @@ namespace Back_End.Controllers
         {
             try
             {
-                var admin = ModelContext.Instance.Administrators
+                ModelContext modelContext = new ModelContext();
+                var admin = modelContext.Administrators
                     .Single(b => b.AdminId == id);
                 return admin;
             }
@@ -72,7 +78,7 @@ namespace Back_End.Controllers
                     {
                         message.errorCode = 200;
                         int page = int.Parse(Request.Query["pagenum"]);
-                        var pageInfo = ModelContext.Instance.Stays.Where(s => s.StayStatus == 0).OrderBy(b => b.StayId).Skip((page - 1) * pageSize)
+                        var pageInfo = context.Stays.Where(s => s.StayStatus == 0).OrderBy(b => b.StayId).Skip((page - 1) * pageSize)
                             .Take(pageSize).Select(c => new PagedStays { stayId = c.StayId, hostId = (int)c.HostId, stayCity = c.Area.AreaName });
                         var examines = pageInfo.ToList();
                         message.data["examineStayList"] = examines;
@@ -159,7 +165,7 @@ namespace Back_End.Controllers
                     {
                         message.errorCode = 200;
                         int page = int.Parse(Request.Query["pagenum"]);
-                        var pageInfo = ModelContext.Instance.Reports.Where(s => s.IsDealed == 0).OrderBy(b => b.ReportTime).Skip((page - 1) * pageSize)
+                        var pageInfo = context.Reports.Where(s => s.IsDealed == 0).OrderBy(b => b.ReportTime).Skip((page - 1) * pageSize)
                             .Take(pageSize).Select(c => new PagedReports
                             { stayId = c.Order.Generates.First().StayId, reportId = c.OrderId, reporterId = (int)c.Order.CustomerId });
                         //TODO:generate
@@ -219,7 +225,7 @@ namespace Back_End.Controllers
                     {
                         message.errorCode = 200;
                         int page = int.Parse(Request.Query["pagenum"]);
-                        var pageInfo = ModelContext.Instance.Peripherals.OrderBy(b => b.PeripheralId).Skip((page - 1) * pageSize)
+                        var pageInfo = context.Peripherals.OrderBy(b => b.PeripheralId).Skip((page - 1) * pageSize)
                             .Take(pageSize).Select(c => new PagedNears
                             {
                                 nearbyId = c.PeripheralId,
@@ -252,7 +258,7 @@ namespace Back_End.Controllers
                     if (admin != null)
                     {
                         message.errorCode = 200;
-                        ModelContext.Instance.DetachAll();
+                        context.DetachAll();
                         int stayId = int.Parse(Request.Form["stayId"]);
                         bool isPass = bool.Parse(Request.Form["isPass"]);
                         Stay stay = StayController.SearchById(stayId);
@@ -271,8 +277,8 @@ namespace Back_End.Controllers
                             form.ValidateResult = 0;
                             form.ValidateReply = Request.Form["msg"];
                         }//房源状态0未审核，1审核不通过，2审核通过
-                        ModelContext.Instance.AdministratorStays.Add(form);
-                        ModelContext.Instance.SaveChanges();
+                        context.AdministratorStays.Add(form);
+                        context.SaveChanges();
                         message.data["isSuccess"] = true;
                     }
                 }

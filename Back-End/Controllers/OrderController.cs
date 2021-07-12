@@ -19,7 +19,8 @@ namespace Back_End.Controllers
         {
             try
             {
-                var order = ModelContext.Instance.Orders
+                ModelContext context = new ModelContext();
+                var order = context.Orders
                     .Single(b => b.OrderId == id);
                 return order;
             }

@@ -16,14 +16,18 @@ namespace Back_End.Controllers
     [Route("[controller]")]
     public class BedController : ControllerBase
     {
-        public static readonly string[] BedType = { "1米宽单人床", "1.2米宽双人床", "1.4米宽双人床", "1.5米宽双人床", "1.8米宽双人床"
-            ,"双层床","婴儿床","吊床","水床","沙发床","地板床垫"};
+        private readonly ModelContext myContext;
+        public BedController(ModelContext modelContext)
+        {
+            myContext = modelContext;
+        }
 
         public static Bed SearchById(int id)
         {
             try
             {
-                var bed = ModelContext.Instance.Beds
+                ModelContext context = new ModelContext();
+                var bed = context.Beds
                     .Single(b => b.BedId == id);
                 return bed;
             }

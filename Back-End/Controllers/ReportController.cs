@@ -19,7 +19,8 @@ namespace Back_End.Controllers
         {
             try
             {
-                var report = ModelContext.Instance.Reports
+                ModelContext context = new ModelContext();
+                var report = context.Reports
                     .Single(b => b.OrderId == id);
                 return report;
             }

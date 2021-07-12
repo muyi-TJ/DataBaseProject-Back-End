@@ -26,39 +26,18 @@ namespace Back_End.Controllers
     [Route("api/[controller]")]
     public class CustomerController : ControllerBase
     {
+        private readonly ModelContext myContext;
+        public CustomerController(ModelContext modelContext)
+        {
+            myContext = modelContext;
+        }
+
         public class CustomerMessage
         {
             public int errorCode { get; set; }
             public Dictionary<string, dynamic> data { get; set; } = new Dictionary<string, dynamic>();
         }
 
-        [HttpGet("createTime")]
-        public string GetCreateTime()
-        {
-            StringValues token = default(StringValues);
-            if (Request.Headers.TryGetValue("token", out token))
-            {
-                Console.WriteLine(token);
-                var data = Token.VerifyToken(token);
-                if (data != null)
-                {
-                    var context = ModelContext.Instance;
-                    context.DetachAll();
-                    int customerId = int.Parse(data["id"]);
-                    var createTime = context.Customers.Single(b => b.CustomerId == customerId).CustomerCreatetime;
-                    CustomerMessage message = new CustomerMessage()
-                    {
-                        errorCode = 200,
-                        data = { { "createTime", createTime } }
-                    };
-                    return JsonSerializer.Serialize(message);
-                }
-            }
-            return JsonSerializer.Serialize(new CustomerMessage()
-            {
-                errorCode = 400,
-            });
-        }
 
 
 
@@ -102,7 +81,8 @@ namespace Back_End.Controllers
         {
             try
             {
-                var customer = ModelContext.Instance.Customers
+                ModelContext context = new ModelContext();
+                var customer = context.Customers
                     .Single(b => b.CustomerPhone == phone && b.CustomerPrephone == prePhone);
                 return customer;
             }
@@ -116,7 +96,8 @@ namespace Back_End.Controllers
         {
             try
             {
-                var customer = ModelContext.Instance.Customers
+                ModelContext context = new ModelContext();
+                var customer = context.Customers
                     .Single(b => b.CustomerId == id);
                 return customer;
             }
@@ -180,7 +161,7 @@ namespace Back_End.Controllers
                 var data = Token.VerifyToken(token);
                 if (data != null)
                 {
-                    ModelContext.Instance.DetachAll();
+                    myContext.DetachAll();
                     int id = int.Parse(data["id"]);
                     var customer = SearchById(id);
                     string photo = Request.Form["avatarCode"];
@@ -193,7 +174,7 @@ namespace Back_End.Controllers
                             if (newPhoto != null)
                             {
                                 customer.CustomerPhoto = newPhoto;
-                                ModelContext.Instance.SaveChanges();
+                                myContext.SaveChanges();
                                 message.errorCode = 200;
                             }
                         }
@@ -220,7 +201,7 @@ namespace Back_End.Controllers
                 var data = Token.VerifyToken(token);
                 if (data != null)
                 {
-                    ModelContext.Instance.DetachAll();
+                    myContext.DetachAll();
                     int id = int.Parse(data["id"]);
                     var customer = SearchById(id);
                     string sex = Request.Form["userSex"];
@@ -243,7 +224,7 @@ namespace Back_End.Controllers
                     try
                     {
                         message.errorCode = 200;
-                        ModelContext.Instance.SaveChanges();
+                        myContext.SaveChanges();
                     }
                     catch
                     {
@@ -271,7 +252,7 @@ namespace Back_End.Controllers
                     customer.CustomerPassword = password;
                     try
                     {
-                        ModelContext.Instance.SaveChanges();
+                        myContext.SaveChanges();
                         message.data["changestate"] = true;
                     }
                     catch
@@ -290,7 +271,7 @@ namespace Back_End.Controllers
                     var data = Token.VerifyToken(token);
                     if (data != null)
                     {
-                        ModelContext.Instance.DetachAll();
+                        myContext.DetachAll();
                         int id = int.Parse(data["id"]);
                         var customer = SearchById(id);
                         if (password != null)
@@ -299,7 +280,7 @@ namespace Back_End.Controllers
                             customer.CustomerPassword = password;
                             try
                             {
-                                ModelContext.Instance.SaveChanges();
+                                myContext.SaveChanges();
                                 message.data["changestate"] = true;
                             }
                             catch
@@ -315,29 +296,6 @@ namespace Back_End.Controllers
 
 
 
-        [HttpDelete]
-        public bool Delete(int id)
-        {
-            if (id < 0)
-                return false;
-            try
-            {
-                var context = ModelContext.Instance;
-                context.DetachAll();
-                Customer customer = new Customer() { CustomerId = id };
-                context.Customers.Attach(customer);
-                context.Customers.Remove(customer);
-                context.SaveChanges();
-                return true;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-                return false;
-            }
-        }
-
-
 
 
         /*
@@ -346,7 +304,7 @@ namespace Back_End.Controllers
         {
             try
             {
-                var customer = ModelContext.Instance.Customers
+                var customer = context.Customers
                     .Single(b => b.CustomerId == id);
                 return customer;
             }
@@ -397,8 +355,8 @@ namespace Back_End.Controllers
                 customer.CustomerPrephone = Request.Form["prePhone"];
                 customer.CustomerPhone = Request.Form["phone"];
                 customer.CustomerCreatetime = DateTime.Now;
-                ModelContext.Instance.Add(customer);
-                ModelContext.Instance.SaveChanges();
+                context.Add(customer);
+                context.SaveChanges();
                 return true;
             }
             catch
@@ -438,7 +396,7 @@ namespace Back_End.Controllers
         {
             try
             {
-                var customer = ModelContext.Instance.Customers
+                var customer = context.Customers
                     .Single(b => b.CustomerEmail == email);
                 return customer;
             }
@@ -454,7 +412,7 @@ namespace Back_End.Controllers
         {
             try
             {
-                var customer = ModelContext.Instance.Customers
+                var customer = context.Customers
                     .Single(b => b.CustomerId == id);
                 return customer;
             }

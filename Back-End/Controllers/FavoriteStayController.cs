@@ -14,6 +14,11 @@ namespace Back_End.Controllers {
     [Route("api/[controller]")]
     public class FavoriteStayController : ControllerBase {
 
+        private readonly ModelContext myContext;
+        public FavoriteStayController(ModelContext modelContext)
+        {
+            myContext = modelContext;
+        }
         public class FavoriteStayMessage {
             public int errorCode { get; set; }
             public Dictionary<string, dynamic> data { get; set; } = new Dictionary<string, dynamic>();
@@ -47,7 +52,7 @@ namespace Back_End.Controllers {
             if (Request.Headers.TryGetValue("token", out token)) {
                 var data = Token.VerifyToken(token);
                 if (data != null) {
-                    var context = ModelContext.Instance;
+                    var context = myContext;
                     context.DetachAll();
 
                     try {
@@ -77,7 +82,7 @@ namespace Back_End.Controllers {
             if (Request.Headers.TryGetValue("token", out token)) {
                 var data = Token.VerifyToken(token);
                 if (data != null) {
-                    var context = ModelContext.Instance;
+                    var context = myContext;
                     context.DetachAll();
 
                     List<StayInfo> stayList = new List<StayInfo>();
@@ -132,7 +137,7 @@ namespace Back_End.Controllers {
                 if (data != null) {
                     int favoriteId = int.Parse(Request.Form["favoriteId"]);
                     int stayId = int.Parse(Request.Form["stayId"]);
-                    var context = ModelContext.Instance;
+                    var context = myContext;
                     context.DetachAll();
 
                     // 如果不存在这个收藏夹

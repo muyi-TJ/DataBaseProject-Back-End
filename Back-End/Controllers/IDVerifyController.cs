@@ -72,7 +72,7 @@ namespace Back_End.Controllers {
 
                 var dict = JsonConvert.DeserializeObject<Dictionary<dynamic, dynamic>>(str);
 
-                var context = ModelContext.Instance;
+                var context = new ModelContext();
                 context.DetachAll();
                 string idNumber = dict["num"];
                 if (!context.Hosts.Any(b => b.HostIdnumber == idNumber)) {
