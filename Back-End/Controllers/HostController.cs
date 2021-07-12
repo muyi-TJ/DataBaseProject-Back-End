@@ -210,32 +210,48 @@ namespace Back_End.Controllers
                         message.data["unpublishedStayInfo"] = new List<Dictionary<string, dynamic>>();
                         message.data["pendingStayInfo"] = new List<Dictionary<string, dynamic>>();
                         message.data["publishedHouseInfo"] = new List<Dictionary<string, dynamic>>();
-                        /*foreach (var stay in host.Stays) {
+                        foreach (var stay in host.Stays) {
                             var stayInfo = new Dictionary<string, dynamic>();
-                            if (stay.StayStatus == 0) {
-                                int imgListNum = 0, stayPrice = 0;
-                                var stayImgList = new List<string>();
-                                foreach (var room in stay.Rooms) {
 
+                            int imgListNum = 0, stayPrice = 999999999;
+                            var stayImgList = new List<string>();
+                            foreach (var room in stay.Rooms) {
+                                imgListNum += room.RoomPhotos.Count();
+                                stayPrice = Math.Min(stayPrice, room.Price);
+                                foreach (var roomphoto in room.RoomPhotos)
+                                    stayImgList.Add(roomphoto.RPhoto);
 
-                                }
-                                stayInfo.Add("stayId", stay.StayId);
-                                stayInfo.Add("imgListNum",);
-                                stayInfo.Add("stayType", stay.StayType);
-                                stayInfo.Add("stayNickName", stay.StayName);
-                                stayInfo.Add("stayPlace", stay.DetailedAddress);
-
-                                stayInfo.Add("stayPrice",)
                             }
-                        }*/
+                            stayInfo.Add("stayId", stay.StayId);
+                            stayInfo.Add("imgListNum", imgListNum);
+                            stayInfo.Add("stayType", stay.StayType);
+                            stayInfo.Add("stayNickName", stay.StayName);
+                            stayInfo.Add("stayPlace", stay.DetailedAddress);
+                            stayInfo.Add("stayPrice", stayPrice);
+                            stayInfo.Add("stayImgList", stayImgList);
+                            if (stay.StayStatus == 0) {
+                                message.data["unpublishedStayInfo"].Add(stayInfo);
+                            }
+                            else if (stay.StayStatus == 1) {
+                                message.data["pendingStayInfo"].Add(stayInfo);
+                            }
+                            else if (stay.StayStatus == 2) {
+                                //stayInfo.Add("valReplyTime", stay.AdministratorStays.First().ValReplyTime);
+                                message.data["publishedHouseInfo"].Add(stayInfo);
+                            }
+                        }
+                        message.errorCode = 200;
+                        return message.ReturnJson();
 
                     }
                     catch(Exception e) {
-
+                        Console.WriteLine(e.ToString());
+                        message.errorCode = 300;
+                        return message.ReturnJson();
                     }
                 }
             }
-            return "hh";
+            return message.ReturnJson();
         }
     }
 }

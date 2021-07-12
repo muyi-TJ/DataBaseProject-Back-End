@@ -211,6 +211,14 @@ namespace Back_End
         }
     }
 
+    public class GetStayTypeMessage : Message {
+        public GetStayTypeMessage() {
+            errorCode = 300;
+            data.Add("typeList", null);
+        }
+    }
+
+
     public class GetHostInfoMessage:Message {
         public GetHostInfoMessage() {
             errorCode = 400;
