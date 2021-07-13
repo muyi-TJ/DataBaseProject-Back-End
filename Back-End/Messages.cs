@@ -327,24 +327,22 @@ namespace Back_End
             data.Add("couponUsage", null);
             data.Add("totalPrice", null);
         }
-        public class GetCustomerCouponMessage : Message
-        {
-            public GetCustomerCouponMessage()
-            {
-                errorCode = 400;
-                data.Add("couponList", null);
-            }
-        }
+    }
 
-        public class GetOrderMessage : Message
-        {
-            public GetOrderMessage()
-            {
-                errorCode = 400;
-                data.Add("customerOrderList", null);
-            }
+    public class GetCustomerCouponMessage : Message {
+        public GetCustomerCouponMessage() {
+            errorCode = 400;
+            data.Add("couponList", null);
         }
     }
+
+    public class GetOrderMessage : Message {
+        public GetOrderMessage() {
+            errorCode = 400;
+            data.Add("customerOrderList", null);
+        }
+    }
+
 
     public class GetStayInfosMessage : Message {
         public GetStayInfosMessage() {
