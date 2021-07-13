@@ -327,22 +327,44 @@ namespace Back_End
             data.Add("couponUsage", null);
             data.Add("totalPrice", null);
         }
-        public class GetCustomerCouponMessage : Message
+    }
+    public class GetCustomerCouponMessage : Message
+    {
+        public GetCustomerCouponMessage()
         {
-            public GetCustomerCouponMessage()
-            {
-                errorCode = 400;
-                data.Add("couponList", null);
-            }
+            errorCode = 400;
+            data.Add("couponList", null);
         }
+    }
 
-        public class GetOrderMessage : Message
+    public class GetOrderMessage : Message
+    {
+        public GetOrderMessage()
         {
-            public GetOrderMessage()
-            {
-                errorCode = 400;
-                data.Add("customerOrderList", null);
-            }
+            errorCode = 400;
+            data.Add("customerOrderList", null);
+        }
+    }
+
+    public class SearchNearMessage:Message
+    {
+        public SearchNearMessage()
+        {
+            errorCode = 400;
+            data.Add("total", 0);
+            data.Add("nearbyList", null);
+        }
+    }
+
+    public class AddOrderMessage:Message
+    {
+        public AddOrderMessage()
+        {
+            errorCode = 400;
+            data.Add("isSuccess", false);
+            data.Add("payUrl", null);
+            data.Add("redirectUrl", null);
+            //TODO:完善
         }
     }
 }
