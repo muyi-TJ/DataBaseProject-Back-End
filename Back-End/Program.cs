@@ -20,10 +20,10 @@ namespace Back_End {
 
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder => {
-                    var x509ca = new X509Certificate2(File.ReadAllBytes(@"api.guisu.fun.pfx"), "an13154e4");
+                    //var x509ca = new X509Certificate2(File.ReadAllBytes(@"api.guisu.fun.pfx"), "an13154e4");
                     webBuilder.UseStartup<Startup>();
-                    //webBuilder.UseUrls("https://0.0.0.0:6001/");
-                    webBuilder.UseKestrel(option => option.ListenAnyIP(6001, config => config.UseHttps(x509ca)));
+                    webBuilder.UseUrls("http://0.0.0.0:6001/");
+                    //webBuilder.UseKestrel(option => option.ListenAnyIP(6001, config => config.UseHttps(x509ca)));
                 });
     }
 }
