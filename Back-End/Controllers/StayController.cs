@@ -502,5 +502,60 @@ namespace Back_End.Controllers
 
             return message.ReturnJson();
         }
+
+        // 通过房源Id删除房源
+        [HttpDelete("delStayById")]
+        public string DelStayById(int stayId = -1) {
+            Message message = new Message();
+            message.errorCode = 400;
+            StringValues token = default(StringValues);
+            if (Request.Headers.TryGetValue("token", out token)) {
+                var data = Token.VerifyToken(token);
+                if (data != null) {
+                    try {
+                        var stay = new Stay() { StayId = stayId };
+                        myContext.Stays.Remove(stay);
+                        myContext.SaveChanges();
+
+                        message.errorCode = 200;
+                        return message.ReturnJson();
+                    }
+                    catch (Exception e) {
+                        Console.WriteLine(e.ToString());
+                        message.errorCode = 300;
+                        return message.ReturnJson();
+                    }
+                }
+            }
+            return message.ReturnJson();
+        }
+
+        // 获取房东某个房源的订单数据
+        /*[HttpGet("StayOrderInfo")]
+        public string GetStayOrderInfo(int stayId = -1) {
+            StayOrderInfoMessage message = new StayOrderInfoMessage();
+            StringValues token = default(StringValues);
+            if (Request.Headers.TryGetValue("token", out token)) {
+                var data = Token.VerifyToken(token);
+                if (data != null) {
+                    try {
+                        var stay = myContext.Stays.Single(b => b.StayId == stayId);
+                        message.data["averageScore"] = (float)stay.CommentScore / (float)stay.CommentNum;
+
+                        DateTime time = DateTime.Now.AddDays(-365);
+                        var orderInfoOfDateList = new List<Dictionary<string, dynamic>>();
+                        var orderDateList = myContext.Orders.Where(b => DateTime.Compare((DateTime)b.OrderTime, time) > 0);
+                        foreach(var order in orderDateList) {
+                            var dict = new Dictionary<string, dynamic>();
+                            var orderTime = (DateTime)order.OrderTime;
+                            dict.Add("data", orderTime.Year.ToString() + "-" + orderTime.Month.ToString() + "月");
+
+                        }
+                    }
+                    catch (Exception e) {
+                    }
+                }
+            }
+        }*/
     }
 }

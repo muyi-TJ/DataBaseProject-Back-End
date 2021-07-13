@@ -234,4 +234,15 @@ namespace Back_End
             data.Add("publishedHouseInfo", null);
         }
     }
+
+    public class StayOrderInfoMessage: Message {
+        public StayOrderInfoMessage() {
+            errorCode = 400;
+
+            data.Add("averageScore", null);
+            data.Add("orderInfoOfDateList", null);
+            data.Add("orderInfoOfSexList", null);
+            data.Add("orderInfoOfAgeList", null);
+        }
+    }
 }
