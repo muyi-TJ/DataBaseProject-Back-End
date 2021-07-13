@@ -113,7 +113,7 @@ namespace Back_End.Controllers
                         message.errorCode = 200;
                         int page = int.Parse(Request.Query["pagenum"]);
                         var pageInfo = myContext.Stays.Where(s => s.StayStatus == 1).OrderBy(b => b.StayId).Skip((page - 1) * pageSize)
-                            .Take(pageSize).Select(c => new PagedStays { stayId = c.StayId, hostId = (int)c.HostId, stayCity = c.Area.AreaName });
+                            .Take(pageSize).Select(c => new PagedStays { stayId = c.StayId, hostId = (int)c.HostId, stayCity = c.DetailedAddress });
                         var examines = pageInfo.ToList();
                         message.data["examineStayList"] = examines;
                     }
