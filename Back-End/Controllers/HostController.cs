@@ -266,9 +266,9 @@ namespace Back_End.Controllers
                 
                 var data = Token.VerifyToken(token);
                 if (data != null) {
-                    context.DetachAll();
+                    myContext.DetachAll();
                     int id = int.Parse(data["id"]);
-                    var host = context.Hosts.Single(b => b.HostId == id);
+                    var host = myContext.Hosts.Single(b => b.HostId == id);
                     string photo = Request.Form["hostAvatar"];
                     Console.WriteLine(photo + "200");
                     if (photo != null) {
@@ -276,7 +276,7 @@ namespace Back_End.Controllers
                             string newPhoto = PhotoUpload.UploadPhoto(photo, "hostAvatar/" + id.ToString());
                             if (newPhoto != null) {
                                 host.HostAvatar = newPhoto;
-                                context.SaveChanges();
+                                myContext.SaveChanges();
                                 message.errorCode = 200;
                             }
                         }
