@@ -20,9 +20,7 @@ namespace Back_End.Models
         public int StayId { get; set; }
         public int? HostId { get; set; }
         public string StayName { get; set; }
-        public int? AreaId { get; set; }
         public string StayType { get; set; }
-        public string PeripheralRoad { get; set; }
         public string DetailedAddress { get; set; }
         public decimal Longitude { get; set; }
         public decimal Latitude { get; set; }
@@ -41,7 +39,6 @@ namespace Back_End.Models
         public int? CommentNum { get; set; }
         public int? CommentScore { get; set; }
 
-        public virtual Area Area { get; set; }
         public virtual Host Host { get; set; }
         public virtual StayType StayTypeNavigation { get; set; }
         public virtual ICollection<AdministratorStay> AdministratorStays { get; set; }

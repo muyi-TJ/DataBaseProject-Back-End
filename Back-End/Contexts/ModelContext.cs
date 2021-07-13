@@ -21,7 +21,6 @@ namespace Back_End.Contexts
 
         public virtual DbSet<Administrator> Administrators { get; set; }
         public virtual DbSet<AdministratorStay> AdministratorStays { get; set; }
-        public virtual DbSet<Area> Areas { get; set; }
         public virtual DbSet<Bed> Beds { get; set; }
         public virtual DbSet<Collect> Collects { get; set; }
         public virtual DbSet<Coupon> Coupons { get; set; }
@@ -72,18 +71,18 @@ namespace Back_End.Contexts
             {
                 optionsBuilder.UseLazyLoadingProxies();
                 //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseOracle("User Id=xybxl;Password=xytql;Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=8.136.17.54)(PORT=1521))(CONNECT_DATA = (SERVER = DEDICATED)(SERVICE_NAME = xe))); ");
+                optionsBuilder.UseOracle("User Id=xy;Password=xy;Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=81.68.122.212)(PORT=1521))(CONNECT_DATA = (SERVER = DEDICATED)(SERVICE_NAME = xe))); ");
             }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.HasDefaultSchema("XYBXL");
+            modelBuilder.HasDefaultSchema("XY");
 
             modelBuilder.Entity<Administrator>(entity =>
             {
                 entity.HasKey(e => e.AdminId)
-                    .HasName("SYS_C0011678");
+                    .HasName("SYS_C0010084");
 
                 entity.ToTable("ADMINISTRATOR");
 
@@ -126,7 +125,7 @@ namespace Back_End.Contexts
             modelBuilder.Entity<AdministratorStay>(entity =>
             {
                 entity.HasKey(e => new { e.AdminId, e.StayId })
-                    .HasName("SYS_C0011688");
+                    .HasName("SYS_C0010094");
 
                 entity.ToTable("ADMINISTRATOR_STAY");
 
@@ -157,28 +156,12 @@ namespace Back_End.Contexts
                 entity.HasOne(d => d.Admin)
                     .WithMany(p => p.AdministratorStays)
                     .HasForeignKey(d => d.AdminId)
-                    .HasConstraintName("SYS_C0011689");
+                    .HasConstraintName("SYS_C0010095");
 
                 entity.HasOne(d => d.Stay)
                     .WithMany(p => p.AdministratorStays)
                     .HasForeignKey(d => d.StayId)
-                    .HasConstraintName("SYS_C0011690");
-            });
-
-            modelBuilder.Entity<Area>(entity =>
-            {
-                entity.ToTable("AREA");
-
-                entity.Property(e => e.AreaId)
-                    .HasPrecision(10)
-                    .ValueGeneratedNever()
-                    .HasColumnName("AREA_ID");
-
-                entity.Property(e => e.AreaName)
-                    .IsRequired()
-                    .HasMaxLength(40)
-                    .IsUnicode(false)
-                    .HasColumnName("AREA_NAME");
+                    .HasConstraintName("SYS_C0010096");
             });
 
             modelBuilder.Entity<Bed>(entity =>
@@ -207,7 +190,7 @@ namespace Back_End.Contexts
             modelBuilder.Entity<Collect>(entity =>
             {
                 entity.HasKey(e => new { e.CustomerId, e.StayId })
-                    .HasName("SYS_C0011713");
+                    .HasName("SYS_C0010118");
 
                 entity.ToTable("COLLECT");
 
@@ -226,12 +209,12 @@ namespace Back_End.Contexts
                 entity.HasOne(d => d.Customer)
                     .WithMany(p => p.Collects)
                     .HasForeignKey(d => d.CustomerId)
-                    .HasConstraintName("SYS_C0011714");
+                    .HasConstraintName("SYS_C0010119");
 
                 entity.HasOne(d => d.Stay)
                     .WithMany(p => p.Collects)
                     .HasForeignKey(d => d.StayId)
-                    .HasConstraintName("SYS_C0011715");
+                    .HasConstraintName("SYS_C0010120");
             });
 
             modelBuilder.Entity<Coupon>(entity =>
@@ -263,13 +246,13 @@ namespace Back_End.Contexts
                     .WithMany(p => p.Coupons)
                     .HasForeignKey(d => d.CouponTypeId)
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("SYS_C0011608");
+                    .HasConstraintName("SYS_C0010016");
 
                 entity.HasOne(d => d.Customer)
                     .WithMany(p => p.Coupons)
                     .HasForeignKey(d => d.CustomerId)
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("SYS_C0011609");
+                    .HasConstraintName("SYS_C0010017");
             });
 
             modelBuilder.Entity<CouponType>(entity =>
@@ -305,10 +288,10 @@ namespace Back_End.Contexts
             {
                 entity.ToTable("CUSTOMER");
 
-                entity.HasIndex(e => e.CustomerPhone, "SYS_C0011598")
+                entity.HasIndex(e => e.CustomerPhone, "SYS_C0010006")
                     .IsUnique();
 
-                entity.HasIndex(e => e.CustomerEmail, "SYS_C0011599")
+                entity.HasIndex(e => e.CustomerEmail, "SYS_C0010007")
                     .IsUnique();
 
                 entity.Property(e => e.CustomerId)
@@ -389,13 +372,13 @@ namespace Back_End.Contexts
                 entity.HasOne(d => d.CustomerLevelNavigation)
                     .WithMany(p => p.Customers)
                     .HasForeignKey(d => d.CustomerLevel)
-                    .HasConstraintName("SYS_C0011600");
+                    .HasConstraintName("SYS_C0010008");
             });
 
             modelBuilder.Entity<CustomerComment>(entity =>
             {
                 entity.HasKey(e => e.OrderId)
-                    .HasName("SYS_C0011700");
+                    .HasName("SYS_C0010106");
 
                 entity.ToTable("CUSTOMER_COMMENT");
 
@@ -421,13 +404,13 @@ namespace Back_End.Contexts
                 entity.HasOne(d => d.Order)
                     .WithOne(p => p.CustomerComment)
                     .HasForeignKey<CustomerComment>(d => d.OrderId)
-                    .HasConstraintName("SYS_C0011701");
+                    .HasConstraintName("SYS_C0010107");
             });
 
             modelBuilder.Entity<CustomerGroup>(entity =>
             {
                 entity.HasKey(e => e.CustomerLevel)
-                    .HasName("SYS_C0011590");
+                    .HasName("SYS_C009998");
 
                 entity.ToTable("CUSTOMER_GROUP");
 
@@ -449,7 +432,7 @@ namespace Back_End.Contexts
             modelBuilder.Entity<CustomerGroupCoupon>(entity =>
             {
                 entity.HasKey(e => e.CustomerLevel)
-                    .HasName("SYS_C0011612");
+                    .HasName("SYS_C0010020");
 
                 entity.ToTable("CUSTOMER_GROUP_COUPON");
 
@@ -469,12 +452,12 @@ namespace Back_End.Contexts
                     .WithMany(p => p.CustomerGroupCoupons)
                     .HasForeignKey(d => d.CouponTypeId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("SYS_C0011613");
+                    .HasConstraintName("SYS_C0010021");
 
                 entity.HasOne(d => d.CustomerLevelNavigation)
                     .WithOne(p => p.CustomerGroupCoupon)
                     .HasForeignKey<CustomerGroupCoupon>(d => d.CustomerLevel)
-                    .HasConstraintName("SYS_C0011614");
+                    .HasConstraintName("SYS_C0010022");
             });
 
             modelBuilder.Entity<Favorite>(entity =>
@@ -501,13 +484,13 @@ namespace Back_End.Contexts
                     .WithMany(p => p.Favorites)
                     .HasForeignKey(d => d.CustomerId)
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("SYS_C0011734");
+                    .HasConstraintName("SYS_C0010139");
             });
 
             modelBuilder.Entity<Favoritestay>(entity =>
             {
                 entity.HasKey(e => new { e.FavoriteId, e.StayId })
-                    .HasName("SYS_C0011735");
+                    .HasName("SYS_C0010140");
 
                 entity.ToTable("FAVORITESTAY");
 
@@ -522,18 +505,18 @@ namespace Back_End.Contexts
                 entity.HasOne(d => d.Favorite)
                     .WithMany(p => p.Favoritestays)
                     .HasForeignKey(d => d.FavoriteId)
-                    .HasConstraintName("SYS_C0011736");
+                    .HasConstraintName("SYS_C0010141");
 
                 entity.HasOne(d => d.Stay)
                     .WithMany(p => p.Favoritestays)
                     .HasForeignKey(d => d.StayId)
-                    .HasConstraintName("SYS_C0011737");
+                    .HasConstraintName("SYS_C0010142");
             });
 
             modelBuilder.Entity<Generate>(entity =>
             {
                 entity.HasKey(e => new { e.OrdersId, e.RoomId, e.StartTime })
-                    .HasName("SYS_C0011725");
+                    .HasName("SYS_C0010130");
 
                 entity.ToTable("GENERATE");
 
@@ -564,25 +547,25 @@ namespace Back_End.Contexts
                 entity.HasOne(d => d.Orders)
                     .WithMany(p => p.Generates)
                     .HasForeignKey(d => d.OrdersId)
-                    .HasConstraintName("SYS_C0011726");
+                    .HasConstraintName("SYS_C0010131");
 
                 entity.HasOne(d => d.Room)
                     .WithMany(p => p.Generates)
                     .HasForeignKey(d => new { d.StayId, d.RoomId })
-                    .HasConstraintName("SYS_C0011727");
+                    .HasConstraintName("SYS_C0010132");
             });
 
             modelBuilder.Entity<Host>(entity =>
             {
                 entity.ToTable("HOSTS");
 
-                entity.HasIndex(e => e.HostPhone, "SYS_C0011631")
+                entity.HasIndex(e => e.HostPhone, "SYS_C0010039")
                     .IsUnique();
 
-                entity.HasIndex(e => e.HostEmail, "SYS_C0011632")
+                entity.HasIndex(e => e.HostEmail, "SYS_C0010040")
                     .IsUnique();
 
-                entity.HasIndex(e => e.HostIdnumber, "SYS_C0011633")
+                entity.HasIndex(e => e.HostIdnumber, "SYS_C0010041")
                     .IsUnique();
 
                 entity.Property(e => e.HostId)
@@ -667,13 +650,13 @@ namespace Back_End.Contexts
                 entity.HasOne(d => d.HostLevelNavigation)
                     .WithMany(p => p.Hosts)
                     .HasForeignKey(d => d.HostLevel)
-                    .HasConstraintName("SYS_C0011634");
+                    .HasConstraintName("SYS_C0010042");
             });
 
             modelBuilder.Entity<HostComment>(entity =>
             {
                 entity.HasKey(e => e.OrderId)
-                    .HasName("SYS_C0011706");
+                    .HasName("SYS_C0010112");
 
                 entity.ToTable("HOST_COMMENT");
 
@@ -699,13 +682,13 @@ namespace Back_End.Contexts
                 entity.HasOne(d => d.Order)
                     .WithOne(p => p.HostComment)
                     .HasForeignKey<HostComment>(d => d.OrderId)
-                    .HasConstraintName("SYS_C0011707");
+                    .HasConstraintName("SYS_C0010113");
             });
 
             modelBuilder.Entity<HostGroup>(entity =>
             {
                 entity.HasKey(e => e.HostLevel)
-                    .HasName("SYS_C0011617");
+                    .HasName("SYS_C0010025");
 
                 entity.ToTable("HOST_GROUP");
 
@@ -727,7 +710,7 @@ namespace Back_End.Contexts
             modelBuilder.Entity<Label>(entity =>
             {
                 entity.HasKey(e => e.LabelName)
-                    .HasName("SYS_C0011741");
+                    .HasName("SYS_C0010146");
 
                 entity.ToTable("LABELS");
 
@@ -744,7 +727,7 @@ namespace Back_End.Contexts
             modelBuilder.Entity<Near>(entity =>
             {
                 entity.HasKey(e => new { e.PeripheralId, e.StayId })
-                    .HasName("SYS_C0011717");
+                    .HasName("SYS_C0010122");
 
                 entity.ToTable("NEAR");
 
@@ -763,12 +746,12 @@ namespace Back_End.Contexts
                 entity.HasOne(d => d.Peripheral)
                     .WithMany(p => p.Nears)
                     .HasForeignKey(d => d.PeripheralId)
-                    .HasConstraintName("SYS_C0011718");
+                    .HasConstraintName("SYS_C0010123");
 
                 entity.HasOne(d => d.Stay)
                     .WithMany(p => p.Nears)
                     .HasForeignKey(d => d.StayId)
-                    .HasConstraintName("SYS_C0011719");
+                    .HasConstraintName("SYS_C0010124");
             });
 
             modelBuilder.Entity<Order>(entity =>
@@ -803,7 +786,7 @@ namespace Back_End.Contexts
                 entity.HasOne(d => d.Customer)
                     .WithMany(p => p.Orders)
                     .HasForeignKey(d => d.CustomerId)
-                    .HasConstraintName("SYS_C0011683");
+                    .HasConstraintName("SYS_C0010089");
             });
 
             modelBuilder.Entity<Peripheral>(entity =>
@@ -814,10 +797,6 @@ namespace Back_End.Contexts
                     .HasPrecision(10)
                     .ValueGeneratedNever()
                     .HasColumnName("PERIPHERAL_ID");
-
-                entity.Property(e => e.AreaId)
-                    .HasPrecision(10)
-                    .HasColumnName("AREA_ID");
 
                 entity.Property(e => e.DetailedAddress)
                     .HasMaxLength(40)
@@ -846,17 +825,12 @@ namespace Back_End.Contexts
                     .HasMaxLength(10)
                     .IsUnicode(false)
                     .HasColumnName("PERIPHERAL_ROAD");
-
-                entity.HasOne(d => d.Area)
-                    .WithMany(p => p.Peripherals)
-                    .HasForeignKey(d => d.AreaId)
-                    .HasConstraintName("SYS_C0011712");
             });
 
             modelBuilder.Entity<Report>(entity =>
             {
                 entity.HasKey(e => e.OrderId)
-                    .HasName("SYS_C0011693");
+                    .HasName("SYS_C0010099");
 
                 entity.ToTable("REPORTS");
 
@@ -896,18 +870,18 @@ namespace Back_End.Contexts
                 entity.HasOne(d => d.Admin)
                     .WithMany(p => p.Reports)
                     .HasForeignKey(d => d.AdminId)
-                    .HasConstraintName("SYS_C0011695");
+                    .HasConstraintName("SYS_C0010101");
 
                 entity.HasOne(d => d.Order)
                     .WithOne(p => p.Report)
                     .HasForeignKey<Report>(d => d.OrderId)
-                    .HasConstraintName("SYS_C0011694");
+                    .HasConstraintName("SYS_C0010100");
             });
 
             modelBuilder.Entity<Room>(entity =>
             {
                 entity.HasKey(e => new { e.StayId, e.RoomId })
-                    .HasName("SYS_C0011661");
+                    .HasName("SYS_C0010067");
 
                 entity.ToTable("ROOM");
 
@@ -934,13 +908,13 @@ namespace Back_End.Contexts
                 entity.HasOne(d => d.Stay)
                     .WithMany(p => p.Rooms)
                     .HasForeignKey(d => d.StayId)
-                    .HasConstraintName("SYS_C0011662");
+                    .HasConstraintName("SYS_C0010068");
             });
 
             modelBuilder.Entity<RoomBed>(entity =>
             {
                 entity.HasKey(e => new { e.StayId, e.RoomId, e.BedId })
-                    .HasName("SYS_C0011669");
+                    .HasName("SYS_C0010075");
 
                 entity.ToTable("ROOM_BED");
 
@@ -963,18 +937,18 @@ namespace Back_End.Contexts
                 entity.HasOne(d => d.Bed)
                     .WithMany(p => p.RoomBeds)
                     .HasForeignKey(d => d.BedId)
-                    .HasConstraintName("SYS_C0011670");
+                    .HasConstraintName("SYS_C0010076");
 
                 entity.HasOne(d => d.Room)
                     .WithMany(p => p.RoomBeds)
                     .HasForeignKey(d => new { d.StayId, d.RoomId })
-                    .HasConstraintName("SYS_C0011671");
+                    .HasConstraintName("SYS_C0010077");
             });
 
             modelBuilder.Entity<RoomPhoto>(entity =>
             {
                 entity.HasKey(e => new { e.StayId, e.RoomId, e.RPhoto })
-                    .HasName("SYS_C0011730");
+                    .HasName("SYS_C0010135");
 
                 entity.ToTable("ROOM_PHOTOS");
 
@@ -995,7 +969,7 @@ namespace Back_End.Contexts
                 entity.HasOne(d => d.Room)
                     .WithMany(p => p.RoomPhotos)
                     .HasForeignKey(d => new { d.StayId, d.RoomId })
-                    .HasConstraintName("SYS_C0011731");
+                    .HasConstraintName("SYS_C0010136");
             });
 
             modelBuilder.Entity<Stay>(entity =>
@@ -1007,10 +981,6 @@ namespace Back_End.Contexts
                     .ValueGeneratedOnAdd()
                     .UseHiLo("SEQ")
                     .HasColumnName("STAY_ID");
-
-                entity.Property(e => e.AreaId)
-                    .HasPrecision(10)
-                    .HasColumnName("AREA_ID");
 
                 entity.Property(e => e.BedNum)
                     .HasPrecision(3)
@@ -1066,12 +1036,6 @@ namespace Back_End.Contexts
                     .HasColumnType("NUMBER(38)")
                     .HasColumnName("NON_BARRIER_FACILITY");
 
-                entity.Property(e => e.PeripheralRoad)
-                    .IsRequired()
-                    .HasMaxLength(100)
-                    .IsUnicode(false)
-                    .HasColumnName("PERIPHERAL_ROAD");
-
                 entity.Property(e => e.PublicBathroom)
                     .HasColumnType("NUMBER(38)")
                     .HasColumnName("PUBLIC_BATHROOM");
@@ -1107,27 +1071,22 @@ namespace Back_End.Contexts
                     .IsUnicode(false)
                     .HasColumnName("STAY_TYPE");
 
-                entity.HasOne(d => d.Area)
-                    .WithMany(p => p.Stays)
-                    .HasForeignKey(d => d.AreaId)
-                    .HasConstraintName("SYS_C0011657");
-
                 entity.HasOne(d => d.Host)
                     .WithMany(p => p.Stays)
                     .HasForeignKey(d => d.HostId)
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("SYS_C0011656");
+                    .HasConstraintName("SYS_C0010063");
 
                 entity.HasOne(d => d.StayTypeNavigation)
                     .WithMany(p => p.Stays)
                     .HasForeignKey(d => d.StayType)
-                    .HasConstraintName("SYS_C0011658");
+                    .HasConstraintName("SYS_C0010064");
             });
 
             modelBuilder.Entity<StayLabel>(entity =>
             {
                 entity.HasKey(e => new { e.StayId, e.LabelName })
-                    .HasName("SYS_C0011744");
+                    .HasName("SYS_C0010149");
 
                 entity.ToTable("STAY_LABELS");
 
@@ -1144,19 +1103,19 @@ namespace Back_End.Contexts
                     .WithMany(p => p.StayLabels)
                     .HasForeignKey(d => d.LabelName)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("SYS_C0011746");
+                    .HasConstraintName("SYS_C0010151");
 
                 entity.HasOne(d => d.Stay)
                     .WithMany(p => p.StayLabels)
                     .HasForeignKey(d => d.StayId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("SYS_C0011745");
+                    .HasConstraintName("SYS_C0010150");
             });
 
             modelBuilder.Entity<StayType>(entity =>
             {
                 entity.HasKey(e => e.StayType1)
-                    .HasName("SYS_C0011636");
+                    .HasName("SYS_C0010044");
 
                 entity.ToTable("STAY_TYPE");
 

@@ -170,6 +170,7 @@ namespace Back_End.Controllers
             return message.ReturnJson();
         }
 
+        // 获取房东及其拥有房源的基本信息
         [HttpGet("hostInfo")]
         public string GetHostInfo() {
             GetHostInfoMessage message = new GetHostInfoMessage();
@@ -257,7 +258,8 @@ namespace Back_End.Controllers
             return message.ReturnJson();
         }
 
-        [HttpPut("avatar")]
+        // 修改房东的头像
+        [HttpPut("hostAvatar")]
         public string ChangeCustomerPhoto() {
             Message message = new Message();
             message.errorCode = 400;
@@ -278,10 +280,14 @@ namespace Back_End.Controllers
                                 host.HostAvatar = newPhoto;
                                 myContext.SaveChanges();
                                 message.errorCode = 200;
+                                message.data.Add("hostUrl", "hostAvatar/" + id.ToString());
+                                return message.ReturnJson();
                             }
                         }
-                        catch {
+                        catch (Exception e) {
+                            Console.WriteLine(e.ToString());
                             message.errorCode = 300;
+                            return message.ReturnJson();
                         }
                     }
 
@@ -289,5 +295,37 @@ namespace Back_End.Controllers
             }
             return message.ReturnJson();
         }
+
+        // 修改房东的昵称
+        [HttpPut("hostNickName")]
+        public string ChangeHostNickName() {
+            Message message = new Message();
+            message.errorCode = 400;
+            StringValues token = default(StringValues);
+            if (Request.Headers.TryGetValue("token", out token)) {
+
+                var data = Token.VerifyToken(token);
+                if (data != null) {
+                    try {
+                        myContext.DetachAll();
+                        int id = int.Parse(data["id"]);
+                        var host = myContext.Hosts.Single(b => b.HostId == id);
+                        host.HostUsername = Request.Form["hostNickName"];
+                        myContext.SaveChanges();
+                        message.errorCode = 200;
+                        return message.ReturnJson();
+                    }
+                    catch(Exception e) {
+                        Console.WriteLine(e.ToString());
+                        message.errorCode = 300;
+                        return message.ReturnJson();
+                    }
+                }
+            }
+            return message.ReturnJson();
+        }
+
+        
+
     }
 }
