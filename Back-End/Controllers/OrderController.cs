@@ -302,8 +302,11 @@ namespace Back_End.Controllers
                             if (Request.Form["couponId"].ToString() != null)
                             {
                                 int couponId = int.Parse(Request.Form["couponId"]);
-                                decimal amount = myContext.Coupons.Single(c => c.CouponId == couponId).CouponType.CouponAmount;
+                                var coupon = myContext.Coupons.Single(c => c.CouponId == couponId);
+                                decimal amount = coupon.CouponType.CouponAmount;
                                 price -= (int)amount;
+                                myContext.Coupons.Remove(coupon);
+                                
                             }
                             order.TotalCost = price;
                             myContext.Orders.Add(order);
