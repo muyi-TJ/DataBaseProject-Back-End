@@ -422,7 +422,7 @@ namespace Back_End.Controllers {
                     for (int i = 0; i < room.bedTypes.Length; i++) {
                         if (room.bedNums[i] > 0) {
                             RoomBed roomBed = new RoomBed();
-                            //TODO:修改type
+                            roomBed.BedType = room.bedTypes[i];
                             roomBed.BedNum = room.bedNums[i];
                             roomBed.RoomId = newRoom.RoomId;
                             roomBed.StayId = stay.StayId;
@@ -450,6 +450,8 @@ namespace Back_End.Controllers {
 
             return message.ReturnJson();
         }
+
+
 
         [HttpPut("info")]
         public string ChangeStayInfo()
@@ -529,7 +531,7 @@ namespace Back_End.Controllers {
                             if (room.bedNums[i] > 0)
                             {
                                 RoomBed roomBed = new RoomBed();
-                                //TODO:修改type
+                                                                roomBed.BedType = room.bedTypes[i];
                                 roomBed.BedNum = room.bedNums[i];
                                 roomBed.RoomId = newRoom.RoomId;
                                 roomBed.StayId = stay.StayId;
@@ -556,6 +558,68 @@ namespace Back_End.Controllers {
                 catch
                 {
 
+                }
+            }
+            return message.ReturnJson();
+        }
+
+        [HttpGet("infos")]
+        public string GetStayInfos(int stayId = -1) {
+            GetStayInfosMessage message = new GetStayInfosMessage();
+            StringValues token = default(StringValues);
+            if (Request.Headers.TryGetValue("token", out token)) {
+                var data = Token.VerifyToken(token);
+                if (data != null) {
+                    try {
+                        var stay = myContext.Stays.Single(b => b.StayId == stayId);
+                        message.data["stayType"] = stay.StayType;
+                        message.data["maxTenantNum"] = stay.StayCapacity;
+                        message.data["roomNum"] = stay.RoomNum;
+                        message.data["bedNum"] = stay.BedNum;
+                        message.data["pubRestNum"] = stay.PublicToilet;
+                        message.data["pubBathNum"] = stay.PublicBathroom;
+                        message.data["barrierFree"] = stay.NonBarrierFacility == 0 ? false : true;
+                        message.data["Longitude"] = stay.Longitude;
+                        message.data["Latitude"] = stay.Latitude;
+                        message.data["stayName"] = stay.StayName;
+                        message.data["stayChars"] = stay.Characteristic;
+                        message.data["startTime"] = stay.StartTime;
+                        message.data["endTime"] = stay.EndTime;
+                        message.data["maxDay"] = stay.DaysMax;
+                        message.data["minDay"] = stay.DaysMin;
+                        message.data["roomInfo"] = new List<RoomInfo>();
+                        foreach(var room in stay.Rooms) {
+                            var roomInfo = new RoomInfo();
+                            roomInfo.roomId = room.RoomId;
+                            roomInfo.price = room.Price;
+                            roomInfo.roomArea = room.RoomArea;
+                            roomInfo.bathNum = room.BathroomNum;
+                            var bedTypes = new List<string>();
+                            var bedNums = new List<byte>();
+                            var images = new List<string>();
+                            foreach(var bed in room.RoomBeds) {
+                                bedTypes.Add(bed.BedType);
+                                bedNums.Add(bed.BedNum);
+                            }
+                            foreach (var roomPhoto in room.RoomPhotos)
+                                images.Add(roomPhoto.RPhoto);
+                            roomInfo.bedTypes = bedTypes.ToArray();
+                            roomInfo.bedNums = bedNums.ToArray();
+                            roomInfo.images = images.ToArray();
+                            message.data["roomInfo"].Add(roomInfo);
+                        }
+                        message.data["stayStatus"] = stay.StayStatus;
+                        message.data["stayTags"] = new List<string>();
+                        foreach (var tag in stay.StayLabels)
+                            message.data["stayTags"].Add(tag.LabelName);
+                        message.errorCode = 200;
+                        return message.ReturnJson();
+                    }
+                    catch (Exception e) {
+                        Console.WriteLine(e.ToString());
+                        message.errorCode = 300;
+                        return message.ReturnJson();
+                    }
                 }
             }
             return message.ReturnJson();

@@ -275,4 +275,28 @@ namespace Back_End {
             data.Add("totalPrice", null);
         }
     }
+
+    public class GetStayInfosMessage : Message {
+        public GetStayInfosMessage() {
+            errorCode = 400;
+            data.Add("stayType", null);
+            data.Add("maxTenantNum", null);
+            data.Add("roomNum", null);
+            data.Add("bedNum", null);
+            data.Add("pubRestNum", null);
+            data.Add("pubBathNum", null);
+            data.Add("barrierFree", null);
+            data.Add("Longitude", null);
+            data.Add("Latitude", null);
+            data.Add("stayName", null);
+            data.Add("stayChars", null);
+            data.Add("startTime", null);
+            data.Add("endTime", null);
+            data.Add("maxDay", null);
+            data.Add("minDay", null);
+            data.Add("roomInfo", null);
+            data.Add("stayStatus", null);
+            data.Add("stayTags", null);
+        }
+    }
 }
