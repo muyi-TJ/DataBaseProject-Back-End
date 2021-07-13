@@ -626,8 +626,8 @@ namespace Back_End.Controllers {
             }
         }
 
-        
-/*        [HttpGet("getComments")]
+
+        [HttpGet("getComments")]
         // 获取房源评价
         public string GetComments(int stayId = -1) {
             GetCommentsMessage message = new GetCommentsMessage();
@@ -637,24 +637,95 @@ namespace Back_End.Controllers {
                 message.data["commentNum"] = stay.CommentNum;
                 message.data["comments"] = new List<Dictionary<string, dynamic>>();
                 var comments = myContext.CustomerComments.Where(b => b.Order.Generates.First().StayId == stayId).ToList();
-                foreach(var comment in comments) {
+                for(int i = 0; i < comments.Count; i++) {
                     message.data["comments"].Add(
                         new Dictionary<string, dynamic> {
-                            {"id", }
-                        }
+                            {"id", i},
+                            {"nickName", comments[i].Order.Customer.CustomerName },
+                            {"avatar", comments[i].Order.Customer.CustomerPhoto },
+                            {"date",comments[i].CommentTime },
+                            {"commentContent", comments[i].CustomerComment1 }
+                        }    
                     );
                 }
+                message.errorCode = 200;
+                return message.ReturnJson();
             }
-            catch {
-
+            catch (Exception e){
+                Console.WriteLine(e.ToString());
+                message.errorCode = 300;
+                return message.ReturnJson();
             }
-
         }
 
         [HttpGet("getPrice")]
         public string GetRoomPrice(DateTime startDate, DateTime endDate, int stayId = -1, int roomId = -1) {
-
-        }*/
+            GetPriceMessage message = new GetPriceMessage();
+            StringValues token = default(StringValues);
+            if (Request.Headers.TryGetValue("token", out token)) {
+                var data = Token.VerifyToken(token);
+                if (data != null) {
+                    try {
+                        int customerId = int.Parse(data["id"]);
+                        int roomPrice = myContext.Rooms.Single(b => b.StayId == stayId && b.RoomId == roomId).Price;
+                        TimeSpan span = endDate.Subtract(startDate);
+                        int price = roomPrice * span.Days;
+                        message.data["perPrice"] = roomPrice;
+                        message.data["dateCount"] = span.Days;
+                        message.data["priceWithoutCoupon"] = price;
+                        message.data["serviceFee"] = 0;
+                        var couponList = myContext.Coupons.Where(b => b.CustomerId == customerId).ToList();
+                        var useCoupon = new Dictionary<string, dynamic> {
+                            { "couponAvailable" , false},
+                            { "couponName", null },
+                            { "couponValue", 0 }
+                        };
+                        foreach (var coupon in couponList) {
+                            if (price >= coupon.CouponType.CouponLimit && useCoupon["couponValue"] < coupon.CouponType.CouponAmount) {
+                                useCoupon["couponAvailable"] = true;
+                                useCoupon["couponName"] = coupon.CouponType.CouponName;
+                                useCoupon["couponValue"] = coupon.CouponType.CouponAmount;
+                            }
+                        }
+                        message.data["couponUsage"] = useCoupon;
+                        message.data["totalPrice"] = price - useCoupon["couponValue"];
+                        message.errorCode = 200;
+                        return message.ReturnJson();
+                    }
+                    catch (Exception e) {
+                        Console.WriteLine(e.ToString());
+                        message.errorCode = 300;
+                        return message.ReturnJson();
+                    }
+                }
+            }
+            else {
+                try {
+                    int roomPrice = myContext.Rooms.Single(b => b.StayId == stayId && b.RoomId == roomId).Price;
+                    TimeSpan span = endDate.Subtract(startDate);
+                    int price = roomPrice * span.Days;
+                    message.data["perPrice"] = roomPrice;
+                    message.data["dateCount"] = span.Days;
+                    message.data["priceWithoutCoupon"] = price;
+                    message.data["serviceFee"] = 0;
+                    var useCoupon = new Dictionary<string, dynamic> {
+                            { "couponAvailable" , false},
+                            { "couponName", null },
+                            { "couponValue", 0 }
+                        };
+                    message.data["couponUsage"] = useCoupon;
+                    message.data["totalPrice"] = price - useCoupon["couponValue"];
+                    message.errorCode = 200;
+                    return message.ReturnJson();
+                }
+                catch (Exception e) {
+                    Console.WriteLine(e.ToString());
+                    message.errorCode = 300;
+                    return message.ReturnJson();
+                }
+            }
+            return message.ReturnJson();
+        }
 
         // 通过房源Id删除房源
         [HttpDelete("delStayById")]

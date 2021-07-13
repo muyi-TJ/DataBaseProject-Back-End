@@ -263,4 +263,16 @@ namespace Back_End {
             data.Add("comments", null);
         }
     }
+
+    public class GetPriceMessage: Message {
+        public GetPriceMessage() {
+            errorCode = 400;
+            data.Add("perPrice", null);
+            data.Add("dateCount", null);
+            data.Add("priceWithoutCoupon", null);
+            data.Add("serviceFee", null);
+            data.Add("couponUsage", null);
+            data.Add("totalPrice", null);
+        }
+    }
 }

@@ -17,8 +17,6 @@ namespace Back_End.Models
         public decimal CouponAmount { get; set; }
         public decimal CouponLimit { get; set; }
         public string CouponName { get; set; }
-        public string CouponLocation { get; set; }
-
         public virtual ICollection<Coupon> Coupons { get; set; }
         public virtual ICollection<CustomerGroupCoupon> CustomerGroupCoupons { get; set; }
     }
