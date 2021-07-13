@@ -255,5 +255,12 @@ namespace Back_End {
         }
     }
 
-
+    public class GetCustomerCouponMessage:Message
+    {
+        public GetCustomerCouponMessage()
+        {
+            errorCode = 400;
+            data.Add("couponList", null);
+        }
+    }
 }

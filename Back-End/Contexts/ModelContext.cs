@@ -269,11 +269,6 @@ namespace Back_End.Contexts
                     .HasColumnType("NUMBER(8,2)")
                     .HasColumnName("COUPON_LIMIT");
 
-                entity.Property(e => e.CouponLocation)
-                    .HasMaxLength(10)
-                    .IsUnicode(false)
-                    .HasColumnName("COUPON_LOCATION");
-
                 entity.Property(e => e.CouponName)
                     .IsRequired()
                     .HasMaxLength(30)
