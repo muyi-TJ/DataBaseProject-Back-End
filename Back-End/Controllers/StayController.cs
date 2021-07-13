@@ -441,6 +441,19 @@ namespace Back_End.Controllers {
                         }//目前上传失败不抛出异常
                     }
                     myContext.SaveChanges();
+
+                    // 插入tag
+                    var tags = JsonSerializer.Deserialize<List<string>>(Request.Form["stayTags"]);
+                    foreach(var tag in tags) {
+                        myContext.StayLabels.Add(
+                            new StayLabel() {
+                                StayId = stay.StayId,
+                                LabelName = tag,
+                            }
+                        );
+                    }
+                    myContext.SaveChanges();
+
                 }
                 message.errorCode = 200;
             }
@@ -552,6 +565,17 @@ namespace Back_End.Controllers {
                             }//目前上传失败不抛出异常
                         }
                         myContext.SaveChanges();
+                    }
+
+                    // 插入tag
+                    var tags = JsonSerializer.Deserialize<List<string>>(Request.Form["stayTags"]);
+                    foreach (var tag in tags) {
+                        myContext.StayLabels.Add(
+                            new StayLabel() {
+                                StayId = stay.StayId,
+                                LabelName = tag,
+                            }
+                        );
                     }
                     message.errorCode = 200;
                 }
@@ -835,7 +859,7 @@ namespace Back_End.Controllers {
         }
 
         // 获取房东某个房源的订单数据
-        /*[HttpGet("StayOrderInfo")]
+        [HttpGet("StayOrderInfo")]
         public string GetStayOrderInfo(int stayId = -1) {
             StayOrderInfoMessage message = new StayOrderInfoMessage();
             StringValues token = default(StringValues);
@@ -844,25 +868,98 @@ namespace Back_End.Controllers {
                 if (data != null) {
                     try {
                         var stay = myContext.Stays.Single(b => b.StayId == stayId);
-                        message.data["averageScore"] = (float)stay.CommentScore / (float)stay.CommentNum;
-
-                        DateTime time = DateTime.Now.AddMonths(-11);
+                        message.data["averageScore"] =stay.CommentNum==0?0: (float)stay.CommentScore / (float)stay.CommentNum;
+                        int year = DateTime.Now.Year;
+                        int month = DateTime.Now.Month;
+                        int day = DateTime.Now.Day - 1;
+                        DateTime time = DateTime.Now.AddMonths(-month).AddDays(-day);
                         var orderInfoOfDateList = new List<Dictionary<string, dynamic>>();
                         var orderDateList = myContext.Orders.Where(b => DateTime.Compare((DateTime)b.OrderTime, time) > 0);
-                        for (int i = 0; i <= 11; i++)
-                            orderInfoOfDateList.Add(new Dictionary<string, dynamic> {
-                                {"data", time.AddMonths(i).Year.ToString() + "-" + time.AddMonths(i).Month.ToString() + "月" }
-                            });
-                        foreach (var order in orderDateList) {
-                            var orderTime = (DateTime)order.OrderTime;
+                        message.data["orderInfoOfDateList"] = new List<Dictionary<string, dynamic>>();
 
-
+                        int maleOrderNum = 0, femaleOrderNum = 0, unkownOrderNum = 0;
+                        int orderNum0 = 0, orderNum1 = 0, orderNum2 = 0, orderNum3 = 0, orderNum4 = 0, orderNum5 = 0, orderNum6 = 0;
+                        foreach (var order in myContext.Orders.ToList()) {
+                            if (order.Customer.CustomerGender == null)
+                                unkownOrderNum++;
+                            else if (order.Customer.CustomerGender == "f")
+                                femaleOrderNum++;
+                            else
+                                maleOrderNum++;
+                            if (order.Customer.CustomerBirthday == null)
+                                orderNum0++;
+                            else {
+                                DateTime birthday = (DateTime)order.Customer.CustomerBirthday;
+                                if (DateTime.Now.Year - birthday.Year <= 10)
+                                    orderNum1++;
+                                else if (DateTime.Now.Year - birthday.Year <= 20)
+                                    orderNum2++;
+                                else if (DateTime.Now.Year - birthday.Year <= 30)
+                                    orderNum3++;
+                                else if (DateTime.Now.Year - birthday.Year <= 40)
+                                    orderNum4++;
+                                else if (DateTime.Now.Year - birthday.Year <= 50)
+                                    orderNum5++;
+                                else
+                                    orderNum6++;
+                            }
                         }
+                        message.data["orderOfSexList"] = new Dictionary<string, dynamic> {
+                            { "maleOrderNum", maleOrderNum },
+                            { "femaleOrderNum", femaleOrderNum },
+                            { "unkownOrderNum", unkownOrderNum }
+                        };
+
+                        message.data["orderInfoOfAgeList"] = new Dictionary<string, dynamic> {
+                            {"orderNum0",orderNum0 },
+                            {"orderNum1",orderNum1 },
+                            {"orderNum2",orderNum2},
+                            {"orderNum3",orderNum3 },
+                            {"orderNum4",orderNum4 },
+                            {"orderNum5",orderNum5 },
+                            {"orderNum6",orderNum6 }
+                        };
+
+                        for(int i = 1; i <= 12; i++) {
+                            message.data["orderInfoOfDateList"].Add(
+                            new Dictionary<string, dynamic> {
+                                {"data", year.ToString() + "-" + i.ToString() + "月" },
+                                {"orderNum", 0 },
+                                {"reviewNUm", 0 },
+                                {"averageScore", 0 },
+                                {"totalScore",0 }
+                            }
+                        );
+                        }
+
+                        foreach (var order in orderDateList) {
+                            var index = ((DateTime)order.OrderTime).Month - 1;
+                            message.data["orderInfoOfDateList"][index]["orderNum"]++;
+                            if (order.CustomerComment != null) {
+                                message.data["orderInfoOfDateList"][index]["reviewNum"]++;
+                                message.data["orderInfoOfDateList"][index]["totalScore"] += (int)order.CustomerComment.HouseStars;
+                            }                           
+                        }
+
+                        for (int i = 0; i < 12; i++) {
+                            message.data["orderInfoOfDateList"][i]["averageScore"] =
+                                message.data["orderInfoOfDateList"][i]["totalScore"] == 0 ? 0 :
+                                (float)message.data["orderInfoOfDateList"][i]["totalScore"] /
+                                (float)message.data["orderInfoOfDateList"][i]["reviewNum"];
+                        }
+
+                        message.errorCode = 200;
+                        return message.ReturnJson();
+
                     }
                     catch (Exception e) {
+                        Console.WriteLine(e.ToString());
+                        message.errorCode = 300;
+                        return message.ReturnJson();
                     }
                 }
             }
-        }*/
+            return message.ReturnJson();
+        }
     }
 }

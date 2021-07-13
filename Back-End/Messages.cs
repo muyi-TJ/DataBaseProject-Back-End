@@ -346,7 +346,7 @@ namespace Back_End
         }
     }
 
-    public class SearchNearMessage:Message
+    public class SearchNearMessage : Message
     {
         public SearchNearMessage()
         {
@@ -356,7 +356,7 @@ namespace Back_End
         }
     }
 
-    public class AddOrderMessage:Message
+    public class AddOrderMessage : Message
     {
         public AddOrderMessage()
         {
@@ -365,11 +365,16 @@ namespace Back_End
             data.Add("payUrl", null);
             data.Add("redirectUrl", null);
             //TODO:完善
+
+
         }
     }
 
-    public class GetStayInfosMessage : Message {
-        public GetStayInfosMessage() {
+
+    public class GetStayInfosMessage : Message
+    {
+        public GetStayInfosMessage()
+        {
             errorCode = 400;
             data.Add("stayType", null);
             data.Add("maxTenantNum", null);
@@ -392,3 +397,4 @@ namespace Back_End
         }
     }
 }
+
