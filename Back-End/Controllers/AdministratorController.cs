@@ -399,25 +399,32 @@ namespace Back_End.Controllers
                         int stayId = int.Parse(Request.Form["stayId"]);
                         bool isPass = bool.Parse(Request.Form["isPass"]);
                         Stay stay = StayController.SearchById(stayId);
-                        myContext.Entry(stay).State = EntityState.Unchanged;
-                        AdministratorStay form = new AdministratorStay();
-                        form.AdminId = id;
-                        form.StayId = stayId;
-                        form.ValReplyTime = DateTime.Now;
-                        if(isPass)
+                        if(stay!=null)
                         {
-                            stay.StayStatus = 2;
-                            form.ValidateResult = 1;
+                            myContext.Entry(stay).State = EntityState.Unchanged;
+                            AdministratorStay form = new AdministratorStay();
+                            form.AdminId = id;
+                            form.StayId = stayId;
+                            form.ValReplyTime = DateTime.Now;
+                            if (isPass)
+                            {
+                                stay.StayStatus = 2;
+                                form.ValidateResult = 1;
+                            }
+                            else
+                            {
+                                stay.StayStatus = 3;
+                                form.ValidateResult = 0;
+                                form.ValidateReply = Request.Form["msg"];
+                            }//房源状态0保存未提交，1提交未审核，2审核通过，3审核不通过
+                            myContext.AdministratorStays.Add(form);
+                            myContext.SaveChanges();
+                            message.data["isSuccess"] = true;
                         }
                         else
                         {
-                            stay.StayStatus = 3;
-                            form.ValidateResult = 0;
-                            form.ValidateReply = Request.Form["msg"];
-                        }//房源状态0保存未提交，1提交未审核，2审核通过，3审核不通过
-                        myContext.AdministratorStays.Add(form);
-                        myContext.SaveChanges();
-                        message.data["isSuccess"] = true;
+                            message.data["isSuccess"] = true;
+                        }
                     }
                 }
             }

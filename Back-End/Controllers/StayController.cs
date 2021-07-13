@@ -515,6 +515,116 @@ namespace Back_End.Controllers
             return message.ReturnJson();
         }
 
+        [HttpPut("info")]
+        public string ChangeStayInfo()
+        {
+            Message message = new Message();
+            message.errorCode = 300;
+            int preId = -1;
+            int.TryParse(Request.Form["stayId"], out preId);
+            Stay preStay = SearchById(-1);
+            if (preStay != null)
+            {
+                myContext.Entry(preStay).State = EntityState.Unchanged;
+                myContext.Stays.Remove(preStay);
+                myContext.SaveChanges();
+                try
+                {
+                    Stay stay = new Stay();
+                    stay.StayType = Request.Form["stayType"];
+                    stay.StayCapacity = byte.Parse(Request.Form["maxTenantNum"]);
+                    stay.DetailedAddress = Request.Form["struPos"];
+                    stay.RoomNum = byte.Parse(Request.Form["roomNum"]);
+                    stay.BedNum = byte.Parse(Request.Form["bedNum"]);
+                    stay.PublicToilet = decimal.Parse(Request.Form["pubRestNum"]);
+                    stay.PublicBathroom = decimal.Parse(Request.Form["pubBathNum"]);
+                    stay.NonBarrierFacility = decimal.Parse(Request.Form["barrierFree"]);
+                    stay.Longitude = decimal.Parse(Request.Form["Longtitude"]);
+                    stay.Latitude = decimal.Parse(Request.Form["Latitude"]);
+                    stay.StayName = Request.Form["stayName"];
+                    stay.Characteristic = Request.Form["stayChars"];
+                    stay.StartTime = DateTime.Parse(Request.Form["startTime"]);
+                    stay.EndTime = DateTime.Parse(Request.Form["endTime"]);
+                    stay.DaysMax = byte.Parse(Request.Form["maxDay"]);
+                    stay.DaysMin = byte.Parse(Request.Form["minDay"]);
+                    stay.StayStatus = decimal.Parse(Request.Form["stayStatus"]);
+                    stay.CommentNum = 0;
+                    stay.CommentScore = 0;
+                    StringValues token = default(StringValues);
+                    int? hostId = null;
+                    if (Request.Headers.TryGetValue("token", out token))
+                    {
+                        var data = Token.VerifyToken(token);
+                        if (data != null)
+                        {
+                            myContext.DetachAll();
+                            int id = int.Parse(data["id"]);
+                            var host = HostController.SearchById(id);
+                            if (host != null)
+                            {
+                                hostId = host.HostId;
+                            }
+                        }
+                    }
+                    if (hostId != null)
+                    {
+                        stay.HostId = hostId;
+                    }
+                    else
+                    {
+                        throw (null);
+                    }
+                    myContext.Stays.Add(stay);
+                    myContext.SaveChanges();
+                    //TODO:test
+                    var rooms = JsonSerializer.Deserialize<List<RoomInfo>>(Request.Form["roomInfo"]);
+                    foreach (var room in rooms)
+                    {
+                        Room newRoom = new Room();
+                        newRoom.StayId = stay.StayId;
+                        newRoom.RoomId = room.roomId;
+                        newRoom.Price = room.price;
+                        newRoom.RoomArea = room.roomArea;
+                        newRoom.BathroomNum = room.bathNum;
+                        myContext.Rooms.Add(newRoom);
+                        myContext.SaveChanges();
+                        for (int i = 0; i < room.bedTypes.Length; i++)
+                        {
+                            if (room.bedNums[i] > 0)
+                            {
+                                RoomBed roomBed = new RoomBed();
+                                //TODO:修改type
+                                roomBed.BedNum = room.bedNums[i];
+                                roomBed.RoomId = newRoom.RoomId;
+                                roomBed.StayId = stay.StayId;
+                                myContext.RoomBeds.Add(roomBed);
+                            }//全部插入后再保存
+                        }
+                        myContext.SaveChanges();
+                        for (int i = 0; i < room.images.Length; i++)
+                        {
+                            string url = PhotoUpload.UploadPhoto(room.images[i], "roomPhoto/" + stay.StayId + '-' + newRoom.RoomId + '-' + i.ToString());
+                            if (url != null)
+                            {
+                                var photo = new RoomPhoto();
+                                photo.StayId = stay.StayId;
+                                photo.RoomId = newRoom.RoomId;
+                                photo.RPhoto = url;
+                                myContext.RoomPhotos.Add(photo);
+                            }//目前上传失败不抛出异常
+                        }
+                        myContext.SaveChanges();
+                    }
+                    message.errorCode = 200;
+                }
+                catch
+                {
+
+                }
+            }
+            return message.ReturnJson();
+        }
+
         // 通过房源Id删除房源
         [HttpDelete("delStayById")]
         public string DelStayById(int stayId = -1) {
