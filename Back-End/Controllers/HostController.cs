@@ -205,7 +205,7 @@ namespace Back_End.Controllers
                         message.data["emailTag"] = host.HostEmail == null ? false : true;
                         message.data["phoneTag"] = host.HostPhone == null ? false : true;
                         message.data["authenticationTag"] = true;
-                        message.data["authenticationTag"] = host.HostCreateTime;
+                        message.data["hostCreateTime"] = host.HostCreateTime;
                         message.data["averageRate"] = commentNum == 0 ? 0 : ((float)commentScore / (float)commentNum);
                         message.data["unpublishedStayInfo"] = new List<Dictionary<string, dynamic>>();
                         message.data["pendingStayInfo"] = new List<Dictionary<string, dynamic>>();
@@ -249,6 +249,39 @@ namespace Back_End.Controllers
                         message.errorCode = 300;
                         return message.ReturnJson();
                     }
+                }
+            }
+            return message.ReturnJson();
+        }
+
+        [HttpPut("avatar")]
+        public string ChangeCustomerPhoto() {
+            Message message = new Message();
+            message.errorCode = 400;
+            StringValues token = default(StringValues);
+            if (Request.Headers.TryGetValue("token", out token)) {
+                
+                var data = Token.VerifyToken(token);
+                if (data != null) {
+                    context.DetachAll();
+                    int id = int.Parse(data["id"]);
+                    var host = context.Hosts.Single(b => b.HostId == id);
+                    string photo = Request.Form["hostAvatar"];
+                    Console.WriteLine(photo + "200");
+                    if (photo != null) {
+                        try {
+                            string newPhoto = PhotoUpload.UploadPhoto(photo, "hostAvatar/" + id.ToString());
+                            if (newPhoto != null) {
+                                host.HostAvatar = newPhoto;
+                                context.SaveChanges();
+                                message.errorCode = 200;
+                            }
+                        }
+                        catch {
+                            message.errorCode = 300;
+                        }
+                    }
+
                 }
             }
             return message.ReturnJson();
