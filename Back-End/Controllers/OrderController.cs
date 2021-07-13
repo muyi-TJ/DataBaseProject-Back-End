@@ -8,6 +8,7 @@ using Back_End.Contexts;
 using System.Text.Json;
 using Back_End.Models;
 using Microsoft.Extensions.Primitives;
+using Microsoft.EntityFrameworkCore;
 
 namespace Back_End.Controllers
 {
@@ -173,6 +174,91 @@ namespace Back_End.Controllers
                         }
                         message.data["customerOrderList"] = orderInfos;
                         message.errorCode = 200;
+                    }
+                }
+            }
+            return message.ReturnJson();
+        }
+
+        [HttpPost("addHostComment")]
+        public string AddHostComment()
+        {
+            Message message = new Message();
+            message.errorCode = 400;
+            StringValues token = default(StringValues);
+            if (Request.Headers.TryGetValue("token", out token))
+            {
+                message.errorCode = 300;
+                var data = Token.VerifyToken(token);
+                if (data != null)
+                {
+                    int id = int.Parse(data["id"]);
+                    var host = HostController.SearchById(id);
+                    if (host != null)
+                    {
+                        int orderId = int.Parse(Request.Form["orderId"]);
+                        try
+                        {
+                            Order order = SearchById(orderId);
+                            if (order != null)
+                            {
+                                HostComment hostComment = new HostComment();
+                                hostComment.OrderId = orderId;
+                                hostComment.CustomerStars = int.Parse(Request.Form["commentStars"]);
+                                hostComment.HostComment1 = Request.Form["commentText"];
+                                hostComment.CommentTime = DateTime.Now;
+                                myContext.HostComments.Add(hostComment);
+                                myContext.SaveChanges();
+                                message.errorCode = 200;
+                            }
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                }
+            }
+            return message.ReturnJson();
+        }
+
+        [HttpPost("addCustomerComment")]
+        public string AddCustomerComment()
+        {
+            Message message = new Message();
+            message.errorCode = 400;
+            StringValues token = default(StringValues);
+            if (Request.Headers.TryGetValue("token", out token))
+            {
+                message.errorCode = 300;
+                var data = Token.VerifyToken(token);
+                if (data != null)
+                {
+                    int id = int.Parse(data["id"]);
+                    var customer = CustomerController.SearchById(id);
+                    if (customer != null)
+                    {
+                        int orderId = int.Parse(Request.Form["orderId"]);
+                        try
+                        {
+                            Order order = SearchById(orderId);
+                            if (order != null)
+                            {
+                                CustomerComment customerComment = new CustomerComment();
+                                customerComment.OrderId = orderId;
+                                customerComment.HouseStars = int.Parse(Request.Form["commentStars"]);
+                                customerComment.CustomerComment1 = Request.Form["commentText"];
+                                customerComment.CommentTime = DateTime.Now;
+                                myContext.CustomerComments.Add(customerComment);
+                                myContext.SaveChanges();
+                                message.errorCode = 200;
+                            }
+                        }
+                        catch
+                        {
+
+                        }
+
                     }
                 }
             }
