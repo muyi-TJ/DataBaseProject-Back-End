@@ -95,6 +95,47 @@ namespace Back_End.Controllers
             }
         }
 
+        class RoomInfo
+        {
+            public int roomId { get; set; }
+            public byte bathroomNum { get; set; }
+            public int bedNum { get; set; }
+            public List<string> bedType { get; set; }
+        }
+
+
+        [HttpGet("examineStay/all")]
+        public string GetStayTotalNumber()
+        {
+            GetTotalNumberMessage message = new GetTotalNumberMessage();
+            StringValues token = default(StringValues);
+            if (Request.Headers.TryGetValue("token", out token))
+            {
+                message.errorCode = 300;
+                var data = Token.VerifyToken(token);
+                if (data != null)
+                {
+                    int id = int.Parse(data["id"]);
+                    var admin = SearchById(id);
+                    if (admin != null)
+                    {
+                        message.errorCode = 200;
+                        int pagenum = myContext.Stays.Where(s => s.StayStatus == 1).Count();
+                        if(pagenum%10==0)
+                        {
+                            message.data["totalNum"] = pagenum / 10;
+                        }
+                        else
+                        {
+                            message.data["totalNum"] = pagenum / 10 + 1;
+                        }
+                    }
+
+                }
+            }
+            return message.ReturnJson();
+        }
+
         [HttpGet("examineStay")]
         public string GetStayByPage()
         {
@@ -144,27 +185,23 @@ namespace Back_End.Controllers
                         message.data["stayType"] = stay.StayType;
                         message.data["stayCapability"] = stay.StayCapacity;
                         var rooms = stay.Rooms.ToList();
-                        var roomsInfo = new List<string>();
+                        var roomsInfo = new List<RoomInfo>();
                         var photos = new List<string>();
                         foreach (var room in rooms)
                         {
-                            string temp = "";
-                            temp += "roomId:";
-                            temp += room.RoomId.ToString();
-                            temp += ",\nbathroomNum:";
-                            temp += room.BathroomNum.ToString();
+                            var roomInfo = new RoomInfo();
+                            roomInfo.roomId = room.RoomId;
+                            roomInfo.bathroomNum = (byte)room.BathroomNum;
                             int bedCount = 0;
-                            string bedType = "";
+                            List<string> bedType = new List<string>();
                             foreach (var bed in room.RoomBeds)
                             {
                                 bedCount += bed.BedNum;
-                                bedType += BedController.SearchById(bed.BedId).BedType + ' ';
+                                bedType.Add(BedController.SearchById(bed.BedId).BedType);
                             }
-                            temp += ",\nbedNum:";
-                            temp += stay.BedNum.ToString();
-                            temp += ",\nbedType:";
-                            temp += bedType;
-                            roomsInfo.Add(temp);
+                            roomInfo.bedNum = bedCount;
+                            roomInfo.bedType = bedType;
+                            roomsInfo.Add(roomInfo);
                             foreach (var pic in room.RoomPhotos)
                             {
                                 photos.Add(pic.RPhoto);
@@ -181,6 +218,39 @@ namespace Back_End.Controllers
             }
             return message.ReturnJson();
         }
+
+        [HttpGet("examineReport/all")]
+        public string GetReportyTotalNumber()
+        {
+            GetTotalNumberMessage message = new GetTotalNumberMessage();
+            StringValues token = default(StringValues);
+            if (Request.Headers.TryGetValue("token", out token))
+            {
+                message.errorCode = 300;
+                var data = Token.VerifyToken(token);
+                if (data != null)
+                {
+                    int id = int.Parse(data["id"]);
+                    var admin = SearchById(id);
+                    if (admin != null)
+                    {
+                        message.errorCode = 200;
+                        int pagenum = myContext.Reports.Where(s => s.IsDealed == 0).Count();
+                        if (pagenum % 10 == 0)
+                        {
+                            message.data["totalNum"] = pagenum / 10;
+                        }
+                        else
+                        {
+                            message.data["totalNum"] = pagenum / 10 + 1;
+                        }
+                    }
+
+                }
+            }
+            return message.ReturnJson();
+        }
+
 
         [HttpGet("examineReport")]
         public string GetReportByPage()
@@ -201,7 +271,7 @@ namespace Back_End.Controllers
                         int page = int.Parse(Request.Query["pagenum"]);
                         var pageInfo = myContext.Reports.Where(s => s.IsDealed == 0).OrderBy(b => b.ReportTime).Skip((page - 1) * pageSize)
                             .Take(pageSize).Select(c => new PagedReports
-                            { stayId = c.Order.Generates.First().StayId, reportId = c.OrderId, reporterId = (int)c.Order.CustomerId });
+                            { stayId = c.Order.Generates.First().StayId, reportId = c.OrderId, reporterId = c.Order.CustomerId });
                         var examines = pageInfo.ToList();
                         message.data["reportList"] = examines;
                     }
@@ -239,6 +309,41 @@ namespace Back_End.Controllers
             }
             return message.ReturnJson();
         }
+
+        [HttpGet("nearby/all")]
+        public string GetNearTotalNumber()
+        {
+            GetTotalNumberMessage message = new GetTotalNumberMessage();
+            StringValues token = default(StringValues);
+            if (Request.Headers.TryGetValue("token", out token))
+            {
+                message.errorCode = 300;
+                var data = Token.VerifyToken(token);
+                if (data != null)
+                {
+                    int id = int.Parse(data["id"]);
+                    var admin = SearchById(id);
+                    if (admin != null)
+                    {
+                        message.errorCode = 200;
+                        int pagenum = myContext.Peripherals.Count();
+                        if (pagenum % 10 == 0)
+                        {
+                            message.data["totalNum"] = pagenum / 10;
+                        }
+                        else
+                        {
+                            message.data["totalNum"] = pagenum / 10 + 1;
+                        }
+                    }
+
+                }
+            }
+            return message.ReturnJson();
+        }
+
+
+
 
         [HttpGet("nearby")]
         public string GetNearByPage()

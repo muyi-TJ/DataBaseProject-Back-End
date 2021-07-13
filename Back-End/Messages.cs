@@ -245,4 +245,14 @@ namespace Back_End
             data.Add("orderInfoOfAgeList", null);
         }
     }
+
+
+    public class GetTotalNumberMessage:Message
+    {
+        public GetTotalNumberMessage()
+        {
+            errorCode = 400;
+            data.Add("totalNum", 0);
+        }
+    }
 }

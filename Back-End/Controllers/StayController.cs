@@ -426,8 +426,8 @@ namespace Back_End.Controllers
                 stay.DetailedAddress = Request.Form["struPos"];
                 stay.RoomNum = byte.Parse(Request.Form["roomNum"]);
                 stay.BedNum = byte.Parse(Request.Form["bedNum"]);
-                stay.PublicToilet = byte.Parse(Request.Form["pubRestNum"]);
-                stay.PublicBathroom = byte.Parse(Request.Form["pubBathNum"]);
+                stay.PublicToilet = decimal.Parse(Request.Form["pubRestNum"]);
+                stay.PublicBathroom = decimal.Parse(Request.Form["pubBathNum"]);
                 stay.NonBarrierFacility = decimal.Parse(Request.Form["barrierFree"]);
                 stay.Longitude = decimal.Parse(Request.Form["Longtitude"]);
                 stay.Latitude = decimal.Parse(Request.Form["Latitude"]);
