@@ -254,4 +254,13 @@ namespace Back_End {
 
         }
     }
+
+    public class GetCommentsMessage : Message {
+        public GetCommentsMessage() {
+            errorCode = 400;
+            data.Add("ratings", null);
+            data.Add("commentNum", null);
+            data.Add("comments", null);
+        }
+    }
 }

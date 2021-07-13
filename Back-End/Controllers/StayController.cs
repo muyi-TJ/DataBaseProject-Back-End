@@ -565,59 +565,96 @@ namespace Back_End.Controllers {
         [HttpGet("getStayDetails")]
         public string GetStayDetails(int stayId = -1) {
             GetStayDetailsMessage message = new GetStayDetailsMessage();
-            message.errorCode = 400;
-            StringValues token = default(StringValues);
-            if (Request.Headers.TryGetValue("token", out token)) {
-                var data = Token.VerifyToken(token);
-                if (data != null) {
-                    try {
-                        var stay = myContext.Stays.Single(b => b.StayId == stayId);
-                        message.data["stayId"] = stayId;
-                        message.data["stayImages"] = new List<string>();
-                        foreach (var room in stay.Rooms) {
-                            foreach (var roomPhoto in room.RoomPhotos) {
-                                message.data["stayImages"].Add(roomPhoto.RPhoto);
-                            }
-                        }
-                        message.data["stayName"] = stay.StayName;
-                        message.data["stayDescription"] = stay.Characteristic;
-                        message.data["characteristic"] = stay.StayTypeNavigation.Characteristic;
-                        message.data["hostAvatar"] = stay.Host.HostAvatar;
-                        message.data["hostLevel"] = stay.Host.HostLevelNavigation == null ? null : stay.Host.HostLevelNavigation.HostLevelName;
-                        message.data["hostCommentNum"] = stay.CommentNum;
-                        message.data["stayPosition"] = new List<float> { (float)stay.Longitude, (float)stay.Latitude };
-                        message.data["hostName"] = stay.Host.HostUsername;
-                        message.data["roomNum"] = stay.Rooms.Count();
-                        int bedNum = 0;
-                        foreach (var room in stay.Rooms)
-                            bedNum += room.RoomBeds.Count();
-                        message.data["bedNum"] = bedNum;
-                        message.data["stayCapacity"] = stay.StayCapacity;
-                        message.data["publicBathroom"] = stay.PublicBathroom;
-                        message.data["publicToilet"] = stay.PublicToilet;
-                        message.data["nonBarrierFacility"] = stay.NonBarrierFacility == 0 ? false : true;
-                        message.data["startTime"] = stay.StartTime;
-                        message.data["endTime"] = stay.EndTime;
-                        message.data["rooms"] = new List<Dictionary<string, dynamic>>();
-                        foreach (var room in stay.Rooms) {
-                            message.data["rooms"].Add("id", room.RoomId);
-                            message.data["rooms"].Add("area", room.RoomArea);
-                            message.data["rooms"].Add("bathroom", room.BathroomNum);
-                            message.data["rooms"].Add("price", room.Price);
-                            int roomCapacity = 0;
-                            //foreach(var bed in room.RoomBeds) 
-                            //roomCapacity += bed.
-                            //message.data["rooms"].Add("roomCapacity",)
-                        }
-                    }
-                    catch (Exception e) {
-
+            try {
+                var stay = myContext.Stays.Single(b => b.StayId == stayId);
+                message.data["stayId"] = stayId;
+                message.data["stayImages"] = new List<string>();
+                foreach (var room in stay.Rooms) {
+                    foreach (var roomPhoto in room.RoomPhotos) {
+                        message.data["stayImages"].Add(roomPhoto.RPhoto);
                     }
                 }
+                message.data["stayName"] = stay.StayName;
+                message.data["stayDescription"] = stay.Characteristic;
+                message.data["characteristic"] = stay.StayTypeNavigation.Characteristic;
+                message.data["hostAvatar"] = stay.Host.HostAvatar;
+                message.data["hostLevel"] = stay.Host.HostLevelNavigation == null ? null : stay.Host.HostLevelNavigation.HostLevelName;
+                message.data["hostCommentNum"] = stay.CommentNum;
+                message.data["stayPosition"] = new List<float> { (float)stay.Longitude, (float)stay.Latitude };
+                message.data["hostName"] = stay.Host.HostUsername;
+                message.data["roomNum"] = stay.Rooms.Count();
+                int bedNum = 0;
+                foreach (var room in stay.Rooms)
+                    bedNum += room.RoomBeds.Count();
+                message.data["bedNum"] = bedNum;
+                message.data["stayCapacity"] = stay.StayCapacity;
+                message.data["publicBathroom"] = stay.PublicBathroom;
+                message.data["publicToilet"] = stay.PublicToilet;
+                message.data["nonBarrierFacility"] = stay.NonBarrierFacility == 0 ? false : true;
+                message.data["startTime"] = stay.StartTime;
+                message.data["endTime"] = stay.EndTime;
+                message.data["rooms"] = new List<Dictionary<string, dynamic>>();
+                foreach (var room in stay.Rooms) {
+                    var dict = new Dictionary<string, dynamic>();
+                    dict.Add("id", room.RoomId);
+                    dict.Add("area", room.RoomArea);
+                    dict.Add("bathroom", room.BathroomNum);
+                    dict.Add("price", room.Price);
+                    int roomCapacity = 0;
+                    foreach (var roomBed in room.RoomBeds)
+                        roomCapacity += roomBed.BedTypeNavigation.PersonNum;
+                    dict.Add("roomCapacity", roomCapacity);
+                    dict.Add("roomImage", new List<string>());
+                    foreach (var roomPhoto in room.RoomPhotos)
+                        dict["roomImage"].Add(roomPhoto.RPhoto);
+                    dict.Add("beds", new List<Dictionary<string, dynamic>>());
+                    foreach (var roomBed in room.RoomBeds)
+                        dict["beds"].Add(new Dictionary<string, dynamic> { { "bedType", roomBed.BedType }, { "num", roomBed.BedNum } });
+                    dict.Add("unavailable", new List<Dictionary<string, DateTime>>());
+                    var unavailableList = myContext.Generates.Where(b => b.StayId == stayId).Distinct().ToList();
+                    foreach (var unavailable in unavailableList)
+                        dict["unavailable"].Add(new Dictionary<string, DateTime> { { "startData", unavailable.StartTime }, { "endData", unavailable.EndTime } });
+                    message.data["rooms"].Add(dict);
+                }
+                message.errorCode = 200;
+                return message.ReturnJson();
             }
-            return "hh";
+            catch (Exception e) {
+                Console.WriteLine(e.ToString());
+                message.errorCode = 300;
+                return message.ReturnJson();
+            }
         }
 
+        
+/*        [HttpGet("getComments")]
+        // 获取房源评价
+        public string GetComments(int stayId = -1) {
+            GetCommentsMessage message = new GetCommentsMessage();
+            try {
+                var stay = myContext.Stays.Single(b => b.StayId == stayId);
+                message.data["ratings"] = stay.CommentScore == 0 ? 0 : (float)stay.CommentScore / (float)stay.CommentNum;
+                message.data["commentNum"] = stay.CommentNum;
+                message.data["comments"] = new List<Dictionary<string, dynamic>>();
+                var comments = myContext.CustomerComments.Where(b => b.Order.Generates.First().StayId == stayId).ToList();
+                foreach(var comment in comments) {
+                    message.data["comments"].Add(
+                        new Dictionary<string, dynamic> {
+                            {"id", }
+                        }
+                    );
+                }
+            }
+            catch {
+
+            }
+
+        }
+
+        [HttpGet("getPrice")]
+        public string GetRoomPrice(DateTime startDate, DateTime endDate, int stayId = -1, int roomId = -1) {
+
+        }*/
 
         // 通过房源Id删除房源
         [HttpDelete("delStayById")]
@@ -629,8 +666,8 @@ namespace Back_End.Controllers {
                 var data = Token.VerifyToken(token);
                 if (data != null) {
                     try {
-                        var stay = new Stay() { StayId = stayId };
-                        myContext.Stays.Remove(stay);
+                        var stay = myContext.Stays.Single(b => b.StayId == stayId);
+                        stay.StayStatus = 4;
                         myContext.SaveChanges();
 
                         message.errorCode = 200;

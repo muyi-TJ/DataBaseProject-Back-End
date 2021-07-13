@@ -36,6 +36,15 @@ namespace Back_End.Controllers
                 myContext.SaveChanges();
                 registerMessage.errorCode = 200;
                 registerMessage.data["registerState"] = true;
+
+
+                // 添加默认收藏夹
+                Favorite favorite = new Favorite() {
+                    CustomerId = customer.CustomerId,
+                    Name = "默认收藏夹"
+                };
+                myContext.Add(favorite);
+                myContext.SaveChanges();
             }
             catch
             {
