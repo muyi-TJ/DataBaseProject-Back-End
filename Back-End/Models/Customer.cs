@@ -26,7 +26,7 @@ namespace Back_End.Models
         public string CustomerGender { get; set; }
         public DateTime? CustomerBirthday { get; set; }
         public decimal? CustomerState { get; set; }
-        public byte? CustomerLevel { get; set; }
+        public short? CustomerLevel { get; set; }
         public int? CustomerDegree { get; set; }
         public decimal? CustomerMood { get; set; }
 

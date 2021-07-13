@@ -245,4 +245,30 @@ namespace Back_End
             data.Add("orderInfoOfAgeList", null);
         }
     }
+
+    public class GetStayDetailsMessage: Message {
+        public GetStayDetailsMessage() {
+            errorCode = 400;
+
+            data.Add("stayId", null);
+            data.Add("stayImages", null);
+            data.Add("stayName", null);
+            data.Add("stayDescription", null);
+            data.Add("characteristic", null);
+            data.Add("hostAvatar", null);
+            data.Add("hostLevel", null);
+            data.Add("hostCommentNum", null);
+            data.Add("stayPosition", null);
+            data.Add("hostName", null);
+            data.Add("roomNum", null);
+            data.Add("bedNum", null);
+            data.Add("stayCapacity", null);
+            data.Add("publicBathroom", null);
+            data.Add("publicToilet", null);
+            data.Add("nonBarrierFacility", null);
+            data.Add("startTime", null);
+            data.Add("endTime", null);
+            data.Add("rooms", null);
+        }
+    }
 }

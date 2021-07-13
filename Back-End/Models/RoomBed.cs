@@ -9,10 +9,10 @@ namespace Back_End.Models
     {
         public int StayId { get; set; }
         public int RoomId { get; set; }
-        public byte BedId { get; set; }
+        public string BedType { get; set; }
         public byte BedNum { get; set; }
 
-        public virtual Bed Bed { get; set; }
+        public virtual Bed BedTypeNavigation { get; set; }
         public virtual Room Room { get; set; }
     }
 }

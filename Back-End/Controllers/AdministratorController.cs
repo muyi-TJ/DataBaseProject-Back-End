@@ -10,33 +10,27 @@ using Back_End.Models;
 using Microsoft.Extensions.Primitives;
 using Microsoft.EntityFrameworkCore;
 
-namespace Back_End.Controllers
-{
+namespace Back_End.Controllers {
     [ApiController]
     [Route("api/[controller]")]
-    public class AdministratorController : ControllerBase
-    {
+    public class AdministratorController : ControllerBase {
         private readonly ModelContext myContext;
-        public AdministratorController(ModelContext modelContext)
-        {
+        public AdministratorController(ModelContext modelContext) {
             myContext = modelContext;
         }
-        class PagedStays
-        {
+        class PagedStays {
             public int stayId { get; set; }
             public int hostId { get; set; }
             public string stayCity { get; set; }
         }
 
-        class PagedReports
-        {
+        class PagedReports {
             public int reportId { get; set; }
             public int reporterId { get; set; }
             public int stayId { get; set; }
         }
 
-        class PagedNears
-        {
+        class PagedNears {
             public int nearbyId { get; set; }
             public string nearbyName { get; set; }
             public string nearbyType { get; set; }
@@ -45,71 +39,56 @@ namespace Back_End.Controllers
         }
         public readonly int pageSize = 10;
 
-        public static Administrator SearchById(int id)
-        {
-            try
-            {
+        public static Administrator SearchById(int id) {
+            try {
                 ModelContext modelContext = new ModelContext();
                 var admin = modelContext.Administrators
                     .Single(b => b.AdminId == id);
                 return admin;
             }
-            catch
-            {
+            catch {
                 return null;
             }
 
         }
 
-        public static Administrator SearchByName(string name)
-        {
-            try
-            {
+        public static Administrator SearchByName(string name) {
+            try {
                 ModelContext modelContext = new ModelContext();
                 var admin = modelContext.Administrators
                     .Single(b => b.AdminUsername == name);
                 return admin;
             }
-            catch
-            {
+            catch {
                 return null;
             }
         }
 
-        public static bool AdminLoginByName(Administrator admin,string password)
-        {
-            try
-            {
-                if(admin==null)
-                {
+        public static bool AdminLoginByName(Administrator admin, string password) {
+            try {
+                if (admin == null) {
                     return false;
                 }
-                else
-                {
+                else {
                     return admin.AdminPassword == password;
                 }
             }
-            catch
-            {
+            catch {
                 return false;
             }
         }
 
         [HttpGet("examineStay")]
-        public string GetStayByPage()
-        {
+        public string GetStayByPage() {
             GetStayByPageMessage message = new GetStayByPageMessage();
             StringValues token = default(StringValues);
-            if (Request.Headers.TryGetValue("token", out token))
-            {
+            if (Request.Headers.TryGetValue("token", out token)) {
                 message.errorCode = 300;
                 var data = Token.VerifyToken(token);
-                if (data != null)
-                {
+                if (data != null) {
                     int id = int.Parse(data["id"]);
                     var admin = SearchById(id);
-                    if (admin != null)
-                    {
+                    if (admin != null) {
                         message.errorCode = 200;
                         int page = int.Parse(Request.Query["pagenum"]);
                         var pageInfo = myContext.Stays.Where(s => s.StayStatus == 1).OrderBy(b => b.StayId).Skip((page - 1) * pageSize)
@@ -123,20 +102,16 @@ namespace Back_End.Controllers
         }
 
         [HttpGet("examineStay/one")]
-        public string GetStayById()
-        {
+        public string GetStayById() {
             GetStayByIdMessage message = new GetStayByIdMessage();
             StringValues token = default(StringValues);
-            if (Request.Headers.TryGetValue("token", out token))
-            {
+            if (Request.Headers.TryGetValue("token", out token)) {
                 message.errorCode = 300;
                 var data = Token.VerifyToken(token);
-                if (data != null)
-                {
+                if (data != null) {
                     int id = int.Parse(data["id"]);
                     var admin = SearchById(id);
-                    if (admin != null)
-                    {
+                    if (admin != null) {
                         message.errorCode = 200;
                         int stayid = int.Parse(Request.Query["stayId"]);
                         Stay stay = StayController.SearchById(stayid);
@@ -146,8 +121,7 @@ namespace Back_End.Controllers
                         var rooms = stay.Rooms.ToList();
                         var roomsInfo = new List<string>();
                         var photos = new List<string>();
-                        foreach (var room in rooms)
-                        {
+                        foreach (var room in rooms) {
                             string temp = "";
                             temp += "roomId:";
                             temp += room.RoomId.ToString();
@@ -155,18 +129,16 @@ namespace Back_End.Controllers
                             temp += room.BathroomNum.ToString();
                             int bedCount = 0;
                             string bedType = "";
-                            foreach (var bed in room.RoomBeds)
-                            {
+                            foreach (var bed in room.RoomBeds) {
                                 bedCount += bed.BedNum;
-                                bedType += BedController.SearchById(bed.BedId).BedType + ' ';
+                                bedType += bed.BedType + ' ';
                             }
                             temp += ",\nbedNum:";
                             temp += stay.BedNum.ToString();
                             temp += ",\nbedType:";
                             temp += bedType;
                             roomsInfo.Add(temp);
-                            foreach (var pic in room.RoomPhotos)
-                            {
+                            foreach (var pic in room.RoomPhotos) {
                                 photos.Add(pic.RPhoto);
                             }
 
@@ -183,25 +155,20 @@ namespace Back_End.Controllers
         }
 
         [HttpGet("examineReport")]
-        public string GetReportByPage()
-        {
+        public string GetReportByPage() {
             GetReportByPageMessage message = new GetReportByPageMessage();
             StringValues token = default(StringValues);
-            if (Request.Headers.TryGetValue("token", out token))
-            {
+            if (Request.Headers.TryGetValue("token", out token)) {
                 message.errorCode = 300;
                 var data = Token.VerifyToken(token);
-                if (data != null)
-                {
+                if (data != null) {
                     int id = int.Parse(data["id"]);
                     var admin = SearchById(id);
-                    if (admin != null)
-                    {
+                    if (admin != null) {
                         message.errorCode = 200;
                         int page = int.Parse(Request.Query["pagenum"]);
                         var pageInfo = myContext.Reports.Where(s => s.IsDealed == 0).OrderBy(b => b.ReportTime).Skip((page - 1) * pageSize)
-                            .Take(pageSize).Select(c => new PagedReports
-                            { stayId = c.Order.Generates.First().StayId, reportId = c.OrderId, reporterId = (int)c.Order.CustomerId });
+                            .Take(pageSize).Select(c => new PagedReports { stayId = c.Order.Generates.First().StayId, reportId = c.OrderId, reporterId = (int)c.Order.CustomerId });
                         var examines = pageInfo.ToList();
                         message.data["reportList"] = examines;
                     }
@@ -211,20 +178,16 @@ namespace Back_End.Controllers
         }
 
         [HttpGet("examineReport/one")]
-        public string GetReportById()
-        {
+        public string GetReportById() {
             GetReportByIdMessage message = new GetReportByIdMessage();
             StringValues token = default(StringValues);
-            if (Request.Headers.TryGetValue("token", out token))
-            {
+            if (Request.Headers.TryGetValue("token", out token)) {
                 message.errorCode = 300;
                 var data = Token.VerifyToken(token);
-                if (data != null)
-                {
+                if (data != null) {
                     int id = int.Parse(data["id"]);
                     var admin = SearchById(id);
-                    if (admin != null)
-                    {
+                    if (admin != null) {
                         message.errorCode = 200;
                         int reportId = int.Parse(Request.Query["reportId"]);
                         Report report = ReportController.SearchById(reportId);
@@ -241,25 +204,20 @@ namespace Back_End.Controllers
         }
 
         [HttpGet("nearby")]
-        public string GetNearByPage()
-        {
+        public string GetNearByPage() {
             GetNearByPageMessage message = new GetNearByPageMessage();
             StringValues token = default(StringValues);
-            if (Request.Headers.TryGetValue("token", out token))
-            {
+            if (Request.Headers.TryGetValue("token", out token)) {
                 message.errorCode = 300;
                 var data = Token.VerifyToken(token);
-                if (data != null)
-                {
+                if (data != null) {
                     int id = int.Parse(data["id"]);
                     var admin = SearchById(id);
-                    if (admin != null)
-                    {
+                    if (admin != null) {
                         message.errorCode = 200;
                         int page = int.Parse(Request.Query["pagenum"]);
                         var pageInfo = myContext.Peripherals.OrderBy(b => b.PeripheralId).Skip((page - 1) * pageSize)
-                            .Take(pageSize).Select(c => new PagedNears
-                            {
+                            .Take(pageSize).Select(c => new PagedNears {
                                 nearbyId = c.PeripheralId,
                                 nearbyType = c.PeripheralClass,
                                 nearbyName = c.PeripheralName,
@@ -275,20 +233,16 @@ namespace Back_End.Controllers
         }
 
         [HttpPost("examineStay/result")]
-        public string UploadStayExamine()
-        {
+        public string UploadStayExamine() {
             UploadStayExamineMessage message = new UploadStayExamineMessage();
             StringValues token = default(StringValues);
-            if (Request.Headers.TryGetValue("token", out token))
-            {
+            if (Request.Headers.TryGetValue("token", out token)) {
                 message.errorCode = 300;
                 var data = Token.VerifyToken(token);
-                if (data != null)
-                {
+                if (data != null) {
                     int id = int.Parse(data["id"]);
                     var admin = SearchById(id);
-                    if (admin != null)
-                    {
+                    if (admin != null) {
                         message.errorCode = 200;
                         myContext.DetachAll();
                         int stayId = int.Parse(Request.Form["stayId"]);
@@ -299,13 +253,11 @@ namespace Back_End.Controllers
                         form.AdminId = id;
                         form.StayId = stayId;
                         form.ValReplyTime = DateTime.Now;
-                        if(isPass)
-                        {
+                        if (isPass) {
                             stay.StayStatus = 2;
                             form.ValidateResult = 1;
                         }
-                        else
-                        {
+                        else {
                             stay.StayStatus = 3;
                             form.ValidateResult = 0;
                             form.ValidateReply = Request.Form["msg"];

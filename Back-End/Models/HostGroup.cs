@@ -12,7 +12,7 @@ namespace Back_End.Models
             Hosts = new HashSet<Host>();
         }
 
-        public byte HostLevel { get; set; }
+        public short HostLevel { get; set; }
         public string HostLevelName { get; set; }
         public int HostLevelDegree { get; set; }
 
