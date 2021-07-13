@@ -652,6 +652,22 @@ namespace Back_End.Controllers
             return message.ReturnJson();
         }
 
+        [HttpGet("tag")]
+        public string GetAllTags()
+        {
+            GetStayTagMessage message = new GetStayTagMessage();
+            try
+            {
+                List<string> tagList = myContext.StayLabels.Select(s => s.LabelName).ToList();
+                message.errorCode = 200;
+                message.data["tagList"] = tagList;
+            }
+            catch
+            { }
+            return message.ReturnJson();
+
+        }
+
         // 获取房东某个房源的订单数据
         /*[HttpGet("StayOrderInfo")]
         public string GetStayOrderInfo(int stayId = -1) {
