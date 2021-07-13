@@ -10,27 +10,33 @@ using Back_End.Models;
 using Microsoft.Extensions.Primitives;
 using Microsoft.EntityFrameworkCore;
 
-namespace Back_End.Controllers {
+namespace Back_End.Controllers
+{
     [ApiController]
     [Route("api/[controller]")]
-    public class AdministratorController : ControllerBase {
+    public class AdministratorController : ControllerBase
+    {
         private readonly ModelContext myContext;
-        public AdministratorController(ModelContext modelContext) {
+        public AdministratorController(ModelContext modelContext)
+        {
             myContext = modelContext;
         }
-        class PagedStays {
+        class PagedStays
+        {
             public int stayId { get; set; }
             public int hostId { get; set; }
             public string stayCity { get; set; }
         }
 
-        class PagedReports {
+        class PagedReports
+        {
             public int reportId { get; set; }
             public int reporterId { get; set; }
             public int stayId { get; set; }
         }
 
-        class PagedNears {
+        class PagedNears
+        {
             public int nearbyId { get; set; }
             public string nearbyName { get; set; }
             public string nearbyType { get; set; }
@@ -39,41 +45,52 @@ namespace Back_End.Controllers {
         }
         public readonly int pageSize = 10;
 
-        public static Administrator SearchById(int id) {
-            try {
+        public static Administrator SearchById(int id)
+        {
+            try
+            {
                 ModelContext modelContext = new ModelContext();
                 var admin = modelContext.Administrators
                     .Single(b => b.AdminId == id);
                 return admin;
             }
-            catch {
+            catch
+            {
                 return null;
             }
 
         }
 
-        public static Administrator SearchByName(string name) {
-            try {
+        public static Administrator SearchByName(string name)
+        {
+            try
+            {
                 ModelContext modelContext = new ModelContext();
                 var admin = modelContext.Administrators
                     .Single(b => b.AdminUsername == name);
                 return admin;
             }
-            catch {
+            catch
+            {
                 return null;
             }
         }
 
-        public static bool AdminLoginByName(Administrator admin, string password) {
-            try {
-                if (admin == null) {
+        public static bool AdminLoginByName(Administrator admin, string password)
+        {
+            try
+            {
+                if (admin == null)
+                {
                     return false;
                 }
-                else {
+                else
+                {
                     return admin.AdminPassword == password;
                 }
             }
-            catch {
+            catch
+            {
                 return false;
             }
         }
@@ -104,7 +121,7 @@ namespace Back_End.Controllers {
                     {
                         message.errorCode = 200;
                         int pagenum = myContext.Stays.Where(s => s.StayStatus == 1).Count();
-                        if(pagenum%10==0)
+                        if (pagenum % 10 == 0)
                         {
                             message.data["totalNum"] = pagenum / 10;
                         }
@@ -120,16 +137,20 @@ namespace Back_End.Controllers {
         }
 
         [HttpGet("examineStay")]
-        public string GetStayByPage() {
+        public string GetStayByPage()
+        {
             GetStayByPageMessage message = new GetStayByPageMessage();
             StringValues token = default(StringValues);
-            if (Request.Headers.TryGetValue("token", out token)) {
+            if (Request.Headers.TryGetValue("token", out token))
+            {
                 message.errorCode = 300;
                 var data = Token.VerifyToken(token);
-                if (data != null) {
+                if (data != null)
+                {
                     int id = int.Parse(data["id"]);
                     var admin = SearchById(id);
-                    if (admin != null) {
+                    if (admin != null)
+                    {
                         message.errorCode = 200;
                         int page = int.Parse(Request.Query["pagenum"]);
                         var pageInfo = myContext.Stays.Where(s => s.StayStatus == 1).OrderBy(b => b.StayId).Skip((page - 1) * pageSize)
@@ -143,16 +164,20 @@ namespace Back_End.Controllers {
         }
 
         [HttpGet("examineStay/one")]
-        public string GetStayById() {
+        public string GetStayById()
+        {
             GetStayByIdMessage message = new GetStayByIdMessage();
             StringValues token = default(StringValues);
-            if (Request.Headers.TryGetValue("token", out token)) {
+            if (Request.Headers.TryGetValue("token", out token))
+            {
                 message.errorCode = 300;
                 var data = Token.VerifyToken(token);
-                if (data != null) {
+                if (data != null)
+                {
                     int id = int.Parse(data["id"]);
                     var admin = SearchById(id);
-                    if (admin != null) {
+                    if (admin != null)
+                    {
                         message.errorCode = 200;
                         int stayid = int.Parse(Request.Query["stayId"]);
                         Stay stay = StayController.SearchById(stayid);
@@ -228,16 +253,20 @@ namespace Back_End.Controllers {
 
 
         [HttpGet("examineReport")]
-        public string GetReportByPage() {
+        public string GetReportByPage()
+        {
             GetReportByPageMessage message = new GetReportByPageMessage();
             StringValues token = default(StringValues);
-            if (Request.Headers.TryGetValue("token", out token)) {
+            if (Request.Headers.TryGetValue("token", out token))
+            {
                 message.errorCode = 300;
                 var data = Token.VerifyToken(token);
-                if (data != null) {
+                if (data != null)
+                {
                     int id = int.Parse(data["id"]);
                     var admin = SearchById(id);
-                    if (admin != null) {
+                    if (admin != null)
+                    {
                         message.errorCode = 200;
                         int page = int.Parse(Request.Query["pagenum"]);
                         var pageInfo = myContext.Reports.Where(s => s.IsDealed == 0).OrderBy(b => b.ReportTime).Skip((page - 1) * pageSize)
@@ -252,16 +281,20 @@ namespace Back_End.Controllers {
         }
 
         [HttpGet("examineReport/one")]
-        public string GetReportById() {
+        public string GetReportById()
+        {
             GetReportByIdMessage message = new GetReportByIdMessage();
             StringValues token = default(StringValues);
-            if (Request.Headers.TryGetValue("token", out token)) {
+            if (Request.Headers.TryGetValue("token", out token))
+            {
                 message.errorCode = 300;
                 var data = Token.VerifyToken(token);
-                if (data != null) {
+                if (data != null)
+                {
                     int id = int.Parse(data["id"]);
                     var admin = SearchById(id);
-                    if (admin != null) {
+                    if (admin != null)
+                    {
                         message.errorCode = 200;
                         int reportId = int.Parse(Request.Query["reportId"]);
                         Report report = ReportController.SearchById(reportId);
@@ -313,20 +346,25 @@ namespace Back_End.Controllers {
 
 
         [HttpGet("nearby")]
-        public string GetNearByPage() {
+        public string GetNearByPage()
+        {
             GetNearByPageMessage message = new GetNearByPageMessage();
             StringValues token = default(StringValues);
-            if (Request.Headers.TryGetValue("token", out token)) {
+            if (Request.Headers.TryGetValue("token", out token))
+            {
                 message.errorCode = 300;
                 var data = Token.VerifyToken(token);
-                if (data != null) {
+                if (data != null)
+                {
                     int id = int.Parse(data["id"]);
                     var admin = SearchById(id);
-                    if (admin != null) {
+                    if (admin != null)
+                    {
                         message.errorCode = 200;
                         int page = int.Parse(Request.Query["pagenum"]);
                         var pageInfo = myContext.Peripherals.OrderBy(b => b.PeripheralId).Skip((page - 1) * pageSize)
-                            .Take(pageSize).Select(c => new PagedNears {
+                            .Take(pageSize).Select(c => new PagedNears
+                            {
                                 nearbyId = c.PeripheralId,
                                 nearbyType = c.PeripheralClass,
                                 nearbyName = c.PeripheralName,
@@ -342,22 +380,26 @@ namespace Back_End.Controllers {
         }
 
         [HttpPost("examineStay/result")]
-        public string UploadStayExamine() {
-            UploadStayExamineMessage message = new UploadStayExamineMessage();
+        public string UploadStayExamine()
+        {
+            UploadExamineMessage message = new UploadExamineMessage();
             StringValues token = default(StringValues);
-            if (Request.Headers.TryGetValue("token", out token)) {
+            if (Request.Headers.TryGetValue("token", out token))
+            {
                 message.errorCode = 300;
                 var data = Token.VerifyToken(token);
-                if (data != null) {
+                if (data != null)
+                {
                     int id = int.Parse(data["id"]);
                     var admin = SearchById(id);
-                    if (admin != null) {
+                    if (admin != null)
+                    {
                         message.errorCode = 200;
                         myContext.DetachAll();
                         int stayId = int.Parse(Request.Form["stayId"]);
                         bool isPass = bool.Parse(Request.Form["isPass"]);
                         Stay stay = StayController.SearchById(stayId);
-                        if(stay!=null)
+                        if (stay != null)
                         {
                             myContext.Entry(stay).State = EntityState.Unchanged;
                             AdministratorStay form = new AdministratorStay();
@@ -383,6 +425,115 @@ namespace Back_End.Controllers {
                         {
                             message.data["isSuccess"] = true;
                         }
+                    }
+                }
+            }
+            return message.ReturnJson();
+        }
+
+        [HttpPost("examineReport/result")]
+        public string UploadReportExamine()
+        {
+            UploadExamineMessage message = new UploadExamineMessage();
+            StringValues token = default(StringValues);
+            if (Request.Headers.TryGetValue("token", out token))
+            {
+                message.errorCode = 300;
+                var data = Token.VerifyToken(token);
+                if (data != null)
+                {
+                    int id = int.Parse(data["id"]);
+                    var admin = SearchById(id);
+                    if (admin != null)
+                    {
+                        message.errorCode = 200;
+                        myContext.DetachAll();
+                        int reportId = int.Parse(Request.Form["reportId"]);
+                        bool isBan = bool.Parse(Request.Form["isBan"]);
+                        Report report = ReportController.SearchById(reportId);
+                        if(report!=null)
+                        {
+                            myContext.Entry(report).State = EntityState.Unchanged;
+                            report.IsDealed = 1;
+                            report.AdminId = id;
+                            report.DealTime = DateTime.Now;
+                            report.Reply = "已处理完成 ";
+                            if (isBan)
+                            {
+                                report.Reply += "已封禁";
+                                report.Order.Generates.First().Room.Stay.Host.HostState = 1;
+                            }
+                            else
+                            {
+                                report.Reply = "未封禁";
+                            }
+                        }
+                        myContext.SaveChanges();
+                        message.data["isSuccess"] = true;
+                    }
+                }
+            }
+            return message.ReturnJson();
+        }
+
+        [HttpPost("near/update")]
+        public string UploadNewNear()
+        {
+            UploadExamineMessage message = new UploadExamineMessage();
+            StringValues token = default(StringValues);
+            if (Request.Headers.TryGetValue("token", out token))
+            {
+                message.errorCode = 300;
+                var data = Token.VerifyToken(token);
+                if (data != null)
+                {
+                    int id = int.Parse(data["id"]);
+                    var admin = SearchById(id);
+                    if (admin != null)
+                    {
+                        message.errorCode = 200;
+                        myContext.DetachAll();
+                        Peripheral near = new Peripheral();
+                        near.PeripheralName = Request.Form["nearbyName"];
+                        near.PeripheralRoad = Request.Form["nearbyRoad"];
+                        near.PeripheralClass = Request.Form["nearbyType"];
+                        near.PeripheralPopularity =int.Parse( Request.Form["nearbyPopularity"]);
+                        near.DetailedAddress = Request.Form["nearbyDetailedAdd"];
+                        myContext.Peripherals.Add(near);
+                        myContext.SaveChanges();
+                        message.data["isSuccess"] = true;
+                    }
+                }
+            }
+            return message.ReturnJson();
+        }
+
+        [HttpPut("near/modify")]
+        public string ChangeNearInfo()
+        {
+            UploadExamineMessage message = new UploadExamineMessage();
+            StringValues token = default(StringValues);
+            if (Request.Headers.TryGetValue("token", out token))
+            {
+                message.errorCode = 300;
+                var data = Token.VerifyToken(token);
+                if (data != null)
+                {
+                    int id = int.Parse(data["id"]);
+                    var admin = SearchById(id);
+                    if (admin != null)
+                    {
+                        message.errorCode = 200;
+                        myContext.DetachAll();
+                        int nearId = int.Parse(Request.Form["nearbyId"]);
+                        Peripheral near = myContext.Peripherals.Single(s => s.PeripheralId == nearId);
+                        near.PeripheralName = Request.Form["nearbyName"];
+                        near.PeripheralRoad = Request.Form["nearbyRoad"];
+                        near.PeripheralClass = Request.Form["nearbyType"];
+                        near.PeripheralPopularity = int.Parse(Request.Form["nearbyPopularity"]);
+                        near.DetailedAddress = Request.Form["nearbyDetailedAdd"];
+                        myContext.SaveChanges();
+                        message.data["isSuccess"] = true;
                     }
                 }
             }

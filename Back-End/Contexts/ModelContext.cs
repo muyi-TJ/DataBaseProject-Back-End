@@ -796,7 +796,8 @@ namespace Back_End.Contexts
 
                 entity.Property(e => e.PeripheralId)
                     .HasPrecision(10)
-                    .ValueGeneratedNever()
+                    .ValueGeneratedOnAdd()
+                    .UseHiLo("SEQ")
                     .HasColumnName("PERIPHERAL_ID");
 
                 entity.Property(e => e.DetailedAddress)
