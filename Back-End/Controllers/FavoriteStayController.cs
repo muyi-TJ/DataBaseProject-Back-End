@@ -15,8 +15,7 @@ namespace Back_End.Controllers {
     public class FavoriteStayController : ControllerBase {
 
         private readonly ModelContext myContext;
-        public FavoriteStayController(ModelContext modelContext)
-        {
+        public FavoriteStayController(ModelContext modelContext) {
             myContext = modelContext;
         }
         public class FavoriteStayMessage {
@@ -72,7 +71,7 @@ namespace Back_End.Controllers {
                     }
                 }
             }
-            return message.ReturnJson();  
+            return message.ReturnJson();
         }
 
         [HttpDelete("stay")]
@@ -122,7 +121,7 @@ namespace Back_End.Controllers {
                     }
                     try {
                         var stayIdList = context.Favoritestays.Where(b => b.FavoriteId == favoriteId).Select(b => b.StayId).ToList();
-                        
+
                         foreach (var stayId in stayIdList) {
                             var stay = context.Stays.Single(b => b.StayId == stayId);
                             int stayMinPrice = context.Rooms.Where(b => b.StayId == stayId).Min(x => x.Price);
@@ -140,13 +139,13 @@ namespace Back_End.Controllers {
                                 stayPhoto = stayPhoto,
                                 commentNum = (int)stay.CommentNum,
                                 hostAvatar = context.Hosts.Single(b => b.HostId == stay.HostId).HostAvatar
-                            }) ;
+                            });
                         }
                         message.data.Add("stayList", stayList);
                         message.errorCode = 200;
                         return message.ReturnJson();
                     }
-                    catch(Exception e) {
+                    catch (Exception e) {
                         Console.WriteLine(e.ToString());
                         message.errorCode = 300;
                         return message.ReturnJson();
@@ -190,14 +189,14 @@ namespace Back_End.Controllers {
 
                         return message.ReturnJson();
                     }
-                    catch(Exception e) {
+                    catch (Exception e) {
                         Console.WriteLine(e.ToString());
                         message.errorCode = 300;
                         return message.ReturnJson();
                     }
                 }
             }
-            return message.ReturnJson();  
+            return message.ReturnJson();
         }
     }
 }

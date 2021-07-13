@@ -12,7 +12,7 @@ namespace Back_End.Models
             Customers = new HashSet<Customer>();
         }
 
-        public byte CustomerLevel { get; set; }
+        public short CustomerLevel { get; set; }
         public string CustomerLevelName { get; set; }
         public int CustomerLevelDegree { get; set; }
 

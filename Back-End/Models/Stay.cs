@@ -31,8 +31,8 @@ namespace Back_End.Models
         public decimal PublicToilet { get; set; }
         public decimal NonBarrierFacility { get; set; }
         public string Characteristic { get; set; }
-        public DateTime StartTime { get; set; }
-        public DateTime EndTime { get; set; }
+        public string StartTime { get; set; }
+        public string EndTime { get; set; }
         public byte DaysMin { get; set; }
         public byte DaysMax { get; set; }
         public decimal StayStatus { get; set; }

@@ -25,7 +25,7 @@ namespace Back_End.Models
         public string HostGender { get; set; }
         public decimal HostScore { get; set; }
         public decimal HostState { get; set; }
-        public byte? HostLevel { get; set; }
+        public short? HostLevel { get; set; }
 
         public virtual HostGroup HostLevelNavigation { get; set; }
         public virtual ICollection<Stay> Stays { get; set; }

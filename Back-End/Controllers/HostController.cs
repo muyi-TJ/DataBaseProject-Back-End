@@ -15,30 +15,24 @@ using Microsoft.EntityFrameworkCore;
 
 
 //简单测试
-namespace Back_End.Controllers
-{
+namespace Back_End.Controllers {
     [ApiController]
     [Route("api/[controller]")]
-    public class HostController : ControllerBase
-    {
+    public class HostController : ControllerBase {
         //GET: api/<Host>
         private readonly ModelContext myContext;
-        public HostController(ModelContext modelContext)
-        {
+        public HostController(ModelContext modelContext) {
             myContext = modelContext;
         }
 
-        public static Host SearchById(int id)
-        {
-            try
-            {
+        public static Host SearchById(int id) {
+            try {
                 ModelContext modelContext = new ModelContext();
                 var host = modelContext.Hosts
                     .Single(b => b.HostId == id);
                 return host;
             }
-            catch
-            {
+            catch {
                 return null;
             }
 
@@ -46,64 +40,51 @@ namespace Back_End.Controllers
 
 
         [HttpGet("GetById")]
-        public string GetById(int id)
-        {
-            try
-            {
+        public string GetById(int id) {
+            try {
                 var host = myContext.Hosts
                     .Single(b => b.HostId == id);
                 return JsonSerializer.Serialize(host);
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                 Console.WriteLine(e.ToString());
                 return null;
             }
 
         }
 
-        public static Host SearchByPhone(string phone, string prePhone)
-        {
-            try
-            {
+        public static Host SearchByPhone(string phone, string prePhone) {
+            try {
                 ModelContext modelContext = new ModelContext();
                 var host = modelContext.Hosts
                     .Single(b => b.HostPhone == phone && b.HostPrephone == prePhone);
                 return host;
             }
-            catch
-            {
+            catch {
                 return null;
             }
         }
 
-        public static bool HostLogin(Host host, string password)
-        {
-            try
-            {
-                if (host == null)
-                {
+        public static bool HostLogin(Host host, string password) {
+            try {
+                if (host == null) {
                     return false;
                 }
                 return host.HostPassword == password;
             }
-            catch
-            {
+            catch {
                 return false;
             }
         }
 
         [HttpPost("phone")]
-        public string CheckHostPhoneRegisitered()
-        {
+        public string CheckHostPhoneRegisitered() {
             CheckPhoneMessage checkPhoneMessage = new CheckPhoneMessage();
             string phone = Request.Form["phonenumber"];
             string prePhone = Request.Form["prenumber"];
-            if (phone != null && prePhone != null)
-            {
+            if (phone != null && prePhone != null) {
                 checkPhoneMessage.errorCode = 200;
-                if (SearchByPhone(phone, prePhone) == null)
-                {
+                if (SearchByPhone(phone, prePhone) == null) {
                     checkPhoneMessage.data["phoneunique"] = true;
                 }
             }
@@ -111,56 +92,45 @@ namespace Back_End.Controllers
         }
 
         [HttpPost("changepassword")]
-        public string ChangeCustomerPassword()
-        {
+        public string ChangeCustomerPassword() {
             ChangePasswordMessage message = new ChangePasswordMessage();
             string phone = Request.Form["phone"];
             string preNumber = Request.Form["prenumber"];
             string password = Request.Form["password"];
-            if (phone != null && preNumber != null)
-            {
+            if (phone != null && preNumber != null) {
                 var host = SearchByPhone(phone, preNumber);
                 myContext.Entry(host).State = EntityState.Unchanged;
-                if (password != null)
-                {
+                if (password != null) {
                     message.errorCode = 200;
                     host.HostPassword = password;
-                    try
-                    {
+                    try {
                         myContext.SaveChanges();
                         message.data["changestate"] = true;
                     }
-                    catch
-                    {
+                    catch {
 
                     }
 
                 }
             }
-            else
-            {
+            else {
                 StringValues token = default(StringValues);
-                if (Request.Headers.TryGetValue("token", out token))
-                {
+                if (Request.Headers.TryGetValue("token", out token)) {
                     message.errorCode = 300;
                     var data = Token.VerifyToken(token);
-                    if (data != null)
-                    {
+                    if (data != null) {
                         myContext.DetachAll();
                         int id = int.Parse(data["id"]);
                         var host = SearchById(id);
                         myContext.Entry(host).State = EntityState.Unchanged;
-                        if (password != null)
-                        {
+                        if (password != null) {
                             message.errorCode = 200;
                             host.HostPassword = password;
-                            try
-                            {
+                            try {
                                 myContext.SaveChanges();
                                 message.data["changestate"] = true;
                             }
-                            catch
-                            {
+                            catch {
 
                             }
                         }
@@ -248,7 +218,7 @@ namespace Back_End.Controllers
                         return message.ReturnJson();
 
                     }
-                    catch(Exception e) {
+                    catch (Exception e) {
                         Console.WriteLine(e.ToString());
                         message.errorCode = 300;
                         return message.ReturnJson();
@@ -265,7 +235,7 @@ namespace Back_End.Controllers
             message.errorCode = 400;
             StringValues token = default(StringValues);
             if (Request.Headers.TryGetValue("token", out token)) {
-                
+
                 var data = Token.VerifyToken(token);
                 if (data != null) {
                     myContext.DetachAll();
@@ -315,7 +285,7 @@ namespace Back_End.Controllers
                         message.errorCode = 200;
                         return message.ReturnJson();
                     }
-                    catch(Exception e) {
+                    catch (Exception e) {
                         Console.WriteLine(e.ToString());
                         message.errorCode = 300;
                         return message.ReturnJson();
@@ -325,7 +295,7 @@ namespace Back_End.Controllers
             return message.ReturnJson();
         }
 
-        
+
 
     }
 }

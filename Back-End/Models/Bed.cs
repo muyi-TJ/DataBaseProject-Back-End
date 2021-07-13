@@ -12,10 +12,9 @@ namespace Back_End.Models
             RoomBeds = new HashSet<RoomBed>();
         }
 
-        public byte BedId { get; set; }
         public string BedType { get; set; }
         public decimal BedLength { get; set; }
-        public bool PersonNum { get; set; }
+        public byte PersonNum { get; set; }
 
         public virtual ICollection<RoomBed> RoomBeds { get; set; }
     }
