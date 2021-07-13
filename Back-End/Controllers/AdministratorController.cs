@@ -8,6 +8,7 @@ using Back_End.Contexts;
 using System.Text.Json;
 using Back_End.Models;
 using Microsoft.Extensions.Primitives;
+using Microsoft.EntityFrameworkCore;
 
 namespace Back_End.Controllers
 {
@@ -15,10 +16,10 @@ namespace Back_End.Controllers
     [Route("api/[controller]")]
     public class AdministratorController : ControllerBase
     {
-        private readonly ModelContext context;
+        private readonly ModelContext myContext;
         public AdministratorController(ModelContext modelContext)
         {
-            context = modelContext;
+            myContext = modelContext;
         }
         class PagedStays
         {
@@ -111,7 +112,7 @@ namespace Back_End.Controllers
                     {
                         message.errorCode = 200;
                         int page = int.Parse(Request.Query["pagenum"]);
-                        var pageInfo = context.Stays.Where(s => s.StayStatus == 0).OrderBy(b => b.StayId).Skip((page - 1) * pageSize)
+                        var pageInfo = myContext.Stays.Where(s => s.StayStatus == 1).OrderBy(b => b.StayId).Skip((page - 1) * pageSize)
                             .Take(pageSize).Select(c => new PagedStays { stayId = c.StayId, hostId = (int)c.HostId, stayCity = c.Area.AreaName });
                         var examines = pageInfo.ToList();
                         message.data["examineStayList"] = examines;
@@ -198,7 +199,7 @@ namespace Back_End.Controllers
                     {
                         message.errorCode = 200;
                         int page = int.Parse(Request.Query["pagenum"]);
-                        var pageInfo = context.Reports.Where(s => s.IsDealed == 0).OrderBy(b => b.ReportTime).Skip((page - 1) * pageSize)
+                        var pageInfo = myContext.Reports.Where(s => s.IsDealed == 0).OrderBy(b => b.ReportTime).Skip((page - 1) * pageSize)
                             .Take(pageSize).Select(c => new PagedReports
                             { stayId = c.Order.Generates.First().StayId, reportId = c.OrderId, reporterId = (int)c.Order.CustomerId });
                         var examines = pageInfo.ToList();
@@ -256,7 +257,7 @@ namespace Back_End.Controllers
                     {
                         message.errorCode = 200;
                         int page = int.Parse(Request.Query["pagenum"]);
-                        var pageInfo = context.Peripherals.OrderBy(b => b.PeripheralId).Skip((page - 1) * pageSize)
+                        var pageInfo = myContext.Peripherals.OrderBy(b => b.PeripheralId).Skip((page - 1) * pageSize)
                             .Take(pageSize).Select(c => new PagedNears
                             {
                                 nearbyId = c.PeripheralId,
@@ -289,10 +290,11 @@ namespace Back_End.Controllers
                     if (admin != null)
                     {
                         message.errorCode = 200;
-                        context.DetachAll();
+                        myContext.DetachAll();
                         int stayId = int.Parse(Request.Form["stayId"]);
                         bool isPass = bool.Parse(Request.Form["isPass"]);
                         Stay stay = StayController.SearchById(stayId);
+                        myContext.Entry(stay).State = EntityState.Unchanged;
                         AdministratorStay form = new AdministratorStay();
                         form.AdminId = id;
                         form.StayId = stayId;
@@ -304,12 +306,12 @@ namespace Back_End.Controllers
                         }
                         else
                         {
-                            stay.StayStatus = 1;
+                            stay.StayStatus = 3;
                             form.ValidateResult = 0;
                             form.ValidateReply = Request.Form["msg"];
-                        }//房源状态0未审核，1审核不通过，2审核通过
-                        context.AdministratorStays.Add(form);
-                        context.SaveChanges();
+                        }//房源状态0保存未提交，1提交未审核，2审核通过，3审核不通过
+                        myContext.AdministratorStays.Add(form);
+                        myContext.SaveChanges();
                         message.data["isSuccess"] = true;
                     }
                 }

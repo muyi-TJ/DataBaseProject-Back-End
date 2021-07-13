@@ -21,10 +21,10 @@ namespace Back_End.Controllers
     public class HostController : ControllerBase
     {
         //GET: api/<Host>
-        private readonly ModelContext context;
+        private readonly ModelContext myContext;
         public HostController(ModelContext modelContext)
         {
-            context = modelContext;
+            myContext = modelContext;
         }
 
         public static Host SearchById(int id)
@@ -49,7 +49,7 @@ namespace Back_End.Controllers
         {
             try
             {
-                var host = context.Hosts
+                var host = myContext.Hosts
                     .Single(b => b.HostId == id);
                 return JsonSerializer.Serialize(host);
             }
@@ -125,7 +125,7 @@ namespace Back_End.Controllers
                     host.HostPassword = password;
                     try
                     {
-                        context.SaveChanges();
+                        myContext.SaveChanges();
                         message.data["changestate"] = true;
                     }
                     catch
@@ -144,7 +144,7 @@ namespace Back_End.Controllers
                     var data = Token.VerifyToken(token);
                     if (data != null)
                     {
-                        context.DetachAll();
+                        myContext.DetachAll();
                         int id = int.Parse(data["id"]);
                         var host = SearchById(id);
                         if (password != null)
@@ -153,7 +153,7 @@ namespace Back_End.Controllers
                             host.HostPassword = password;
                             try
                             {
-                                context.SaveChanges();
+                                myContext.SaveChanges();
                                 message.data["changestate"] = true;
                             }
                             catch
@@ -177,7 +177,7 @@ namespace Back_End.Controllers
                     try {
                         //ModelContext context = new ModelContext();
                         int hostId = int.Parse(data["id"]);
-                        var host = context.Hosts.Single(b => b.HostId == hostId);
+                        var host = myContext.Hosts.Single(b => b.HostId == hostId);
 
                         message.data["hostAvatar"] = host.HostAvatar;
                         message.data["hostNickName"] = host.HostUsername;
