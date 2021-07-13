@@ -539,5 +539,41 @@ namespace Back_End.Controllers
             }
             return message.ReturnJson();
         }
+
+        [HttpGet("nearby/search")]
+        public string SearchNearInfo()
+        {
+            SearchNearMessage message = new SearchNearMessage();
+            StringValues token = default(StringValues);
+            if (Request.Headers.TryGetValue("token", out token))
+            {
+                message.errorCode = 300;
+                var data = Token.VerifyToken(token);
+                if (data != null)
+                {
+                    int id = int.Parse(data["id"]);
+                    var admin = SearchById(id);
+                    if (admin != null)
+                    {
+                        message.errorCode = 200;
+                        string search = Request.Query["search"];
+                        var searchedInfo = myContext.Peripherals.Where(s => s.PeripheralId.ToString().Contains(search) || s.PeripheralName.Contains(search) || s.DetailedAddress.Contains(search)).OrderBy(b => b.PeripheralId)
+                            .Take(pageSize).Select(c => new PagedNears
+                            {
+                                nearbyId = c.PeripheralId,
+                                nearbyType = c.PeripheralClass,
+                                nearbyName = c.PeripheralName,
+                                nearbyPopularity = (int)c.PeripheralPopularity,
+                                nearbyDetailedAdd = c.PeripheralRoad
+                            });
+                        var nears = searchedInfo.ToList();
+                        message.data["total"] = nears.Count();
+                        message.data["nearbyList"] = nears;
+                    }
+                }
+            }
+            return message.ReturnJson();
+
+        }
     }
 }

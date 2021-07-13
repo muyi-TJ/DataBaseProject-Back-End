@@ -9,6 +9,9 @@ using System.Text.Json;
 using Back_End.Models;
 using Microsoft.Extensions.Primitives;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Specialized;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Back_End.Controllers
 {
@@ -17,6 +20,9 @@ namespace Back_End.Controllers
     public class OrderController : ControllerBase
     {
         private readonly ModelContext myContext;
+        private readonly string postUrl = "http://trisbox.xyz:7001/api/order";
+        private readonly string redirectUrl = "";
+        private readonly string key = "wrnmsjk";
         public OrderController(ModelContext modelContext)
         {
             myContext = modelContext;
@@ -249,6 +255,8 @@ namespace Back_End.Controllers
                                 customerComment.HouseStars = int.Parse(Request.Form["commentStars"]);
                                 customerComment.CustomerComment1 = Request.Form["commentText"];
                                 customerComment.CommentTime = DateTime.Now;
+                                order.Generates.First().Room.Stay.CommentNum += 1;
+                                order.Generates.First().Room.Stay.CommentScore +=(int?) customerComment.HouseStars;
                                 myContext.CustomerComments.Add(customerComment);
                                 myContext.SaveChanges();
                                 message.errorCode = 200;
@@ -265,5 +273,78 @@ namespace Back_End.Controllers
             return message.ReturnJson();
         }
 
+        [HttpPost("addOrder")]
+        public string AddOrder()
+        {
+            AddOrderMessage message = new AddOrderMessage();
+            StringValues token = default(StringValues);
+            if (Request.Headers.TryGetValue("token", out token))
+            {
+                message.errorCode = 300;
+                var data = Token.VerifyToken(token);
+                if (data != null)
+                {
+                    int id = int.Parse(data["id"]);
+                    var customer = CustomerController.SearchById(id);
+                    if (customer != null)
+                    {
+                        try
+                        {
+                            Order order = new Order();
+                            Generate generate = new Generate();
+                            order.CustomerId = id;
+                            order.OrderTime = DateTime.Now;
+                            order.MemberNum = decimal.Parse(Request.Form["peopleNum"]);
+                            int stayId = int.Parse(Request.Form["stayId"]);
+                            int roomId = int.Parse(Request.Form["roomId"]);
+                            decimal price = myContext.Rooms.Single(s => s.StayId == stayId && s.RoomId == roomId).Price;
+                            generate.Money = price;
+                            if (Request.Form["couponId"].ToString() != null)
+                            {
+                                int couponId = int.Parse(Request.Form["couponId"]);
+                                var coupon = myContext.Coupons.Single(c => c.CouponId == couponId);
+                                decimal amount = coupon.CouponType.CouponAmount;
+                                price -= (int)amount;
+                                myContext.Coupons.Remove(coupon);
+                                
+                            }
+                            order.TotalCost = price;
+                            myContext.Orders.Add(order);
+
+                            generate.OrdersId = order.OrderId;
+                            generate.RoomId = roomId;
+                            generate.StayId = stayId;
+                            generate.StartTime = DateTime.Parse(Request.Form["startDate"]);
+                            generate.EndTime = DateTime.Parse(Request.Form["endDate"]);
+                            myContext.Generates.Add(generate);
+                            myContext.SaveChanges();
+
+                            message.errorCode = 200;
+                            MD5 md5 = MD5.Create();
+                            byte[] strNoKey = md5.ComputeHash(Encoding.UTF8.GetBytes((order.OrderId + price).ToString()));
+                            byte[] strWithKey = md5.ComputeHash(Encoding.UTF8.GetBytes(strNoKey.ToString() + key));
+                            NameValueCollection parameters = new NameValueCollection();
+                            parameters.Add("order_id", order.OrderId.ToString());
+                            parameters.Add("order_type", "alipay");
+                            parameters.Add("order_price", price.ToString());
+                            parameters.Add("order_name", "归宿房费支付");
+                            parameters.Add("redirect_url", redirectUrl);
+                            parameters.Add("sign", strWithKey.ToString());
+                            string postInfo = HttpClient.HttpPost(postUrl, parameters);
+                            NameValueCollection collection = JsonSerializer.Deserialize<NameValueCollection>(postInfo);
+                            message.data["isSuccess"] = true;
+                            message.data["payUrl"] = collection["qr_url"];
+                            message.data["redirectUrl"] = collection["redirect_url"];
+                        }
+                        catch
+                        {
+
+                        }
+
+                    }
+                }
+            }
+            return message.ReturnJson();
+        }
     }
 }
