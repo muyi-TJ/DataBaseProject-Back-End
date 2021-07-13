@@ -162,8 +162,8 @@ namespace Back_End {
         }
     }
 
-    public class UploadStayExamineMessage : Message {
-        public UploadStayExamineMessage() {
+    public class UploadExamineMessage : Message {
+        public UploadExamineMessage() {
             errorCode = 400;
             data.Add("isSuccess", false);
         }
