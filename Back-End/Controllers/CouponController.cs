@@ -46,20 +46,24 @@ namespace Back_End.Controllers
                     myContext.DetachAll();
                     int id = int.Parse(data["id"]);
                     var customer =CustomerController. SearchById(id);
-                    List<Coupon> coupons = customer.Coupons.ToList();
-                    List<CouponInfo> couponList = new List<CouponInfo>();
-                    foreach(var coupon in coupons)
+                    if(customer!=null)
                     {
-                        CouponInfo info = new CouponInfo();
-                        info.couponName = coupon.CouponType.CouponName;
-                        info.couponAmount = coupon.CouponType.CouponAmount;
-                        info.couponLimit = coupon.CouponType.CouponLimit;
-                        info.couponStart = coupon.CouponStart;
-                        info.couponEnd = coupon.CouponEnd;
-                        couponList.Add(info);
+                        List<Coupon> coupons = customer.Coupons.ToList();
+                        List<CouponInfo> couponList = new List<CouponInfo>();
+                        foreach (var coupon in coupons)
+                        {
+                            CouponInfo info = new CouponInfo();
+                            info.couponName = coupon.CouponType.CouponName;
+                            info.couponAmount = coupon.CouponType.CouponAmount;
+                            info.couponLimit = coupon.CouponType.CouponLimit;
+                            info.couponStart = coupon.CouponStart;
+                            info.couponEnd = coupon.CouponEnd;
+                            couponList.Add(info);
+                        }
+                        message.errorCode = 200;
+                        message.data["couponList"] = couponList;
+
                     }
-                    message.errorCode = 200;
-                    message.data["couponList"] = couponList;
                 }
             }
             return message.ReturnJson();

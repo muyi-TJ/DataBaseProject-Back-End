@@ -263,4 +263,13 @@ namespace Back_End {
             data.Add("couponList", null);
         }
     }
+
+    public class GetCustomerOrderMessage:Message
+    {
+        public GetCustomerOrderMessage()
+        {
+            errorCode = 400;
+            data.Add("customerOrderList", null);
+        }
+    }
 }
