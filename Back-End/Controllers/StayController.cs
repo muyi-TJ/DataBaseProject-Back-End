@@ -192,7 +192,7 @@ namespace Back_End.Controllers
                     .Select(c => new StayInMapInfo
                     {
                         stayID = c.StayId,
-                        stayPrice = c.Rooms.First().Price,
+                        stayPrice = GetMinPrice(c.Rooms.ToList()),
                         stayPosition = new decimal[] { c.Longitude, c.Latitude }
                     }).ToList();
                 message.errorCode = 200;
@@ -204,6 +204,19 @@ namespace Back_End.Controllers
 
             }
             return message.ReturnJson();
+        }
+
+        public int GetMinPrice(List<Room> rooms)
+        {
+            int min = int.MaxValue;
+            foreach(var room in rooms)
+            {
+                if(room.Price<min)
+                {
+                    min = room.Price;
+                }
+            }
+            return min;
         }
 
         private bool IsInMap(decimal left,decimal right,decimal up,decimal down,decimal lat,decimal lng,bool cross)
@@ -375,7 +388,7 @@ namespace Back_End.Controllers
                     info.isLike = islike;
                     info.stayCommentNum =(int) stay.CommentNum;
                     info.stayLabel = myContext.StayLabels.Where(s => s.StayId == stay.StayId).Select(c => c.LabelName).ToList();
-                    info.stayPrice = stay.Rooms.First().Price;
+                    info.stayPrice = GetMinPrice(stay.Rooms.ToList());
                     info.stayPosition = new decimal[] { stay.Longitude, stay.Latitude };
                     message.data["stayPositionNum"] = 1;
                     message.data["stayPositionInfo"] = info;
@@ -391,13 +404,13 @@ namespace Back_End.Controllers
 
         class RoomInfo
         {
-            public int RoomId { get; set; }
-            public int Price { get; set; }
-            public decimal? RoomArea { get; set; }
-            public byte? BathroomNum { get; set; }
-            public string[] BedTypes { get; set; }
-            public byte[] BedNums { get; set; }
-            public string[] Images { get; set; }
+            public int roomId { get; set; }
+            public int price { get; set; }
+            public decimal? roomArea { get; set; }
+            public byte? bathNum { get; set; }
+            public string[] bedTypes { get; set; }
+            public byte[] bedNums { get; set; }
+            public string[] images { get; set; }
         }
 
         [HttpPost("infos")]
@@ -459,29 +472,28 @@ namespace Back_End.Controllers
                 {
                     Room newRoom = new Room();
                     newRoom.StayId = stay.StayId;
-                    newRoom.RoomId = room.RoomId;
-                    newRoom.Price = room.Price;
-                    newRoom.RoomArea = room.RoomArea;
-                    newRoom.BathroomNum = room.BathroomNum;
+                    newRoom.RoomId = room.roomId;
+                    newRoom.Price = room.price;
+                    newRoom.RoomArea = room.roomArea;
+                    newRoom.BathroomNum = room.bathNum;
                     myContext.Rooms.Add(newRoom);
                     myContext.SaveChanges();
-                    for(int i=0;i<room.BedTypes.Length;i++)
+                    for(int i=0;i<room.bedTypes.Length;i++)
                     {
-                        if(room.BedNums[i]>0)
+                        if(room.bedNums[i]>0)
                         {
                             RoomBed roomBed = new RoomBed();
                             //TODO:修改type
-                            roomBed.BedNum = room.BedNums[i];
+                            roomBed.BedNum = room.bedNums[i];
                             roomBed.RoomId = newRoom.RoomId;
                             roomBed.StayId = stay.StayId;
                             myContext.RoomBeds.Add(roomBed);
                         }//全部插入后再保存
                     }
                     myContext.SaveChanges();
-                    for(int i=0;i<room.Images.Length;i++)
+                    for(int i=0;i<room.images.Length;i++)
                     {
-                        string url = PhotoUpload.UploadPhoto(room.Images[i], "roomPhoto/" + stay.StayId + '-' + newRoom.RoomId + '-' + i.ToString());
-                        //TODO:确认路径
+                        string url = PhotoUpload.UploadPhoto(room.images[i], "roomPhoto/" + stay.StayId + '-' + newRoom.RoomId + '-' + i.ToString());
                         if(url!=null)
                         {
                             var photo = new RoomPhoto();

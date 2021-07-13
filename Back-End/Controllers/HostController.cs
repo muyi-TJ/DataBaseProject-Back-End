@@ -11,6 +11,7 @@ using Back_End.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 
 //简单测试
@@ -119,6 +120,7 @@ namespace Back_End.Controllers
             if (phone != null && preNumber != null)
             {
                 var host = SearchByPhone(phone, preNumber);
+                myContext.Entry(host).State = EntityState.Unchanged;
                 if (password != null)
                 {
                     message.errorCode = 200;
@@ -147,6 +149,7 @@ namespace Back_End.Controllers
                         myContext.DetachAll();
                         int id = int.Parse(data["id"]);
                         var host = SearchById(id);
+                        myContext.Entry(host).State = EntityState.Unchanged;
                         if (password != null)
                         {
                             message.errorCode = 200;
