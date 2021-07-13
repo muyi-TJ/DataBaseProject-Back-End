@@ -264,9 +264,9 @@ namespace Back_End {
         }
     }
 
-    public class GetCustomerOrderMessage:Message
+    public class GetOrderMessage:Message
     {
-        public GetCustomerOrderMessage()
+        public GetOrderMessage()
         {
             errorCode = 400;
             data.Add("customerOrderList", null);

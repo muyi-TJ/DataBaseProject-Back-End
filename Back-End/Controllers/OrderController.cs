@@ -58,7 +58,7 @@ namespace Back_End.Controllers
         [HttpGet("CustomerOrderInfo")]
         public string GetCustomerOrder()
         {
-            GetCustomerOrderMessage message = new GetCustomerOrderMessage();
+            GetOrderMessage message = new GetOrderMessage();
             StringValues token = default(StringValues);
             if (Request.Headers.TryGetValue("token", out token))
             {
@@ -99,6 +99,70 @@ namespace Back_End.Controllers
                             {
                                 orderInfo.commentStars = order.CustomerComment.HouseStars;
                                 orderInfo.comment = order.CustomerComment.CustomerComment1;
+                            }
+                            else
+                            {
+                                orderInfo.commentStars = 0;
+                                orderInfo.comment = null;
+                            }
+                            orderInfos.Add(orderInfo);
+                        }
+                        message.data["customerOrderList"] = orderInfos;
+                        message.errorCode = 200;
+                    }
+                }
+            }
+            return message.ReturnJson();
+        }
+        [HttpGet("HostOrderInfo")]
+        public string GetHostOrder()
+        {
+            GetOrderMessage message = new GetOrderMessage();
+            StringValues token = default(StringValues);
+            if (Request.Headers.TryGetValue("token", out token))
+            {
+                message.errorCode = 300;
+                var data = Token.VerifyToken(token);
+                if (data != null)
+                {
+                    int id = int.Parse(data["id"]);
+                    var host = HostController.SearchById(id);
+                    if (host != null)
+                    {
+                        List<Order> orders = new List<Order>();
+                        foreach(var stay in host.Stays)
+                        {
+                            orders.AddRange(myContext.Orders.Where(s => s.Generates.First().StayId == stay.StayId)
+                                .Select(c => c).ToList());
+                        }
+                        List<OrderInfo> orderInfos = new List<OrderInfo>();
+                        foreach (var order in orders)
+                        {
+                            OrderInfo orderInfo = new OrderInfo();
+                            orderInfo.orderId = order.OrderId;
+                            Stay stay = order.Generates.First().Room.Stay;
+                            orderInfo.stayId = stay.StayId;
+                            orderInfo.stayName = stay.StayName;
+                            orderInfo.stayLocation = stay.DetailedAddress;
+                            orderInfo.startTime = order.Generates.First().StartTime;
+                            orderInfo.endTime = order.Generates.First().EndTime;
+                            orderInfo.name = stay.Host.HostUsername;
+                            orderInfo.totalCost = order.TotalCost;
+                            orderInfo.hostId = (int)stay.HostId;
+                            orderInfo.photo = stay.Host.HostAvatar;
+                            List<string> photos = new List<string>();
+                            foreach (var room in stay.Rooms)
+                            {
+                                foreach (var photo in room.RoomPhotos)
+                                {
+                                    photos.Add(photo.RPhoto);
+                                }
+                            }
+                            orderInfo.stayImage = photos;
+                            if (order.HostComment!= null)
+                            {
+                                orderInfo.commentStars = order.HostComment.CustomerStars;
+                                orderInfo.comment = order.HostComment.HostComment1;
                             }
                             else
                             {
