@@ -4,22 +4,27 @@ using System.Text.Json;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Back_End {
-    public class Message {
+namespace Back_End
+{
+    public class Message
+    {
 
         public int errorCode { get; set; }
 
         public Dictionary<string, dynamic> data { get; set; } = new Dictionary<string, dynamic>();
 
 
-        public string ReturnJson() {
+        public string ReturnJson()
+        {
             return JsonSerializer.Serialize(this);
         }
     }
 
 
-    public class LoginMessage : Message {
-        public LoginMessage() {
+    public class LoginMessage : Message
+    {
+        public LoginMessage()
+        {
             errorCode = 300;
             data.Add("loginState", false);
             data.Add("userName", null);
@@ -27,22 +32,28 @@ namespace Back_End {
         }
     }
 
-    public class CheckPhoneMessage : Message {
-        public CheckPhoneMessage() {
+    public class CheckPhoneMessage : Message
+    {
+        public CheckPhoneMessage()
+        {
             errorCode = 300;
             data.Add("phoneunique", false);
         }
     }
 
-    public class RegisterMessage : Message {
-        public RegisterMessage() {
+    public class RegisterMessage : Message
+    {
+        public RegisterMessage()
+        {
             errorCode = 300;
             data.Add("registerState", false);
         }
     }
 
-    public class CustomerDetailMessage : Message {
-        public CustomerDetailMessage() {
+    public class CustomerDetailMessage : Message
+    {
+        public CustomerDetailMessage()
+        {
             errorCode = 400;
             data.Add("userNickName", null);
             data.Add("userAvatar", null);
@@ -58,15 +69,19 @@ namespace Back_End {
         }
     }
 
-    public class VCcodeMessage : Message {
-        public VCcodeMessage() {
+    public class VCcodeMessage : Message
+    {
+        public VCcodeMessage()
+        {
             errorCode = 300;
             data.Add("sendstate", false);
         }
     }
 
-    public class AdminMessage : Message {
-        AdminMessage() {
+    public class AdminMessage : Message
+    {
+        AdminMessage()
+        {
             errorCode = 300;
             data.Add("avatar", null);
             data.Add("ID", null);
@@ -74,16 +89,20 @@ namespace Back_End {
         }
     }
 
-    public class VerifyControllerMessage : Message {
-        public VerifyControllerMessage() {
+    public class VerifyControllerMessage : Message
+    {
+        public VerifyControllerMessage()
+        {
             errorCode = 300;
             data.Add("verifycode", null);
             data.Add("codeimg", null);
         }
     }
 
-    public class ChangePasswordMessage : Message {
-        public ChangePasswordMessage() {
+    public class ChangePasswordMessage : Message
+    {
+        public ChangePasswordMessage()
+        {
             errorCode = 400;
             data.Add("changestate", false);
         }
@@ -91,22 +110,28 @@ namespace Back_End {
     }
 
 
-    public class GetStayByPageMessage : Message {
-        public GetStayByPageMessage() {
+    public class GetStayByPageMessage : Message
+    {
+        public GetStayByPageMessage()
+        {
             errorCode = 400;
             data.Add("examineStayList", null);
         }
     }
 
-    public class GetStayMessage : Message {
-        public GetStayMessage() {
+    public class GetStayMessage : Message
+    {
+        public GetStayMessage()
+        {
             errorCode = 300;
             //this.data.Add("stayList", null);
         }
     }
 
-    public class GetStayByIdMessage : Message {
-        public GetStayByIdMessage() {
+    public class GetStayByIdMessage : Message
+    {
+        public GetStayByIdMessage()
+        {
             errorCode = 400;
             data.Add("detailedAddress", null);
             data.Add("stayType", null);
@@ -119,15 +144,19 @@ namespace Back_End {
         }
     }
 
-    public class GetReportByPageMessage : Message {
-        public GetReportByPageMessage() {
+    public class GetReportByPageMessage : Message
+    {
+        public GetReportByPageMessage()
+        {
             errorCode = 400;
             data.Add("reportList", null);
         }
     }
 
-    public class GetReportByIdMessage : Message {
-        public GetReportByIdMessage() {
+    public class GetReportByIdMessage : Message
+    {
+        public GetReportByIdMessage()
+        {
             errorCode = 400;
             data.Add("orderId", null);
             data.Add("reportTime", null);
@@ -138,8 +167,10 @@ namespace Back_End {
         }
     }
 
-    public class IDVerifyMessage : Message {
-        public IDVerifyMessage() {
+    public class IDVerifyMessage : Message
+    {
+        public IDVerifyMessage()
+        {
             errorCode = 400;
             data.Add("verifyResult", 0);
             data.Add("trueName", null);
@@ -147,38 +178,48 @@ namespace Back_End {
         }
     }
 
-    public class GetStayInfoMessage : Message {
-        public GetStayInfoMessage() {
+    public class GetStayInfoMessage : Message
+    {
+        public GetStayInfoMessage()
+        {
             errorCode = 300;
             data.Add("stayPositionNum", 0);
             data.Add("stayPositionInfo", null);
         }
     }
 
-    public class GetNearByPageMessage : Message {
-        public GetNearByPageMessage() {
+    public class GetNearByPageMessage : Message
+    {
+        public GetNearByPageMessage()
+        {
             errorCode = 400;
             data.Add("nearbyList", null);
         }
     }
 
-    public class UploadExamineMessage : Message {
-        public UploadExamineMessage() {
+    public class UploadExamineMessage : Message
+    {
+        public UploadExamineMessage()
+        {
             errorCode = 400;
             data.Add("isSuccess", false);
         }
     }
 
-    public class GetStayTypeMessage : Message {
-        public GetStayTypeMessage() {
+    public class GetStayTypeMessage : Message
+    {
+        public GetStayTypeMessage()
+        {
             errorCode = 300;
             data.Add("typeList", null);
         }
     }
 
 
-    public class GetHostInfoMessage : Message {
-        public GetHostInfoMessage() {
+    public class GetHostInfoMessage : Message
+    {
+        public GetHostInfoMessage()
+        {
             errorCode = 400;
             data.Add("hostAvatar", null);
             data.Add("hostNickName", null);
@@ -202,8 +243,10 @@ namespace Back_End {
         }
     }
 
-    public class StayOrderInfoMessage : Message {
-        public StayOrderInfoMessage() {
+    public class StayOrderInfoMessage : Message
+    {
+        public StayOrderInfoMessage()
+        {
             errorCode = 400;
 
             data.Add("averageScore", null);
@@ -214,22 +257,28 @@ namespace Back_End {
     }
 
 
-    public class GetTotalNumberMessage : Message {
-        public GetTotalNumberMessage() {
+    public class GetTotalNumberMessage : Message
+    {
+        public GetTotalNumberMessage()
+        {
             errorCode = 400;
             data.Add("totalNum", 0);
         }
     }
-    public class GetStayTagMessage : Message {
-        public GetStayTagMessage() {
+    public class GetStayTagMessage : Message
+    {
+        public GetStayTagMessage()
+        {
             errorCode = 300;
             data.Add("tagList", null);
         }
     }
 
 
-    public class GetStayDetailsMessage : Message {
-        public GetStayDetailsMessage() {
+    public class GetStayDetailsMessage : Message
+    {
+        public GetStayDetailsMessage()
+        {
             errorCode = 400;
 
             data.Add("stayId", null);
@@ -255,8 +304,10 @@ namespace Back_End {
         }
     }
 
-    public class GetCommentsMessage : Message {
-        public GetCommentsMessage() {
+    public class GetCommentsMessage : Message
+    {
+        public GetCommentsMessage()
+        {
             errorCode = 400;
             data.Add("ratings", null);
             data.Add("commentNum", null);
@@ -264,8 +315,10 @@ namespace Back_End {
         }
     }
 
-    public class GetPriceMessage: Message {
-        public GetPriceMessage() {
+    public class GetPriceMessage : Message
+    {
+        public GetPriceMessage()
+        {
             errorCode = 400;
             data.Add("perPrice", null);
             data.Add("dateCount", null);
@@ -273,6 +326,23 @@ namespace Back_End {
             data.Add("serviceFee", null);
             data.Add("couponUsage", null);
             data.Add("totalPrice", null);
+        }
+        public class GetCustomerCouponMessage : Message
+        {
+            public GetCustomerCouponMessage()
+            {
+                errorCode = 400;
+                data.Add("couponList", null);
+            }
+        }
+
+        public class GetOrderMessage : Message
+        {
+            public GetOrderMessage()
+            {
+                errorCode = 400;
+                data.Add("customerOrderList", null);
+            }
         }
     }
 
