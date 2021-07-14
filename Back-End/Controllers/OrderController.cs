@@ -59,6 +59,11 @@ namespace Back_End.Controllers
             public int hostId { get; set; }
             public decimal commentStars { get; set; }
             public string comment { get; set; }
+        }
+
+
+        class CustomerOrderInfo:OrderInfo
+        {
             public int reportState { get; set; }
             public string reportReason { get; set; }
             public string reportReply { get; set; }
@@ -68,7 +73,8 @@ namespace Back_End.Controllers
         [HttpGet("CustomerOrderInfo")]
         public string GetCustomerOrder()
         {
-            GetOrderMessage message = new GetOrderMessage();
+            Message message = new Message();
+            message.errorCode = 400;
             StringValues token = default(StringValues);
             if (Request.Headers.TryGetValue("token", out token))
             {
@@ -81,10 +87,10 @@ namespace Back_End.Controllers
                     if(customer!=null)
                     {
                         var orders = customer.Orders.ToList();
-                        List<OrderInfo> orderInfos = new List<OrderInfo>();
+                        List<CustomerOrderInfo> orderInfos = new List<CustomerOrderInfo>();
                         foreach(var order in orders)
                         {
-                            OrderInfo orderInfo = new OrderInfo();
+                            CustomerOrderInfo orderInfo = new CustomerOrderInfo();
                             orderInfo.orderId = order.OrderId;
                             Stay stay = order.Generates.First().Room.Stay;
                             orderInfo.stayId = stay.StayId;
@@ -132,7 +138,7 @@ namespace Back_End.Controllers
                                 }
                             }
                         }
-                        message.data["customerOrderList"] = orderInfos;
+                        message.data.Add("customerOrderList",orderInfos);
 
                         message.errorCode = 200;
                     }
@@ -143,7 +149,8 @@ namespace Back_End.Controllers
         [HttpGet("HostOrderInfo")]
         public string GetHostOrder()
         {
-            GetOrderMessage message = new GetOrderMessage();
+            Message message = new Message();
+            message.errorCode = 400;
             StringValues token = default(StringValues);
             if (Request.Headers.TryGetValue("token", out token))
             {
@@ -197,7 +204,7 @@ namespace Back_End.Controllers
                             }
                             orderInfos.Add(orderInfo);
                         }
-                        message.data["customerOrderList"] = orderInfos;
+                        message.data.Add("orderList", orderInfos);
                         message.errorCode = 200;
                     }
                 }

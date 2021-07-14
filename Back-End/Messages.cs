@@ -337,14 +337,6 @@ namespace Back_End
         }
     }
 
-    public class GetOrderMessage : Message
-    {
-        public GetOrderMessage()
-        {
-            errorCode = 400;
-            data.Add("orderList", null);
-        }
-    }
 
     public class SearchNearMessage : Message
     {
