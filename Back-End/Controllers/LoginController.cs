@@ -64,6 +64,7 @@ namespace Back_End.Controllers {
                 loginMessage.data["loginState"] = true;
                 loginMessage.data["userName"] = host.HostUsername;
                 loginMessage.data["userAvatar"] = host.HostAvatar;
+                loginMessage.data["hostState"] = host.HostState;
 
                 var token = Token.GetToken(new TokenInfo() {
                     id = host.HostId.ToString(),

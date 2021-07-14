@@ -319,6 +319,7 @@ namespace Back_End.Controllers {
             return message.ReturnJson();
         }
 
+        //
         [HttpGet("getDetailedStay")]
         public string GetStayDetailedInfo() {
             GetStayInfoMessage message = new GetStayInfoMessage();
