@@ -884,6 +884,10 @@ namespace Back_End.Controllers {
                         };
                         foreach (var coupon in couponList) {
                             if (price >= coupon.CouponType.CouponLimit && useCoupon["couponValue"] < coupon.CouponType.CouponAmount) {
+                                if (DateTime.Compare(DateTime.Now, coupon.CouponEnd) > 0)
+                                    continue;
+                                if (DateTime.Compare(DateTime.Now, coupon.CouponStart) < 0)
+                                    continue;
                                 useCoupon["couponAvailable"] = true;
                                 useCoupon["couponId"] = coupon.CouponId;
                                 useCoupon["couponName"] = coupon.CouponType.CouponName;

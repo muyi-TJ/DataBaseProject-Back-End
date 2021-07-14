@@ -12,6 +12,10 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Specialized;
 using System.Security.Cryptography;
 using System.Text;
+using System.Net;
+using System.IO;
+using System.Net.Http;
+using System.Text.RegularExpressions;
 
 namespace Back_End.Controllers
 {
@@ -21,8 +25,8 @@ namespace Back_End.Controllers
     {
         private readonly ModelContext myContext;
         private readonly string postUrl = "http://pay.guisu.fun:7001/api/order";
-        private readonly string redirectUrl = "";
-        private readonly string key = "wrnmsjk";
+        private readonly string redirectUrl = "https://api.guisu.fun:6001/api/Order/afterPay";
+        private readonly string key = "asdfg";
         public OrderController(ModelContext modelContext)
         {
             myContext = modelContext;
@@ -302,6 +306,33 @@ namespace Back_End.Controllers
             return message.ReturnJson();
         }
 
+        [HttpGet("afterPay")]
+        public void AfterPay(string order_id, string qr_price, string sign) {
+            try {
+                myContext.DetachAll();
+                var customer = myContext.Orders.Single(b => b.OrderId == int.Parse(order_id))
+                    .Customer;
+                var host = myContext.Orders.Single(b => b.OrderId == int.Parse(order_id))
+                    .Generates.First().Room.Stay.Host;
+                customer.CustomerDegree += (int)decimal.Parse(qr_price);
+                host.HostScore += (int)decimal.Parse(qr_price);
+                var customerGroupList = myContext.CustomerGroups.ToList();
+                foreach(var customerGroup in customerGroupList) {
+                    if (customer.CustomerDegree >= customerGroup.CustomerLevelDegree)
+                        customer.CustomerLevel = customerGroup.CustomerLevel;
+                }
+                var hostGroupList = myContext.HostGroups.ToList();
+                foreach(var hostGroup in hostGroupList) {
+                    if (host.HostScore >= hostGroup.HostLevelDegree)
+                        host.HostLevel = hostGroup.HostLevel;
+                }
+                myContext.SaveChanges();
+            }
+            catch {
+
+            }
+        }
+
         [HttpPost("addOrder")]
         public string AddOrder()
         {
@@ -355,32 +386,99 @@ namespace Back_End.Controllers
                             myContext.Generates.Add(generate);
                             myContext.SaveChanges();
 
+                            
+                            //MD5 md5 = MD5.Create();
+                            //byte[] strNoKey = md5.ComputeHash(Encoding.UTF8.GetBytes(order.OrderId.ToString() + price.ToString()));
+                            //byte[] strWithKey = md5.ComputeHash(Encoding.UTF8.GetBytes(strNoKey.ToString() + key));
+
+                            string strNoKey = GetStrMd5_32X(order.OrderId.ToString() + price.ToString());
+                            string strWithKey = GetStrMd5_32X(strNoKey.ToString() + key.ToString());
+                            Console.WriteLine(strNoKey);
+                            Console.WriteLine(strWithKey);
+
+                            var headers = new WebHeaderCollection();
+                            headers["Content-Type"] = "application/json;charset=UTF-8";
+                            var dict = new Dictionary<string, string>() {
+                                { "order_id", order.OrderId.ToString()},
+                                { "order_type", "alipay"},
+                                { "order_price", price.ToString()},
+                                { "order_name", "归宿房费支付" },
+                                { "redirect_url", redirectUrl},
+                                { "sign", strWithKey.ToString() }
+                            };
+                            var value = JsonSerializer.Serialize(dict);
+                            Console.WriteLine(value);
+                            var resp = PostUrl(postUrl, value);
+                            Console.WriteLine(resp);
+                            string pattern = @"qr_url"":""(?<type>\S+)"",";
+                            string type = Regex.Matches(resp, pattern)[0].Groups["type"].Value;
+                            Console.WriteLine(type);
                             message.errorCode = 200;
-                            MD5 md5 = MD5.Create();
-                            byte[] strNoKey = md5.ComputeHash(Encoding.UTF8.GetBytes(order.OrderId.ToString() + price.ToString()));
-                            byte[] strWithKey = md5.ComputeHash(Encoding.UTF8.GetBytes(strNoKey.ToString() + key));
-                            NameValueCollection parameters = new NameValueCollection();
-                            parameters.Add("order_id", order.OrderId.ToString());
-                            parameters.Add("order_type", "alipay");
-                            parameters.Add("order_price", price.ToString());
-                            parameters.Add("order_name", "归宿房费支付");
-                            parameters.Add("redirect_url", redirectUrl);
-                            parameters.Add("sign", strWithKey.ToString());
-                            string postInfo = HttpClient.HttpPost(postUrl, parameters);
-                            NameValueCollection collection = JsonSerializer.Deserialize<NameValueCollection>(postInfo);
                             message.data["isSuccess"] = true;
-                            message.data["payUrl"] = collection["qr_url"];
-                            message.data["redirectUrl"] = collection["redirect_url"];
+                            message.data["payUrl"] = type;
+
+                            return message.ReturnJson();
+
                         }
                         catch
                         {
-
+                            message.errorCode = 200;
+                            message.data["isSuccess"] = false;
+                            message.data["payUrl"] = null;
+                            return message.ReturnJson();
                         }
 
                     }
                 }
             }
             return message.ReturnJson();
+        }
+
+        public string PostUrl(string url, string postData) {
+            string result = "";
+
+            HttpWebRequest req = (HttpWebRequest)WebRequest.Create(url);
+
+            req.Method = "POST";
+
+            req.Timeout = 8000;//设置请求超时时间，单位为毫秒
+
+            req.ContentType = "application/json";
+
+            byte[] data = Encoding.UTF8.GetBytes(postData);
+
+            req.ContentLength = data.Length;
+
+            using (Stream reqStream = req.GetRequestStream()) {
+                reqStream.Write(data, 0, data.Length);
+
+                reqStream.Close();
+            }
+
+            HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
+
+            Stream stream = resp.GetResponseStream();
+
+            //获取响应内容
+            using (StreamReader reader = new StreamReader(stream, Encoding.UTF8)) {
+                result = reader.ReadToEnd();
+            }
+
+            return result;
+        }
+
+        public string GetStrMd5_32X(string ConvertString)
+       //32位小写
+
+       {
+            MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider();
+
+            string t2 = BitConverter.ToString(md5.ComputeHash(UTF8Encoding.Default.GetBytes(ConvertString)));
+
+            t2 = t2.Replace("-", "");
+
+            return t2.ToLower();
+
         }
 
         [HttpPost("reportCustomerOrder")]
