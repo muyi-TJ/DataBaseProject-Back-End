@@ -50,13 +50,14 @@ namespace Back_End.Controllers
             public List<string> stayImage { get; set; }
             public int stayId { get; set; }
             public string stayName { get; set; }
-            public string stayLocation { get; set; }
+            public decimal stayLongitude { get; set; }
+            public decimal stayLatitude { get; set; }
             public DateTime startTime { get; set; }
             public DateTime endTime { get; set; }
             public decimal totalCost { get; set; }
             public string name { get; set; }
             public string photo { get; set; }
-            public int hostId { get; set; }
+            public int id { get; set; }
             public decimal commentStars { get; set; }
             public string comment { get; set; }
         }
@@ -95,12 +96,13 @@ namespace Back_End.Controllers
                             Stay stay = order.Generates.First().Room.Stay;
                             orderInfo.stayId = stay.StayId;
                             orderInfo.stayName = stay.StayName;
-                            orderInfo.stayLocation = stay.DetailedAddress;
+                            orderInfo.stayLatitude = stay.Latitude;
+                            orderInfo.stayLongitude = stay.Longitude;
                             orderInfo.startTime = order.Generates.First().StartTime;
                             orderInfo.endTime = order.Generates.First().EndTime;
                             orderInfo.name = stay.Host.HostUsername;
                             orderInfo.totalCost = order.TotalCost;
-                            orderInfo.hostId =(int) stay.HostId;
+                            orderInfo.id =(int) stay.HostId;
                             orderInfo.photo = stay.Host.HostAvatar;
 
                             List<string> photos = new List<string>();
@@ -176,13 +178,14 @@ namespace Back_End.Controllers
                             Stay stay = order.Generates.First().Room.Stay;
                             orderInfo.stayId = stay.StayId;
                             orderInfo.stayName = stay.StayName;
-                            orderInfo.stayLocation = stay.DetailedAddress;
+                            orderInfo.stayLatitude = stay.Latitude;
+                            orderInfo.stayLongitude = stay.Longitude;
                             orderInfo.startTime = order.Generates.First().StartTime;
                             orderInfo.endTime = order.Generates.First().EndTime;
-                            orderInfo.name = stay.Host.HostUsername;
+                            orderInfo.name = order.Customer.CustomerName;
                             orderInfo.totalCost = order.TotalCost;
-                            orderInfo.hostId = (int)stay.HostId;
-                            orderInfo.photo = stay.Host.HostAvatar;
+                            orderInfo.id = order.Customer.CustomerId;
+                            orderInfo.photo = order.Customer.CustomerPhoto;
                             List<string> photos = new List<string>();
                             foreach (var room in stay.Rooms)
                             {
@@ -204,7 +207,7 @@ namespace Back_End.Controllers
                             }
                             orderInfos.Add(orderInfo);
                         }
-                        message.data.Add("orderList", orderInfos);
+                        message.data.Add("hostOrderList", orderInfos);
                         message.errorCode = 200;
                     }
                 }
