@@ -251,7 +251,7 @@ namespace Back_End
 
             data.Add("averageScore", null);
             data.Add("orderInfoOfDateList", null);
-            data.Add("orderInfoOfSexList", null);
+            //data.Add("orderInfoOfSexList", null);
             data.Add("orderInfoOfAgeList", null);
         }
     }
@@ -300,7 +300,7 @@ namespace Back_End
             data.Add("startTime", null);
             data.Add("endTime", null);
             data.Add("rooms", null);
-
+            data.Add("stayStatus", null);
         }
     }
 

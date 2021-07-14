@@ -162,6 +162,8 @@ namespace Back_End.Controllers {
                         int commentNum = 0, commentScore = 0;
                         int publishedNum = 0, unpublishedNum = 0, pendingReviewNum = 0;
                         foreach (var stay in host.Stays) {
+                            if (stay.StayStatus == 4)
+                                continue;
                             commentNum += (int)stay.CommentNum;
                             commentScore += (int)stay.CommentScore;
                             if (stay.StayStatus == 0)
@@ -169,7 +171,7 @@ namespace Back_End.Controllers {
                             else if (stay.StayStatus == 1)
                                 pendingReviewNum += 1;
                             else if (stay.StayStatus == 2)
-                                pendingReviewNum += 1;
+                                publishedNum += 1;
                         }
                         message.data["hostScore"] = host.HostScore;
                         message.data["publishedNum"] = publishedNum;
@@ -211,6 +213,9 @@ namespace Back_End.Controllers {
                             }
                             else if (stay.StayStatus == 2) {
                                 //stayInfo.Add("valReplyTime", stay.AdministratorStays.First().ValReplyTime);
+                                stayInfo.Add("orderNum", myContext.Generates.Where(b => b.StayId == stay.StayId).Select(b => b.OrdersId).Distinct().Count());
+                                stayInfo.Add("reviewNum", stay.CommentNum);
+                                stayInfo.Add("reviewScore", stay.CommentNum == 0 ? 0 : (float)stay.CommentScore / (float)stay.CommentNum);
                                 message.data["publishedHouseInfo"].Add(stayInfo);
                             }
                         }
