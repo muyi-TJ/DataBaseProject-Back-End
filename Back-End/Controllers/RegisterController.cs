@@ -32,6 +32,7 @@ namespace Back_End.Controllers
                 customer.CustomerPrephone = Request.Form["prenumber"];
                 customer.CustomerPhone = Request.Form["phonenumber"];
                 customer.CustomerCreatetime = DateTime.Now;
+                customer.CustomerLevel = 1;
                 myContext.Add(customer);
                 myContext.SaveChanges();
                 registerMessage.errorCode = 200;
@@ -70,6 +71,7 @@ namespace Back_End.Controllers
                 host.HostIdnumber = Request.Form["ID"];
                 host.HostGender = Request.Form["gender"].ToString().ToUpper();
                 host.HostCreateTime = DateTime.Now;
+                host.HostLevel = 1;
                 myContext.Add(host);
                 myContext.SaveChanges();
                 registerMessage.errorCode = 200;
