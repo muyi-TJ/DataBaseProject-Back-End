@@ -100,7 +100,7 @@ namespace Back_End.Controllers
             public int roomId { get; set; }
             public byte bathroomNum { get; set; }
             public int bedNum { get; set; }
-            public List<string> bedType { get; set; }
+            public string bedType { get; set; }
         }
 
 
@@ -120,15 +120,8 @@ namespace Back_End.Controllers
                     if (admin != null)
                     {
                         message.errorCode = 200;
-                        int pagenum = myContext.Stays.Where(s => s.StayStatus == 1).Count();
-                        if (pagenum % 10 == 0)
-                        {
-                            message.data["totalNum"] = pagenum / 10;
-                        }
-                        else
-                        {
-                            message.data["totalNum"] = pagenum / 10 + 1;
-                        }
+                        int totalNum = myContext.Stays.Where(s => s.StayStatus == 1).Count();
+                        message.data["totalNum"] = totalNum;
                     }
 
                 }
@@ -193,11 +186,11 @@ namespace Back_End.Controllers
                             roomInfo.roomId = room.RoomId;
                             roomInfo.bathroomNum = (byte)room.BathroomNum;
                             int bedCount = 0;
-                            List<string> bedType = new List<string>();
+                            string bedType ="";
                             foreach (var bed in room.RoomBeds)
                             {
                                 bedCount += bed.BedNum;
-                                bedType.Add(bed.BedType);
+                                bedType += bed.BedType + ' ';
                             }
                             roomInfo.bedNum = bedCount;
                             roomInfo.bedType = bedType;
@@ -235,15 +228,8 @@ namespace Back_End.Controllers
                     if (admin != null)
                     {
                         message.errorCode = 200;
-                        int pagenum = myContext.Reports.Where(s => s.IsDealed == 0).Count();
-                        if (pagenum % 10 == 0)
-                        {
-                            message.data["totalNum"] = pagenum / 10;
-                        }
-                        else
-                        {
-                            message.data["totalNum"] = pagenum / 10 + 1;
-                        }
+                        int totalNum = myContext.Reports.Where(s => s.IsDealed == 0).Count();
+                        message.data["totalNum"] = totalNum;
                     }
 
                 }
@@ -274,6 +260,7 @@ namespace Back_End.Controllers
                             { stayId = c.Order.Generates.First().StayId, reportId = c.OrderId, reporterId = c.Order.CustomerId });
                         var examines = pageInfo.ToList();
                         message.data["reportList"] = examines;
+                        //TODO:test
                     }
                 }
             }
@@ -326,15 +313,8 @@ namespace Back_End.Controllers
                     if (admin != null)
                     {
                         message.errorCode = 200;
-                        int pagenum = myContext.Peripherals.Count();
-                        if (pagenum % 10 == 0)
-                        {
-                            message.data["totalNum"] = pagenum / 10;
-                        }
-                        else
-                        {
-                            message.data["totalNum"] = pagenum / 10 + 1;
-                        }
+                        int totalNum = myContext.Peripherals.Count();
+                        message.data["totalNum"] = totalNum;
                     }
 
                 }
@@ -397,7 +377,7 @@ namespace Back_End.Controllers
                         message.errorCode = 200;
                         myContext.DetachAll();
                         int stayId = int.Parse(Request.Form["stayId"]);
-                        bool isPass = bool.Parse(Request.Form["isPass"]);
+                        int isPass = int.Parse(Request.Form["isPass"]);
                         Stay stay = StayController.SearchById(stayId);
                         if (stay != null)
                         {
@@ -406,10 +386,11 @@ namespace Back_End.Controllers
                             form.AdminId = id;
                             form.StayId = stayId;
                             form.ValReplyTime = DateTime.Now;
-                            if (isPass)
+                            if (isPass == 1)
                             {
                                 stay.StayStatus = 2;
                                 form.ValidateResult = 1;
+                                form.ValidateReply = " ";
                             }
                             else
                             {
@@ -419,6 +400,7 @@ namespace Back_End.Controllers
                             }//房源状态0保存未提交，1提交未审核，2审核通过，3审核不通过
                             myContext.AdministratorStays.Add(form);
                             myContext.SaveChanges();
+
                             message.data["isSuccess"] = true;
                         }
                         else
@@ -449,7 +431,7 @@ namespace Back_End.Controllers
                         message.errorCode = 200;
                         myContext.DetachAll();
                         int reportId = int.Parse(Request.Form["reportId"]);
-                        bool isBan = bool.Parse(Request.Form["isBan"]);
+                        int isBan = int.Parse(Request.Form["isBan"]);
                         Report report = ReportController.SearchById(reportId);
                         if(report!=null)
                         {
@@ -458,7 +440,7 @@ namespace Back_End.Controllers
                             report.AdminId = id;
                             report.DealTime = DateTime.Now;
                             report.Reply = "已处理完成 ";
-                            if (isBan)
+                            if (isBan==1)
                             {
                                 report.Reply += "已封禁";
                                 report.Order.Generates.First().Room.Stay.Host.HostState = 1;

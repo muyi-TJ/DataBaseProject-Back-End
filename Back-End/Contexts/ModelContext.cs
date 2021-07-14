@@ -847,6 +847,7 @@ namespace Back_End.Contexts
                 entity.Property(e => e.IsDealed)
                     .HasColumnType("NUMBER(38)")
                     .HasColumnName("IS_DEALED")
+                    .IsRequired()
                     .HasDefaultValueSql("0");
 
                 entity.Property(e => e.Reason)
