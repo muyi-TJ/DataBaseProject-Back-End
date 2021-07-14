@@ -650,7 +650,7 @@ namespace Back_End.Controllers
                 if (preStay != null)
                 {
                     myContext.Entry(preStay).State = EntityState.Unchanged;
-                    myContext.Stays.Remove(preStay);
+                    preStay.StayStatus = 4;
                     try
                     {
                         Stay stay = new Stay();
