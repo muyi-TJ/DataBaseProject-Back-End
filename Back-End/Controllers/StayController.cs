@@ -480,7 +480,6 @@ namespace Back_End.Controllers {
                 stay.PublicToilet = decimal.Parse(Request.Form["pubRestNum"]);
                 stay.PublicBathroom = decimal.Parse(Request.Form["pubBathNum"]);
                 stay.NonBarrierFacility = decimal.Parse(Request.Form["barrierFree"]);
-                var test = Request.Form["longitude"];
                 stay.Longitude = decimal.Parse(Request.Form["longitude"]);
                 stay.Latitude = decimal.Parse(Request.Form["latitude"]);
                 stay.StayName = Request.Form["stayName"];
@@ -547,7 +546,6 @@ namespace Back_End.Controllers {
 
 
                 }
-                myContext.SaveChanges();
                 // 插入tag
                 var tags = JsonSerializer.Deserialize<List<string>>(Request.Form["stayTags"]);
                 foreach (var tag in tags)
@@ -586,7 +584,6 @@ namespace Back_End.Controllers {
                 {
                     myContext.Entry(preStay).State = EntityState.Unchanged;
                     myContext.Stays.Remove(preStay);
-                    myContext.SaveChanges();
                     try
                     {
                         Stay stay = new Stay();
@@ -598,7 +595,6 @@ namespace Back_End.Controllers {
                         stay.PublicToilet = decimal.Parse(Request.Form["pubRestNum"]);
                         stay.PublicBathroom = decimal.Parse(Request.Form["pubBathNum"]);
                         stay.NonBarrierFacility = decimal.Parse(Request.Form["barrierFree"]);
-                        var test = Request.Form["longitude"];
                         stay.Longitude = decimal.Parse(Request.Form["longitude"]);
                         stay.Latitude = decimal.Parse(Request.Form["latitude"]);
                         stay.StayName = Request.Form["stayName"];
@@ -675,7 +671,6 @@ namespace Back_End.Controllers {
 
 
                         }
-                        myContext.SaveChanges();
                         // 插入tag
                         var tags = JsonSerializer.Deserialize<List<string>>(Request.Form["stayTags"]);
                         foreach (var tag in tags)
