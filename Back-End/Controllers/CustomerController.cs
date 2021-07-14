@@ -111,8 +111,13 @@ namespace Back_End.Controllers
 
         class CommentInfo
         {
-            public string hostComment { get; set; }
+            public string comment { get; set; }
             public decimal customerStars { get; set; }
+            public DateTime commentTime { get; set; }
+            public string hostNickName { get; set; }
+            public string hostAvatar { get; set; }
+            public DateTime hostRegisterDate { get; set; }
+            public int hostId { get; set; }
         }
 
         [HttpGet("details")]
@@ -134,7 +139,17 @@ namespace Back_End.Controllers
                     {
                         if(order.HostComment!=null)
                         {
-                            comments.Add(new CommentInfo { hostComment = order.HostComment.HostComment1, customerStars = order.HostComment.CustomerStars });
+                            var host = order.Generates.First().Room.Stay.Host;
+                            comments.Add(new CommentInfo
+                            {
+                                comment = order.HostComment.HostComment1,
+                                customerStars = order.HostComment.CustomerStars,
+                                commentTime = order.HostComment.CommentTime,
+                                hostId = (int)host.HostId,
+                                hostAvatar = host.HostAvatar,
+                                hostNickName = host.HostUsername,
+                                hostRegisterDate = (DateTime)host.HostCreateTime
+                            });
                         }
                     }
                     if (customer != null)
