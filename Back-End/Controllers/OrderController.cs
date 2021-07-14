@@ -375,5 +375,38 @@ namespace Back_End.Controllers
             }
             return message.ReturnJson();
         }
+
+        [HttpPost("reportCustomerOrder")]
+        public string ReportCustomerOrder() {
+            Message message = new Message();
+            StringValues token = default(StringValues);
+            if (Request.Headers.TryGetValue("token", out token)) {
+                var data = Token.VerifyToken(token);
+                if (data != null) {
+                    try {
+                        int customerId = int.Parse(data["id"]);
+                        int orderId = int.Parse(Request.Form["orderId"]);
+                        var report = new Report() {
+                            OrderId = orderId,
+                            ReportTime = DateTime.Now,
+                            Reason = Request.Form["reportReason"],
+                            IsDealed = 0,
+                        };
+                        myContext.DetachAll();
+                        myContext.Reports.Add(report);
+                        myContext.SaveChanges();
+
+                        message.errorCode = 200;
+                        return message.ReturnJson();
+                    }
+                    catch (Exception e){
+                        Console.WriteLine(e.ToString());
+                        message.errorCode = 300;
+                        return message.ReturnJson();
+                    }
+                }
+            }
+            return message.ReturnJson();
+        }
     }
 }
