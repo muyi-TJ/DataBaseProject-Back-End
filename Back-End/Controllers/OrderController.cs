@@ -288,8 +288,10 @@ namespace Back_End.Controllers
                                 customerComment.HouseStars = int.Parse(Request.Form["commentStars"]);
                                 customerComment.CustomerComment1 = Request.Form["commentText"];
                                 customerComment.CommentTime = DateTime.Now;
-                                order.Generates.First().Room.Stay.CommentNum += 1;
-                                order.Generates.First().Room.Stay.CommentScore +=(int?) customerComment.HouseStars;
+                                Stay stay = order.Generates.First().Room.Stay;
+                                myContext.Entry(stay).State = EntityState.Unchanged;
+                                stay.CommentNum += 1;
+                                stay.CommentScore +=(int?) customerComment.HouseStars;
                                 myContext.CustomerComments.Add(customerComment);
                                 myContext.SaveChanges();
                                 message.errorCode = 200;

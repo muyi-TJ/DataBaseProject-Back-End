@@ -776,7 +776,7 @@ namespace Back_End.Controllers {
                 }
                 message.data["stayName"] = stay.StayName;
                 message.data["stayDescription"] = stay.Characteristic;
-                message.data["characteristic"] = stay.StayTypeNavigation.Characteristic;
+                message.data["characteristic"] = stay.StayTypeNavigation.StayType1;
                 message.data["hostAvatar"] = stay.Host.HostAvatar;
                 message.data["hostLevel"] = stay.Host.HostLevelNavigation == null ? null : stay.Host.HostLevelNavigation.HostLevelName;
                 message.data["hostCommentNum"] = stay.CommentNum;
@@ -817,6 +817,7 @@ namespace Back_End.Controllers {
                         dict["unavailable"].Add(new Dictionary<string, DateTime> { { "startData", unavailable.StartTime }, { "endData", unavailable.EndTime } });
                     message.data["rooms"].Add(dict);
                 }
+                message.data["isLike"] = myContext.Favoritestays.Any(b => b.StayId == stayId);
                 message.errorCode = 200;
                 return message.ReturnJson();
             }
