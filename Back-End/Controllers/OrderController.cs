@@ -59,6 +59,9 @@ namespace Back_End.Controllers
             public int hostId { get; set; }
             public decimal commentStars { get; set; }
             public string comment { get; set; }
+            public int reportState { get; set; }
+            public string reportReason { get; set; }
+            public string reportReply { get; set; }
         }
 
 
@@ -93,6 +96,7 @@ namespace Back_End.Controllers
                             orderInfo.totalCost = order.TotalCost;
                             orderInfo.hostId =(int) stay.HostId;
                             orderInfo.photo = stay.Host.HostAvatar;
+
                             List<string> photos = new List<string>();
                             foreach(var room in stay.Rooms)
                             {
@@ -113,8 +117,23 @@ namespace Back_End.Controllers
                                 orderInfo.comment = null;
                             }
                             orderInfos.Add(orderInfo);
+                            if(order.Report == null) {
+                                orderInfo.reportState = 0;
+                            }
+                            else {
+                                if (order.Report.IsDealed == 0) {
+                                    orderInfo.reportState = 1;
+                                    orderInfo.reportReason = order.Report.Reason;
+                                }
+                                else {
+                                    orderInfo.reportState = 2;
+                                    orderInfo.reportReason = order.Report.Reason;
+                                    orderInfo.reportReply = order.Report.Reply;
+                                }
+                            }
                         }
                         message.data["customerOrderList"] = orderInfos;
+
                         message.errorCode = 200;
                     }
                 }

@@ -83,6 +83,7 @@ namespace Back_End.Controllers {
             message.data.Add("stayList", new List<StayInfo>());
             try {
                 var staySelectList = myContext.Stays.
+                    Where(b => b.StayStatus == 2).
                     OrderByDescending(r => r.CommentScore > 0 ? ((float)r.CommentScore / (float)r.CommentNum) : 0)
                     .Select(g => new StayInfo {
                         stayId = g.StayId
@@ -118,6 +119,7 @@ namespace Back_End.Controllers {
             message.data.Add("stayList", new List<StayInfo>());
             try {
                 var staySelectList = myContext.Stays.
+                    Where(b => b.StayStatus == 2).
                     OrderByDescending(r => r.CommentNum)
                     .Select(g => new StayInfo {
                         stayId = g.StayId
@@ -681,6 +683,7 @@ namespace Back_End.Controllers {
                 message.data["nonBarrierFacility"] = stay.NonBarrierFacility == 0 ? false : true;
                 message.data["startTime"] = stay.StartTime;
                 message.data["endTime"] = stay.EndTime;
+                message.data["stayStatus"] = stay.StayStatus;
                 message.data["rooms"] = new List<Dictionary<string, dynamic>>();
                 foreach (var room in stay.Rooms) {
                     var dict = new Dictionary<string, dynamic>();
@@ -874,12 +877,12 @@ namespace Back_End.Controllers {
                         int day = DateTime.Now.Day - 1;
                         DateTime time = DateTime.Now.AddMonths(-month).AddDays(-day);
                         var orderInfoOfDateList = new List<Dictionary<string, dynamic>>();
-                        var orderDateList = myContext.Orders.Where(b => DateTime.Compare((DateTime)b.OrderTime, time) > 0);
+                        var orderDateList = myContext.Orders.Where(b => DateTime.Compare((DateTime)b.OrderTime, time) > 0 && b.Generates != null && b.Generates.First().StayId == stayId);
                         message.data["orderInfoOfDateList"] = new List<Dictionary<string, dynamic>>();
 
                         int maleOrderNum = 0, femaleOrderNum = 0, unkownOrderNum = 0;
                         int orderNum0 = 0, orderNum1 = 0, orderNum2 = 0, orderNum3 = 0, orderNum4 = 0, orderNum5 = 0, orderNum6 = 0;
-                        foreach (var order in myContext.Orders.ToList()) {
+                        foreach (var order in myContext.Orders.Where(b => b.Generates != null && b.Generates.First().StayId== stayId)) {
                             if (order.Customer.CustomerGender == null)
                                 unkownOrderNum++;
                             else if (order.Customer.CustomerGender == "f")
