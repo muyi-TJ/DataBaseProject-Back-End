@@ -817,11 +817,6 @@ namespace Back_End.Contexts
                     .HasColumnName("PERIPHERAL_POPULARITY")
                     .HasDefaultValueSql("0");
 
-                entity.Property(e => e.PeripheralRoad)
-                    .IsRequired()
-                    .HasMaxLength(10)
-                    .IsUnicode(false)
-                    .HasColumnName("PERIPHERAL_ROAD");
             });
 
             modelBuilder.Entity<Report>(entity =>

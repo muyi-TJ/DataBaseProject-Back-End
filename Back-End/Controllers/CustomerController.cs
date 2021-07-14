@@ -109,6 +109,12 @@ namespace Back_End.Controllers
 
         }
 
+        class CommentInfo
+        {
+            public string hostComment { get; set; }
+            public decimal customerStars { get; set; }
+        }
+
         [HttpGet("details")]
         public string GetCustomerDetails()
         {
@@ -123,10 +129,13 @@ namespace Back_End.Controllers
                     int id = int.Parse(data["id"]);
                     var customer = SearchById(id);
                     ICollection<Order> orders = customer.Orders;
-                    List<HostComment> comments = new List<HostComment>();
+                    List<CommentInfo> comments = new List<CommentInfo>();
                     foreach (var order in orders)
                     {
-                        comments.Add(order.HostComment);
+                        if(order.HostComment!=null)
+                        {
+                            comments.Add(new CommentInfo { hostComment = order.HostComment.HostComment1, customerStars = order.HostComment.CustomerStars });
+                        }
                     }
                     if (customer != null)
                     {
@@ -208,8 +217,6 @@ namespace Back_End.Controllers
                     var customer = SearchById(id);
                     myContext.Entry(customer).State = EntityState.Unchanged;
                     string sex = Request.Form["userSex"];
-                    int mood = -1;
-                    int.TryParse(Request.Form["mood"].ToString(), out mood);
                     DateTime birthday;
                     customer.CustomerName = Request.Form["userNickName"];
                     if (sex != null)
@@ -220,9 +227,10 @@ namespace Back_End.Controllers
                     {
                         customer.CustomerBirthday = birthday;
                     }
-                    if (mood != -1)
+                    string test = Request.Form["mood"].ToString();
+                    if (Request.Form["mood"].ToString() != "")
                     {
-                        customer.CustomerMood = mood;
+                        customer.CustomerMood = decimal.Parse(Request.Form["mood"]);
                     }
                     try
                     {
