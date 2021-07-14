@@ -968,7 +968,7 @@ namespace Back_End.Controllers {
             GetStayTagMessage message = new GetStayTagMessage();
             try
             {
-                List<string> tagList = myContext.StayLabels.Select(s => s.LabelName).ToList();
+                List<string> tagList = myContext.Labels.Select(s => s.LabelName).ToList();
                 message.errorCode = 200;
                 message.data["tagList"] = tagList;
             }

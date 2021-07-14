@@ -20,7 +20,7 @@ namespace Back_End.Controllers
     public class OrderController : ControllerBase
     {
         private readonly ModelContext myContext;
-        private readonly string postUrl = "http://trisbox.xyz:7001/api/order";
+        private readonly string postUrl = "http://pay.guisu.fun:7001/api/order";
         private readonly string redirectUrl = "";
         private readonly string key = "wrnmsjk";
         public OrderController(ModelContext modelContext)
@@ -323,10 +323,17 @@ namespace Back_End.Controllers
                             Generate generate = new Generate();
                             order.CustomerId = id;
                             order.OrderTime = DateTime.Now;
+                            var text = Request.Form["peopleNum"];
+
                             order.MemberNum = decimal.Parse(Request.Form["peopleNum"]);
                             int stayId = int.Parse(Request.Form["stayId"]);
                             int roomId = int.Parse(Request.Form["roomId"]);
-                            decimal price = myContext.Rooms.Single(s => s.StayId == stayId && s.RoomId == roomId).Price;
+                            DateTime startDate = DateTime.Parse(Request.Form["startDate"]);
+                            DateTime endDate = DateTime.Parse(Request.Form["endDate"]);
+                            TimeSpan span = endDate.Subtract(startDate);
+                            decimal price = myContext.Rooms.Single(s => s.StayId == stayId && s.RoomId == roomId).Price * span.Days;
+
+
                             generate.Money = price;
                             if (Request.Form["couponId"].ToString() != "")
                             {
@@ -350,7 +357,7 @@ namespace Back_End.Controllers
 
                             message.errorCode = 200;
                             MD5 md5 = MD5.Create();
-                            byte[] strNoKey = md5.ComputeHash(Encoding.UTF8.GetBytes((order.OrderId + price).ToString()));
+                            byte[] strNoKey = md5.ComputeHash(Encoding.UTF8.GetBytes(order.OrderId.ToString() + price.ToString()));
                             byte[] strWithKey = md5.ComputeHash(Encoding.UTF8.GetBytes(strNoKey.ToString() + key));
                             NameValueCollection parameters = new NameValueCollection();
                             parameters.Add("order_id", order.OrderId.ToString());
