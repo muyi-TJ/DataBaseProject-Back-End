@@ -705,6 +705,7 @@ namespace Back_End.Controllers {
                 if (data != null) {
                     try {
                         var stay = myContext.Stays.Single(b => b.StayId == stayId);
+                        message.data["struPos"] = stay.DetailedAddress;
                         message.data["stayType"] = stay.StayType;
                         message.data["maxTenantNum"] = stay.StayCapacity;
                         message.data["roomNum"] = stay.RoomNum;
@@ -712,8 +713,8 @@ namespace Back_End.Controllers {
                         message.data["pubRestNum"] = stay.PublicToilet;
                         message.data["pubBathNum"] = stay.PublicBathroom;
                         message.data["barrierFree"] = stay.NonBarrierFacility == 0 ? false : true;
-                        message.data["Longitude"] = stay.Longitude;
-                        message.data["Latitude"] = stay.Latitude;
+                        message.data["longitude"] = stay.Longitude;
+                        message.data["latitude"] = stay.Latitude;
                         message.data["stayName"] = stay.StayName;
                         message.data["stayChars"] = stay.Characteristic;
                         message.data["startTime"] = stay.StartTime;
