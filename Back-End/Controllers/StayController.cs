@@ -877,6 +877,7 @@ namespace Back_End.Controllers {
                         message.data["serviceFee"] = 0;
                         var couponList = myContext.Coupons.Where(b => b.CustomerId == customerId).ToList();
                         var useCoupon = new Dictionary<string, dynamic> {
+                            { "couponId", null },
                             { "couponAvailable" , false},
                             { "couponName", null },
                             { "couponValue", 0 }
@@ -884,6 +885,7 @@ namespace Back_End.Controllers {
                         foreach (var coupon in couponList) {
                             if (price >= coupon.CouponType.CouponLimit && useCoupon["couponValue"] < coupon.CouponType.CouponAmount) {
                                 useCoupon["couponAvailable"] = true;
+                                useCoupon["couponId"] = coupon.CouponId;
                                 useCoupon["couponName"] = coupon.CouponType.CouponName;
                                 useCoupon["couponValue"] = coupon.CouponType.CouponAmount;
                             }
