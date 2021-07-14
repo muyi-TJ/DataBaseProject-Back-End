@@ -186,7 +186,7 @@ namespace Back_End.Controllers
                             roomInfo.roomId = room.RoomId;
                             roomInfo.bathroomNum = (byte)room.BathroomNum;
                             int bedCount = 0;
-                            string bedType ="";
+                            string bedType = "";
                             foreach (var bed in room.RoomBeds)
                             {
                                 bedCount += bed.BedNum;
@@ -433,14 +433,14 @@ namespace Back_End.Controllers
                         int reportId = int.Parse(Request.Form["reportId"]);
                         int isBan = Request.Form["isBan"] == "true" ? 1 : 0;
                         Report report = ReportController.SearchById(reportId);
-                        if(report!=null)
+                        if (report != null)
                         {
                             myContext.Entry(report).State = EntityState.Unchanged;
                             report.IsDealed = 1;
                             report.AdminId = id;
                             report.DealTime = DateTime.Now;
                             report.Reply = "已处理完成 ";
-                            if (isBan==1)
+                            if (isBan == 1)
                             {
                                 report.Reply += "已封禁";
                                 report.Order.Generates.First().Room.Stay.Host.HostState = 1;
@@ -478,7 +478,7 @@ namespace Back_End.Controllers
                         Peripheral near = new Peripheral();
                         near.PeripheralName = Request.Form["nearbyName"];
                         near.PeripheralClass = Request.Form["nearbyType"];
-                        near.PeripheralPopularity =int.Parse( Request.Form["nearbyPopularity"]);
+                        near.PeripheralPopularity = int.Parse(Request.Form["nearbyPopularity"]);
                         near.DetailedAddress = Request.Form["nearbyDetailedAdd"];
                         myContext.Peripherals.Add(near);
                         myContext.SaveChanges();
