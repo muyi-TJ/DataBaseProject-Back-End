@@ -431,7 +431,7 @@ namespace Back_End.Controllers
                         message.errorCode = 200;
                         myContext.DetachAll();
                         int reportId = int.Parse(Request.Form["reportId"]);
-                        int isBan = int.Parse(Request.Form["isBan"]);
+                        int isBan = Request.Form["isBan"] == "true" ? 1 : 0;
                         Report report = ReportController.SearchById(reportId);
                         if(report!=null)
                         {

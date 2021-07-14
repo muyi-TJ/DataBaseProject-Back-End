@@ -1044,7 +1044,7 @@ namespace Back_End.Controllers {
                             new Dictionary<string, dynamic> {
                                 {"data", year.ToString() + "-" + i.ToString() + "月" },
                                 {"orderNum", 0 },
-                                {"reviewNUm", 0 },
+                                {"reviewNum", 0 },
                                 {"averageScore", 0 },
                                 {"totalScore",0 }
                             }
