@@ -29,12 +29,14 @@ namespace Back_End.Controllers
             string code = MakeCode(4);
             MD5 md5 = MD5.Create();
             byte[] str = md5.ComputeHash(Encoding.UTF8.GetBytes(code));
+            string md5Code = BitConverter.ToString(str);
+            md5Code = md5Code.Replace("-", "");
             string image = CreateCodeImg(code);
             if (image != null)
             {
                 message.errorCode = 200;
-                message.data["verifycode"] = str;
-                message.data["codeimg"] = image;
+                message.data["verifycode"] = md5Code.ToLower();
+                message.data["codeimg"] = "data:image/jpg;base64," + image;
             }
             return message.ReturnJson();
             //TODO:test
