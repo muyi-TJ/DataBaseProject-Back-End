@@ -50,7 +50,8 @@ namespace Back_End.Controllers
             public List<string> stayImage { get; set; }
             public int stayId { get; set; }
             public string stayName { get; set; }
-            public string stayLocation { get; set; }
+            public decimal stayLongitude { get; set; }
+            public decimal stayLatitude { get; set; }
             public DateTime startTime { get; set; }
             public DateTime endTime { get; set; }
             public decimal totalCost { get; set; }
@@ -95,7 +96,8 @@ namespace Back_End.Controllers
                             Stay stay = order.Generates.First().Room.Stay;
                             orderInfo.stayId = stay.StayId;
                             orderInfo.stayName = stay.StayName;
-                            orderInfo.stayLocation = stay.DetailedAddress;
+                            orderInfo.stayLatitude = stay.Latitude;
+                            orderInfo.stayLongitude = stay.Longitude;
                             orderInfo.startTime = order.Generates.First().StartTime;
                             orderInfo.endTime = order.Generates.First().EndTime;
                             orderInfo.name = stay.Host.HostUsername;
@@ -176,7 +178,8 @@ namespace Back_End.Controllers
                             Stay stay = order.Generates.First().Room.Stay;
                             orderInfo.stayId = stay.StayId;
                             orderInfo.stayName = stay.StayName;
-                            orderInfo.stayLocation = stay.DetailedAddress;
+                            orderInfo.stayLatitude = stay.Latitude;
+                            orderInfo.stayLongitude = stay.Longitude;
                             orderInfo.startTime = order.Generates.First().StartTime;
                             orderInfo.endTime = order.Generates.First().EndTime;
                             orderInfo.name = order.Customer.CustomerName;
