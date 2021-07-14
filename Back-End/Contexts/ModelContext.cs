@@ -844,6 +844,7 @@ namespace Back_End.Contexts
                 entity.Property(e => e.IsDealed)
                     .HasColumnType("NUMBER(38)")
                     .HasColumnName("IS_DEALED")
+                    .IsRequired()
                     .HasDefaultValueSql("0");
 
                 entity.Property(e => e.Reason)
@@ -973,7 +974,8 @@ namespace Back_End.Contexts
 
                 entity.Property(e => e.StayId)
                     .HasPrecision(10)
-                    .ValueGeneratedNever()
+                    .ValueGeneratedOnAdd()
+                    .UseHiLo("SEQ")
                     .HasColumnName("STAY_ID");
 
                 entity.Property(e => e.BedNum)

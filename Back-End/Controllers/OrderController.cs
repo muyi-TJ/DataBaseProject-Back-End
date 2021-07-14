@@ -323,7 +323,8 @@ namespace Back_End.Controllers
                             Generate generate = new Generate();
                             order.CustomerId = id;
                             order.OrderTime = DateTime.Now;
-                            order.MemberNum = decimal.Parse(Request.Form["peopleNum"]);
+                            //var test = Request.Form["peopleNum"];
+                            //order.MemberNum = decimal.Parse(Request.Form["peopleNum"]);
                             int stayId = int.Parse(Request.Form["stayId"]);
                             int roomId = int.Parse(Request.Form["roomId"]);
                             decimal price = myContext.Rooms.Single(s => s.StayId == stayId && s.RoomId == roomId).Price;
