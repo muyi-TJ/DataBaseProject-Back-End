@@ -40,7 +40,8 @@ namespace Back_End.Controllers
 
 
                 // 添加默认收藏夹
-                Favorite favorite = new Favorite() {
+                Favorite favorite = new Favorite()
+                {
                     CustomerId = customer.CustomerId,
                     Name = "默认收藏夹"
                 };
