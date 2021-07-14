@@ -11,29 +11,36 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Primitives;
 using System.Collections.Specialized;
 
-namespace Back_End.Controllers {
+namespace Back_End.Controllers
+{
     [ApiController]
     [Route("api/[controller]")]
-    public class StayController : ControllerBase {
+    public class StayController : ControllerBase
+    {
         private readonly ModelContext myContext;
-        public StayController(ModelContext modelContext) {
+        public StayController(ModelContext modelContext)
+        {
             myContext = modelContext;
         }
 
 
-        public static Stay SearchById(int id) {
-            try {
+        public static Stay SearchById(int id)
+        {
+            try
+            {
                 ModelContext context = new ModelContext();
                 var stay = context.Stays
                     .Single(b => b.StayId == id);
                 return stay;
             }
-            catch {
+            catch
+            {
                 return null;
             }
         }
 
-        public class StayInfo {
+        private class StayInfo
+        {
             public int stayId { get; set; }
             public string stayName { get; set; }
             public string stayCharcateristic { get; set; }
@@ -43,24 +50,28 @@ namespace Back_End.Controllers {
 
         // 根据最低价格选取6个价格最低的
         [HttpGet("getStayByPrice")]
-        public string GetStayByPrice() {
+        public string GetStayByPrice()
+        {
             //var context = context; 
             //context.DetachAll();
             var message = new GetStayMessage();
             message.data.Add("stayList", new List<StayInfo>());
-            try {
+            try
+            {
                 var staySelectList = myContext.Rooms
-                    .Where( b=> b.Stay.StayStatus == 2)
+                    .Where(b => b.Stay.StayStatus == 2)
                     .GroupBy(r => r.StayId)
                     .OrderBy(r => r.Min(x => x.Price))
-                    .Select(g => new StayInfo {
+                    .Select(g => new StayInfo
+                    {
                         stayId = g.Key,
                         stayPrice = g.Min(x => x.Price)
                     })
                     .ToList();
                 if (staySelectList.Count > 6)
                     staySelectList.RemoveRange(6, staySelectList.Count - 6);
-                foreach (var staySelect in staySelectList) {
+                foreach (var staySelect in staySelectList)
+                {
                     var stay = myContext.Stays.Single(b => b.StayId == staySelect.stayId);
                     staySelect.stayCharcateristic = stay.Characteristic;
                     staySelect.stayName = stay.StayName;
@@ -70,7 +81,8 @@ namespace Back_End.Controllers {
                 message.errorCode = 200;
                 return message.ReturnJson();
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 Console.WriteLine(e.ToString());
                 return message.ReturnJson();
             }
@@ -78,16 +90,19 @@ namespace Back_End.Controllers {
 
         // 根据用户评分选取4个最高的
         [HttpGet("getStayByScore")]
-        public string GetStayByScore() {
+        public string GetStayByScore()
+        {
             //var context = context;
             //context.DetachAll();
             var message = new GetStayMessage();
             message.data.Add("stayList", new List<StayInfo>());
-            try {
+            try
+            {
                 var staySelectList = myContext.Stays.
                     Where(b => b.StayStatus == 2).
                     OrderByDescending(r => r.CommentScore > 0 ? ((float)r.CommentScore / (float)r.CommentNum) : 0)
-                    .Select(g => new StayInfo {
+                    .Select(g => new StayInfo
+                    {
                         stayId = g.StayId
                     })
                     .ToList();
@@ -95,7 +110,8 @@ namespace Back_End.Controllers {
                 if (staySelectList.Count > 4)
                     staySelectList.RemoveRange(4, staySelectList.Count - 4);
 
-                foreach (var staySelect in staySelectList) {
+                foreach (var staySelect in staySelectList)
+                {
                     var stay = myContext.Stays.Single(b => b.StayId == staySelect.stayId);
                     staySelect.stayPhoto = myContext.RoomPhotos.Where(b => b.StayId == staySelect.stayId).FirstOrDefault().RPhoto;
                     staySelect.stayPrice = myContext.Rooms.Where(b => b.StayId == staySelect.stayId).Min(x => x.Price);
@@ -106,7 +122,8 @@ namespace Back_End.Controllers {
                 message.data["stayList"] = staySelectList;
                 return message.ReturnJson();
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 Console.WriteLine(e.ToString());
                 return message.ReturnJson();
             }
@@ -114,16 +131,19 @@ namespace Back_End.Controllers {
 
         // 根据用户评论数选取前4个评论最多的
         [HttpGet("getStayByHot")]
-        public string GetStayByHot() {
+        public string GetStayByHot()
+        {
             //var context = context;
             //context.DetachAll();
             var message = new GetStayMessage();
             message.data.Add("stayList", new List<StayInfo>());
-            try {
+            try
+            {
                 var staySelectList = myContext.Stays.
                     Where(b => b.StayStatus == 2).
                     OrderByDescending(r => r.CommentNum)
-                    .Select(g => new StayInfo {
+                    .Select(g => new StayInfo
+                    {
                         stayId = g.StayId
                     })
                     .ToList();
@@ -131,7 +151,8 @@ namespace Back_End.Controllers {
                 if (staySelectList.Count > 4)
                     staySelectList.RemoveRange(4, staySelectList.Count - 4);
 
-                foreach (var staySelect in staySelectList) {
+                foreach (var staySelect in staySelectList)
+                {
                     var stay = myContext.Stays.Single(b => b.StayId == staySelect.stayId);
                     staySelect.stayPhoto = myContext.RoomPhotos.Where(b => b.StayId == staySelect.stayId).FirstOrDefault().RPhoto;
                     staySelect.stayPrice = myContext.Rooms.Where(b => b.StayId == staySelect.stayId).Min(x => x.Price);
@@ -142,20 +163,23 @@ namespace Back_End.Controllers {
                 message.data["stayList"] = staySelectList;
                 return message.ReturnJson();
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 Console.WriteLine(e.ToString());
                 return message.ReturnJson();
             }
         }
 
 
-        class StayInMapInfo {
+        class StayInMapInfo
+        {
             public int stayID { get; set; }
             public int stayPrice { get; set; }
             public decimal[] stayPosition { get; set; }
         }
 
-        class StayRoughInfo {
+        class StayRoughInfo
+        {
             public string stayName { get; set; }
             public string stayDescribe { get; set; }
             public List<string> stayPhotos { get; set; }
@@ -165,7 +189,8 @@ namespace Back_End.Controllers {
 
         }
 
-        class StayDetailedInfo : StayRoughInfo {
+        class StayDetailedInfo : StayRoughInfo
+        {
             public List<string> stayLabel { get; set; }
             public int stayPrice { get; set; }
             public int stayCommentNum { get; set; }
@@ -217,62 +242,57 @@ namespace Back_End.Controllers {
             return message.ReturnJson();
         }
 
-        public static int GetMinPrice(List<Room> rooms) {
+        public static int GetMinPrice(List<Room> rooms)
+        {
             int min = int.MaxValue;
-            foreach (var room in rooms) {
-                if (room.Price < min) {
+            foreach (var room in rooms)
+            {
+                if (room.Price < min)
+                {
                     min = room.Price;
                 }
             }
             return min;
         }
 
-        private bool IsInMap(decimal left, decimal right, decimal up, decimal down, decimal lat, decimal lng, bool cross) {
-            if (lat < up && lat > down) {
-                if (cross) {
-                    if (lng > left || lng < right) {
-                        return true;
-                    }
-                }
-                else {
-                    if (lng > left && lng < right) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
         [HttpGet("type")]
-        public string GetAllStayType() {
+        public string GetAllStayType()
+        {
             GetStayTypeMessage message = new GetStayTypeMessage();
-            try {
+            try
+            {
                 message.errorCode = 200;
                 var stayType = myContext.StayTypes.Select(c => c.StayType1).ToList();
                 message.data["typeList"] = stayType;
             }
-            catch {
+            catch
+            {
 
             }
             return message.ReturnJson();
         }
 
         [HttpGet("getRoughStay")]
-        public string GetStayRoughInfo() {
+        public string GetStayRoughInfo()
+        {
             GetStayInfoMessage message = new GetStayInfoMessage();
-            try {
+            try
+            {
                 int stayId = int.Parse(Request.Query["stayID"]);
                 var stay = SearchById(stayId);
-                if (stay != null) {
+                if (stay != null)
+                {
                     message.errorCode = 200;
                     StayRoughInfo info = new StayRoughInfo();
                     info.stayName = stay.StayName;
                     var rooms = stay.Rooms.ToList();
                     int bathroom = (int)stay.PublicToilet;
                     var photos = new List<string>();
-                    foreach (var room in rooms) {
+                    foreach (var room in rooms)
+                    {
                         bathroom += (int)room.BathroomNum;
-                        foreach (var pic in room.RoomPhotos) {
+                        foreach (var pic in room.RoomPhotos)
+                        {
                             photos.Add(pic.RPhoto);
                         }
                     }
@@ -289,16 +309,22 @@ namespace Back_End.Controllers {
                     }
                     bool islike = false;
                     StringValues token = default(StringValues);
-                    if (Request.Headers.TryGetValue("token", out token)) {
+                    if (Request.Headers.TryGetValue("token", out token))
+                    {
                         var data = Token.VerifyToken(token);
-                        if (data != null) {
+                        if (data != null)
+                        {
                             int id = int.Parse(data["id"]);
                             var customer = CustomerController.SearchById(id);
                             var favorites = customer.Favorites.ToList();
-                            foreach (var favorite in favorites) {
-                                if (!islike) {
-                                    foreach (var elem in favorite.Favoritestays.ToList()) {
-                                        if (elem.StayId == stayId) {
+                            foreach (var favorite in favorites)
+                            {
+                                if (!islike)
+                                {
+                                    foreach (var elem in favorite.Favoritestays.ToList())
+                                    {
+                                        if (elem.StayId == stayId)
+                                        {
                                             islike = true;
                                             break;
                                         }
@@ -313,53 +339,66 @@ namespace Back_End.Controllers {
                 }
 
             }
-            catch {
+            catch
+            {
 
             }
             return message.ReturnJson();
         }
 
-        //
         [HttpGet("getDetailedStay")]
-        public string GetStayDetailedInfo() {
+        public string GetStayDetailedInfo()
+        {
             GetStayInfoMessage message = new GetStayInfoMessage();
-            try {
+            try
+            {
                 int stayId = int.Parse(Request.Query["stayID"]);
                 var stay = SearchById(stayId);
-                if (stay != null) {
+                if (stay != null)
+                {
                     message.errorCode = 200;
                     StayDetailedInfo info = new StayDetailedInfo();
                     info.stayName = stay.StayName;
                     var rooms = stay.Rooms.ToList();
                     int bathroom = (int)stay.PublicToilet;
                     var photos = new List<string>();
-                    foreach (var room in rooms) {
+                    foreach (var room in rooms)
+                    {
                         bathroom += (int)room.BathroomNum;
-                        foreach (var pic in room.RoomPhotos) {
+                        foreach (var pic in room.RoomPhotos)
+                        {
                             photos.Add(pic.RPhoto);
                         }
                     }
                     info.stayDescribe = rooms.Count.ToString() + "室" + bathroom.ToString() + "卫";
                     info.stayPhotos = photos;
                     info.hostAvatar = stay.Host.HostAvatar;
-                    if (stay.CommentNum != 0) {
+                    if (stay.CommentNum != 0)
+                    {
                         info.stayScore = (double)stay.CommentScore / (double)stay.CommentNum;
                     }
-                    else {
+                    else
+                    {
                         info.stayScore = 0;
                     }
                     bool islike = false;
                     StringValues token = default(StringValues);
-                    if (Request.Headers.TryGetValue("token", out token)) {
+                    if (Request.Headers.TryGetValue("token", out token))
+                    {
                         var data = Token.VerifyToken(token);
-                        if (data != null) {
+                        if (data != null)
+                        {
                             int id = int.Parse(data["id"]);
                             var customer = CustomerController.SearchById(id);
                             var favorites = customer.Favorites.ToList();
-                            foreach (var favorite in favorites) {
-                                if (!islike) {
-                                    foreach (var elem in favorite.Favoritestays.ToList()) {
-                                        if (elem.StayId == stayId) {
+                            foreach (var favorite in favorites)
+                            {
+                                if (!islike)
+                                {
+                                    foreach (var elem in favorite.Favoritestays.ToList())
+                                    {
+                                        if (elem.StayId == stayId)
+                                        {
                                             islike = true;
                                             break;
                                         }
@@ -378,20 +417,23 @@ namespace Back_End.Controllers {
                 }
 
             }
-            catch {
+            catch
+            {
 
             }
             return message.ReturnJson();
         }
 
-        // 搜索
         [HttpGet("getStaysDetails")]
-        public string GetStaysDetails(string name) {
+        public string GetStaysDetails(string name)
+        {
             Message message = new Message();
             message.data.Add("staysDetails", new List<Dictionary<string, dynamic>>());
-            try {
+            try
+            {
                 var stayList = myContext.Stays.Where(b => b.StayStatus == 2 && b.StayName.Contains(name));
-                foreach (var stay in stayList) {
+                foreach (var stay in stayList)
+                {
                     var details = new Dictionary<string, dynamic>();
 
                     StayDetailedInfo info = new StayDetailedInfo();
@@ -399,33 +441,43 @@ namespace Back_End.Controllers {
                     var rooms = stay.Rooms.ToList();
                     int bathroom = (int)stay.PublicToilet;
                     var photos = new List<string>();
-                    foreach (var room in rooms) {
+                    foreach (var room in rooms)
+                    {
                         bathroom += (int)room.BathroomNum;
-                        foreach (var pic in room.RoomPhotos) {
+                        foreach (var pic in room.RoomPhotos)
+                        {
                             photos.Add(pic.RPhoto);
                         }
                     }
                     info.stayDescribe = rooms.Count.ToString() + "室" + bathroom.ToString() + "卫";
                     info.stayPhotos = photos;
                     info.hostAvatar = stay.Host.HostAvatar;
-                    if (stay.CommentNum != 0) {
+                    if (stay.CommentNum != 0)
+                    {
                         info.stayScore = (double)stay.CommentScore / (double)stay.CommentNum;
                     }
-                    else {
+                    else
+                    {
                         info.stayScore = 0;
                     }
                     bool islike = false;
                     StringValues token = default(StringValues);
-                    if (Request.Headers.TryGetValue("token", out token)) {
+                    if (Request.Headers.TryGetValue("token", out token))
+                    {
                         var data = Token.VerifyToken(token);
-                        if (data != null) {
+                        if (data != null)
+                        {
                             int id = int.Parse(data["id"]);
                             var customer = CustomerController.SearchById(id);
                             var favorites = customer.Favorites.ToList();
-                            foreach (var favorite in favorites) {
-                                if (!islike) {
-                                    foreach (var elem in favorite.Favoritestays.ToList()) {
-                                        if (elem.StayId == stay.StayId) {
+                            foreach (var favorite in favorites)
+                            {
+                                if (!islike)
+                                {
+                                    foreach (var elem in favorite.Favoritestays.ToList())
+                                    {
+                                        if (elem.StayId == stay.StayId)
+                                        {
                                             islike = true;
                                             break;
                                         }
@@ -439,7 +491,7 @@ namespace Back_End.Controllers {
                     info.stayLabel = myContext.StayLabels.Where(s => s.StayId == stay.StayId).Select(c => c.LabelName).ToList();
                     info.stayPrice = GetMinPrice(stay.Rooms.ToList());
                     info.stayPosition = new decimal[] { stay.Longitude, stay.Latitude };
-                    
+
                     details["stayPositionNum"] = 1;
                     details["stayPositionInfo"] = info;
                     details["stayId"] = stay.StayId;
@@ -449,14 +501,16 @@ namespace Back_End.Controllers {
                 message.errorCode = 200;
                 return message.ReturnJson();
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 Console.WriteLine(e.ToString());
                 message.errorCode = 300;
                 return message.ReturnJson();
             }
         }
 
-        class RoomInfo {
+        class RoomInfo
+        {
             public int roomId { get; set; }
             public int price { get; set; }
             public decimal? roomArea { get; set; }
@@ -467,10 +521,12 @@ namespace Back_End.Controllers {
         }
 
         [HttpPost("infos")]
-        public string AddNewStay() {
+        public string AddNewStay()
+        {
             Message message = new Message();
             message.errorCode = 300;
-            try {
+            try
+            {
                 Stay stay = new Stay();
                 stay.StayType = Request.Form["stayType"];
                 stay.StayCapacity = byte.Parse(Request.Form["maxTenantNum"]);
@@ -493,28 +549,34 @@ namespace Back_End.Controllers {
                 stay.CommentScore = 0;
                 StringValues token = default(StringValues);
                 int? hostId = null;
-                if (Request.Headers.TryGetValue("token", out token)) {
+                if (Request.Headers.TryGetValue("token", out token))
+                {
                     var data = Token.VerifyToken(token);
-                    if (data != null) {
+                    if (data != null)
+                    {
                         myContext.DetachAll();
                         int id = int.Parse(data["id"]);
                         var host = HostController.SearchById(id);
-                        if (host != null) {
+                        if (host != null)
+                        {
                             hostId = host.HostId;
                         }
                     }
                 }
-                if (hostId != null) {
+                if (hostId != null)
+                {
                     stay.HostId = hostId;
                 }
-                else {
+                else
+                {
                     throw (null);
                 }
                 myContext.Stays.Add(stay);
                 //TODO:test
                 var rooms = JsonSerializer.Deserialize<List<RoomInfo>>(Request.Form["roomInfo"]);
-                
-                foreach (var room in rooms) {
+
+                foreach (var room in rooms)
+                {
                     Room newRoom = new Room();
                     newRoom.StayId = stay.StayId;
                     newRoom.RoomId = room.roomId;
@@ -522,8 +584,10 @@ namespace Back_End.Controllers {
                     newRoom.RoomArea = room.roomArea;
                     newRoom.BathroomNum = room.bathNum;
                     myContext.Rooms.Add(newRoom);
-                    for (int i = 0; i < room.bedTypes.Count(); i++) {
-                        if (room.bedNums[i] > 0) {
+                    for (int i = 0; i < room.bedTypes.Count(); i++)
+                    {
+                        if (room.bedNums[i] > 0)
+                        {
                             RoomBed roomBed = new RoomBed();
                             roomBed.BedType = room.bedTypes[i];
                             roomBed.BedNum = room.bedNums[i];
@@ -533,9 +597,11 @@ namespace Back_End.Controllers {
                             myContext.RoomBeds.Add(roomBed);
                         }//全部插入后再保存
                     }
-                    for (int i = 0; i < room.images.Count(); i++) {
+                    for (int i = 0; i < room.images.Count(); i++)
+                    {
                         string url = PhotoUpload.UploadPhoto(room.images[i], "roomPhoto/" + stay.StayId + '-' + newRoom.RoomId + '-' + i.ToString());
-                        if (url != null) {
+                        if (url != null)
+                        {
                             var photo = new RoomPhoto();
                             photo.StayId = stay.StayId;
                             photo.RoomId = newRoom.RoomId;
@@ -562,7 +628,8 @@ namespace Back_End.Controllers {
 
                 message.errorCode = 200;
             }
-            catch {
+            catch
+            {
 
             }
 
@@ -577,7 +644,7 @@ namespace Back_End.Controllers {
             Message message = new Message();
             message.errorCode = 300;
             int preId = -1;
-            if(int.TryParse(Request.Form["stayId"], out preId))
+            if (int.TryParse(Request.Form["stayId"], out preId))
             {
                 Stay preStay = SearchById(preId);
                 if (preStay != null)
@@ -697,13 +764,17 @@ namespace Back_End.Controllers {
         }
 
         [HttpGet("infos")]
-        public string GetStayInfos(int stayId = -1) {
+        public string GetStayInfos(int stayId = -1)
+        {
             GetStayInfosMessage message = new GetStayInfosMessage();
             StringValues token = default(StringValues);
-            if (Request.Headers.TryGetValue("token", out token)) {
+            if (Request.Headers.TryGetValue("token", out token))
+            {
                 var data = Token.VerifyToken(token);
-                if (data != null) {
-                    try {
+                if (data != null)
+                {
+                    try
+                    {
                         var stay = myContext.Stays.Single(b => b.StayId == stayId);
                         message.data["struPos"] = stay.DetailedAddress;
                         message.data["stayType"] = stay.StayType;
@@ -722,7 +793,8 @@ namespace Back_End.Controllers {
                         message.data["maxDay"] = stay.DaysMax;
                         message.data["minDay"] = stay.DaysMin;
                         message.data["roomInfo"] = new List<RoomInfo>();
-                        foreach(var room in stay.Rooms) {
+                        foreach (var room in stay.Rooms)
+                        {
                             var roomInfo = new RoomInfo();
                             roomInfo.roomId = room.RoomId;
                             roomInfo.price = room.Price;
@@ -731,7 +803,8 @@ namespace Back_End.Controllers {
                             var bedTypes = new List<string>();
                             var bedNums = new List<byte>();
                             var images = new List<string>();
-                            foreach(var bed in room.RoomBeds) {
+                            foreach (var bed in room.RoomBeds)
+                            {
                                 bedTypes.Add(bed.BedType);
                                 bedNums.Add(bed.BedNum);
                             }
@@ -749,7 +822,8 @@ namespace Back_End.Controllers {
                         message.errorCode = 200;
                         return message.ReturnJson();
                     }
-                    catch (Exception e) {
+                    catch (Exception e)
+                    {
                         Console.WriteLine(e.ToString());
                         message.errorCode = 300;
                         return message.ReturnJson();
@@ -759,18 +833,22 @@ namespace Back_End.Controllers {
             return message.ReturnJson();
         }
 
-        
+
 
         // 获取房源详细信息
         [HttpGet("getStayDetails")]
-        public string GetStayDetails(int stayId = -1) {
+        public string GetStayDetails(int stayId = -1)
+        {
             GetStayDetailsMessage message = new GetStayDetailsMessage();
-            try {
+            try
+            {
                 var stay = myContext.Stays.Single(b => b.StayId == stayId);
                 message.data["stayId"] = stayId;
                 message.data["stayImages"] = new List<string>();
-                foreach (var room in stay.Rooms) {
-                    foreach (var roomPhoto in room.RoomPhotos) {
+                foreach (var room in stay.Rooms)
+                {
+                    foreach (var roomPhoto in room.RoomPhotos)
+                    {
                         message.data["stayImages"].Add(roomPhoto.RPhoto);
                     }
                 }
@@ -795,7 +873,8 @@ namespace Back_End.Controllers {
                 message.data["endTime"] = stay.EndTime;
                 message.data["stayStatus"] = stay.StayStatus;
                 message.data["rooms"] = new List<Dictionary<string, dynamic>>();
-                foreach (var room in stay.Rooms) {
+                foreach (var room in stay.Rooms)
+                {
                     var dict = new Dictionary<string, dynamic>();
                     dict.Add("id", room.RoomId);
                     dict.Add("area", room.RoomArea);
@@ -820,7 +899,8 @@ namespace Back_End.Controllers {
                 message.errorCode = 200;
                 return message.ReturnJson();
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 Console.WriteLine(e.ToString());
                 message.errorCode = 300;
                 return message.ReturnJson();
@@ -830,15 +910,18 @@ namespace Back_End.Controllers {
 
         [HttpGet("getComments")]
         // 获取房源评价
-        public string GetComments(int stayId = -1) {
+        public string GetComments(int stayId = -1)
+        {
             GetCommentsMessage message = new GetCommentsMessage();
-            try {
+            try
+            {
                 var stay = myContext.Stays.Single(b => b.StayId == stayId);
                 message.data["ratings"] = stay.CommentScore == 0 ? 0 : (float)stay.CommentScore / (float)stay.CommentNum;
                 message.data["commentNum"] = stay.CommentNum;
                 message.data["comments"] = new List<Dictionary<string, dynamic>>();
                 var comments = myContext.CustomerComments.Where(b => b.Order.Generates.First().StayId == stayId).ToList();
-                for(int i = 0; i < comments.Count; i++) {
+                for (int i = 0; i < comments.Count; i++)
+                {
                     message.data["comments"].Add(
                         new Dictionary<string, dynamic> {
                             {"id", i},
@@ -846,13 +929,14 @@ namespace Back_End.Controllers {
                             {"avatar", comments[i].Order.Customer.CustomerPhoto },
                             {"date",comments[i].CommentTime },
                             {"commentContent", comments[i].CustomerComment1 }
-                        }    
+                        }
                     );
                 }
                 message.errorCode = 200;
                 return message.ReturnJson();
             }
-            catch (Exception e){
+            catch (Exception e)
+            {
                 Console.WriteLine(e.ToString());
                 message.errorCode = 300;
                 return message.ReturnJson();
@@ -860,13 +944,17 @@ namespace Back_End.Controllers {
         }
 
         [HttpGet("getPrice")]
-        public string GetRoomPrice(DateTime startDate, DateTime endDate, int stayId = -1, int roomId = -1) {
+        public string GetRoomPrice(DateTime startDate, DateTime endDate, int stayId = -1, int roomId = -1)
+        {
             GetPriceMessage message = new GetPriceMessage();
             StringValues token = default(StringValues);
-            if (Request.Headers.TryGetValue("token", out token)) {
+            if (Request.Headers.TryGetValue("token", out token))
+            {
                 var data = Token.VerifyToken(token);
-                if (data != null) {
-                    try {
+                if (data != null)
+                {
+                    try
+                    {
                         int customerId = int.Parse(data["id"]);
                         int roomPrice = myContext.Rooms.Single(b => b.StayId == stayId && b.RoomId == roomId).Price;
                         TimeSpan span = endDate.Subtract(startDate);
@@ -882,8 +970,10 @@ namespace Back_End.Controllers {
                             { "couponName", null },
                             { "couponValue", 0 }
                         };
-                        foreach (var coupon in couponList) {
-                            if (price >= coupon.CouponType.CouponLimit && useCoupon["couponValue"] < coupon.CouponType.CouponAmount) {
+                        foreach (var coupon in couponList)
+                        {
+                            if (price >= coupon.CouponType.CouponLimit && useCoupon["couponValue"] < coupon.CouponType.CouponAmount)
+                            {
                                 if (DateTime.Compare(DateTime.Now, coupon.CouponEnd) > 0)
                                     continue;
                                 if (DateTime.Compare(DateTime.Now, coupon.CouponStart) < 0)
@@ -899,15 +989,18 @@ namespace Back_End.Controllers {
                         message.errorCode = 200;
                         return message.ReturnJson();
                     }
-                    catch (Exception e) {
+                    catch (Exception e)
+                    {
                         Console.WriteLine(e.ToString());
                         message.errorCode = 300;
                         return message.ReturnJson();
                     }
                 }
             }
-            else {
-                try {
+            else
+            {
+                try
+                {
                     int roomPrice = myContext.Rooms.Single(b => b.StayId == stayId && b.RoomId == roomId).Price;
                     TimeSpan span = endDate.Subtract(startDate);
                     int price = roomPrice * span.Days;
@@ -925,7 +1018,8 @@ namespace Back_End.Controllers {
                     message.errorCode = 200;
                     return message.ReturnJson();
                 }
-                catch (Exception e) {
+                catch (Exception e)
+                {
                     Console.WriteLine(e.ToString());
                     message.errorCode = 300;
                     return message.ReturnJson();
@@ -936,14 +1030,18 @@ namespace Back_End.Controllers {
 
         // 通过房源Id删除房源
         [HttpDelete("delStayById")]
-        public string DelStayById(int stayId = -1) {
+        public string DelStayById(int stayId = -1)
+        {
             Message message = new Message();
             message.errorCode = 400;
             StringValues token = default(StringValues);
-            if (Request.Headers.TryGetValue("token", out token)) {
+            if (Request.Headers.TryGetValue("token", out token))
+            {
                 var data = Token.VerifyToken(token);
-                if (data != null) {
-                    try {
+                if (data != null)
+                {
+                    try
+                    {
                         var stay = myContext.Stays.Single(b => b.StayId == stayId);
                         stay.StayStatus = 4;
                         myContext.SaveChanges();
@@ -951,7 +1049,8 @@ namespace Back_End.Controllers {
                         message.errorCode = 200;
                         return message.ReturnJson();
                     }
-                    catch (Exception e) {
+                    catch (Exception e)
+                    {
                         Console.WriteLine(e.ToString());
                         message.errorCode = 300;
                         return message.ReturnJson();
@@ -979,15 +1078,19 @@ namespace Back_End.Controllers {
 
         // 获取房东某个房源的订单数据
         [HttpGet("StayOrderInfo")]
-        public string GetStayOrderInfo(int stayId = -1) {
+        public string GetStayOrderInfo(int stayId = -1)
+        {
             StayOrderInfoMessage message = new StayOrderInfoMessage();
             StringValues token = default(StringValues);
-            if (Request.Headers.TryGetValue("token", out token)) {
+            if (Request.Headers.TryGetValue("token", out token))
+            {
                 var data = Token.VerifyToken(token);
-                if (data != null) {
-                    try {
+                if (data != null)
+                {
+                    try
+                    {
                         var stay = myContext.Stays.Single(b => b.StayId == stayId);
-                        message.data["averageScore"] =stay.CommentNum==0?0: (float)stay.CommentScore / (float)stay.CommentNum;
+                        message.data["averageScore"] = stay.CommentNum == 0 ? 0 : (float)stay.CommentScore / (float)stay.CommentNum;
                         int year = DateTime.Now.Year;
                         int month = DateTime.Now.Month;
                         int day = DateTime.Now.Day - 1;
@@ -998,7 +1101,8 @@ namespace Back_End.Controllers {
 
                         int maleOrderNum = 0, femaleOrderNum = 0, unkownOrderNum = 0;
                         int orderNum0 = 0, orderNum1 = 0, orderNum2 = 0, orderNum3 = 0, orderNum4 = 0, orderNum5 = 0, orderNum6 = 0;
-                        foreach (var order in myContext.Orders.Where(b => b.Generates != null && b.Generates.First().StayId== stayId)) {
+                        foreach (var order in myContext.Orders.Where(b => b.Generates != null && b.Generates.First().StayId == stayId))
+                        {
                             if (order.Customer.CustomerGender == null)
                                 unkownOrderNum++;
                             else if (order.Customer.CustomerGender == "f")
@@ -1007,7 +1111,8 @@ namespace Back_End.Controllers {
                                 maleOrderNum++;
                             if (order.Customer.CustomerBirthday == null)
                                 orderNum0++;
-                            else {
+                            else
+                            {
                                 DateTime birthday = (DateTime)order.Customer.CustomerBirthday;
                                 if (DateTime.Now.Year - birthday.Year <= 10)
                                     orderNum1++;
@@ -1039,7 +1144,8 @@ namespace Back_End.Controllers {
                             {"orderNum6",orderNum6 }
                         };
 
-                        for(int i = 1; i <= 12; i++) {
+                        for (int i = 1; i <= 12; i++)
+                        {
                             message.data["orderInfoOfDateList"].Add(
                             new Dictionary<string, dynamic> {
                                 {"data", year.ToString() + "-" + i.ToString() + "月" },
@@ -1051,16 +1157,19 @@ namespace Back_End.Controllers {
                         );
                         }
 
-                        foreach (var order in orderDateList) {
+                        foreach (var order in orderDateList)
+                        {
                             var index = ((DateTime)order.OrderTime).Month - 1;
                             message.data["orderInfoOfDateList"][index]["orderNum"]++;
-                            if (order.CustomerComment != null) {
+                            if (order.CustomerComment != null)
+                            {
                                 message.data["orderInfoOfDateList"][index]["reviewNum"]++;
                                 message.data["orderInfoOfDateList"][index]["totalScore"] += (int)order.CustomerComment.HouseStars;
-                            }                           
+                            }
                         }
 
-                        for (int i = 0; i < 12; i++) {
+                        for (int i = 0; i < 12; i++)
+                        {
                             message.data["orderInfoOfDateList"][i]["averageScore"] =
                                 message.data["orderInfoOfDateList"][i]["totalScore"] == 0 ? 0 :
                                 (float)message.data["orderInfoOfDateList"][i]["totalScore"] /
@@ -1071,7 +1180,8 @@ namespace Back_End.Controllers {
                         return message.ReturnJson();
 
                     }
-                    catch (Exception e) {
+                    catch (Exception e)
+                    {
                         Console.WriteLine(e.ToString());
                         message.errorCode = 300;
                         return message.ReturnJson();
