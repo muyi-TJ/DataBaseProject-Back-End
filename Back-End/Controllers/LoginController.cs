@@ -9,26 +9,32 @@ using Back_End.Models;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 
-namespace Back_End.Controllers {
+namespace Back_End.Controllers
+{
     [ApiController]
     [Route("api/[controller]")]
-    public class LoginController : ControllerBase {
+    public class LoginController : ControllerBase
+    {
         [HttpPost("customer")]
-        public string CuntomerLoginByPhone() {
+        public string CuntomerLoginByPhone()
+        {
             LoginMessage loginMessage = new LoginMessage();
             string phone = Request.Form["phonenumber"]; //接受 Form 提交的数据
             string password = Request.Form["password"];
             string preNumber = Request.Form["prenumber"];
-            if (phone != null && password != null && preNumber != null) {
+            if (phone != null && password != null && preNumber != null)
+            {
                 loginMessage.errorCode = 200;
             }
             Customer customer = CustomerController.SearchByPhone(phone, preNumber);
-            if (CustomerController.CustomerLogin(customer, password)) {
+            if (CustomerController.CustomerLogin(customer, password))
+            {
                 loginMessage.data["loginState"] = true;
                 loginMessage.data["userName"] = customer.CustomerName;
                 loginMessage.data["userAvatar"] = customer.CustomerPhoto;
 
-                var token = Token.GetToken(new TokenInfo() {
+                var token = Token.GetToken(new TokenInfo()
+                {
                     id = customer.CustomerId.ToString(),
                     phone = phone,
                     password = password,
@@ -51,22 +57,26 @@ namespace Back_End.Controllers {
         }
 
         [HttpPost("host")]
-        public string HostLoginByPhone() {
+        public string HostLoginByPhone()
+        {
             LoginMessage loginMessage = new LoginMessage();
             string phone = Request.Form["phonenumber"]; //接受 Form 提交的数据
             string password = Request.Form["password"];
             string preNumber = Request.Form["prenumber"];
-            if (phone != null && password != null && preNumber != null) {
+            if (phone != null && password != null && preNumber != null)
+            {
                 loginMessage.errorCode = 200;
             }
             Host host = HostController.SearchByPhone(phone, preNumber);
-            if (HostController.HostLogin(host, password)) {
+            if (HostController.HostLogin(host, password))
+            {
                 loginMessage.data["loginState"] = true;
                 loginMessage.data["userName"] = host.HostUsername;
                 loginMessage.data["userAvatar"] = host.HostAvatar;
                 loginMessage.data["hostState"] = host.HostState;
 
-                var token = Token.GetToken(new TokenInfo() {
+                var token = Token.GetToken(new TokenInfo()
+                {
                     id = host.HostId.ToString(),
                     phone = phone,
                     password = password,
@@ -88,19 +98,23 @@ namespace Back_End.Controllers {
         }
 
         [HttpPost("administrator")]
-        public string AdminLoginByName() {
+        public string AdminLoginByName()
+        {
             LoginMessage loginMessage = new LoginMessage();
             string adminName = Request.Form["adminName"];
             string password = Request.Form["password"];
-            if (adminName != null && password != null) {
+            if (adminName != null && password != null)
+            {
                 loginMessage.errorCode = 200;
             }
             Administrator admin = AdministratorController.SearchByName(adminName);
-            if (AdministratorController.AdminLoginByName(admin, password)) {
+            if (AdministratorController.AdminLoginByName(admin, password))
+            {
                 loginMessage.data["loginState"] = true;
                 loginMessage.data["userName"] = admin.AdminUsername;
                 loginMessage.data["userAvatar"] = admin.AdminAvatar;
-                var token = Token.GetToken(new TokenInfo() {
+                var token = Token.GetToken(new TokenInfo()
+                {
                     id = admin.AdminId.ToString(),
                     password = password,
                 });

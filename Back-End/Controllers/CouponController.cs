@@ -45,8 +45,8 @@ namespace Back_End.Controllers
                 {
                     myContext.DetachAll();
                     int id = int.Parse(data["id"]);
-                    var customer =CustomerController. SearchById(id);
-                    if(customer!=null)
+                    var customer = CustomerController.SearchById(id);
+                    if (customer != null)
                     {
                         List<Coupon> coupons = customer.Coupons.ToList();
                         List<CouponInfo> couponList = new List<CouponInfo>();
@@ -68,8 +68,6 @@ namespace Back_End.Controllers
             }
             return message.ReturnJson();
         }
-
-
 
     }
 }

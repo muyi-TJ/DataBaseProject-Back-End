@@ -15,76 +15,77 @@ using Microsoft.EntityFrameworkCore;
 
 
 //简单测试
-namespace Back_End.Controllers {
+namespace Back_End.Controllers
+{
     [ApiController]
     [Route("api/[controller]")]
-    public class HostController : ControllerBase {
+    public class HostController : ControllerBase
+    {
         //GET: api/<Host>
         private readonly ModelContext myContext;
-        public HostController(ModelContext modelContext) {
+        public HostController(ModelContext modelContext)
+        {
             myContext = modelContext;
         }
 
-        public static Host SearchById(int id) {
-            try {
+        public static Host SearchById(int id)
+        {
+            try
+            {
                 ModelContext modelContext = new ModelContext();
                 var host = modelContext.Hosts
                     .Single(b => b.HostId == id);
                 return host;
             }
-            catch {
+            catch
+            {
                 return null;
             }
 
         }
 
-
-        [HttpGet("GetById")]
-        public string GetById(int id) {
-            try {
-                var host = myContext.Hosts
-                    .Single(b => b.HostId == id);
-                return JsonSerializer.Serialize(host);
-            }
-            catch (Exception e) {
-                Console.WriteLine(e.ToString());
-                return null;
-            }
-
-        }
-
-        public static Host SearchByPhone(string phone, string prePhone) {
-            try {
+        public static Host SearchByPhone(string phone, string prePhone)
+        {
+            try
+            {
                 ModelContext modelContext = new ModelContext();
                 var host = modelContext.Hosts
                     .Single(b => b.HostPhone == phone && b.HostPrephone == prePhone);
                 return host;
             }
-            catch {
+            catch
+            {
                 return null;
             }
         }
 
-        public static bool HostLogin(Host host, string password) {
-            try {
-                if (host == null) {
+        public static bool HostLogin(Host host, string password)
+        {
+            try
+            {
+                if (host == null)
+                {
                     return false;
                 }
                 return host.HostPassword == password;
             }
-            catch {
+            catch
+            {
                 return false;
             }
         }
 
         [HttpPost("phone")]
-        public string CheckHostPhoneRegisitered() {
+        public string CheckHostPhoneRegisitered()
+        {
             CheckPhoneMessage checkPhoneMessage = new CheckPhoneMessage();
             string phone = Request.Form["phonenumber"];
             string prePhone = Request.Form["prenumber"];
-            if (phone != null && prePhone != null) {
+            if (phone != null && prePhone != null)
+            {
                 checkPhoneMessage.errorCode = 200;
-                if (SearchByPhone(phone, prePhone) == null) {
+                if (SearchByPhone(phone, prePhone) == null)
+                {
                     checkPhoneMessage.data["phoneunique"] = true;
                 }
             }
@@ -92,45 +93,56 @@ namespace Back_End.Controllers {
         }
 
         [HttpPost("changepassword")]
-        public string ChangeCustomerPassword() {
+        public string ChangeCustomerPassword()
+        {
             ChangePasswordMessage message = new ChangePasswordMessage();
             string phone = Request.Form["phone"];
             string preNumber = Request.Form["prenumber"];
             string password = Request.Form["password"];
-            if (phone != null && preNumber != null) {
+            if (phone != null && preNumber != null)
+            {
                 var host = SearchByPhone(phone, preNumber);
                 myContext.Entry(host).State = EntityState.Unchanged;
-                if (password != null) {
+                if (password != null)
+                {
                     message.errorCode = 200;
                     host.HostPassword = password;
-                    try {
+                    try
+                    {
                         myContext.SaveChanges();
                         message.data["changestate"] = true;
                     }
-                    catch {
+                    catch
+                    {
 
                     }
 
                 }
             }
-            else {
+            else
+            {
                 StringValues token = default(StringValues);
-                if (Request.Headers.TryGetValue("token", out token)) {
+                if (Request.Headers.TryGetValue("token", out token))
+                {
                     message.errorCode = 300;
                     var data = Token.VerifyToken(token);
-                    if (data != null) {
+                    if (data != null)
+                    {
                         myContext.DetachAll();
                         int id = int.Parse(data["id"]);
                         var host = SearchById(id);
                         myContext.Entry(host).State = EntityState.Unchanged;
-                        if (password != null) {
+                        if (password != null)
+                        {
                             message.errorCode = 200;
                             host.HostPassword = password;
-                            try {
+                            try
+                            {
                                 myContext.SaveChanges();
                                 message.data["changestate"] = true;
                             }
-                            catch {
+                            catch
+                            {
 
                             }
                         }
@@ -142,13 +154,17 @@ namespace Back_End.Controllers {
 
         // 获取房东及其拥有房源的基本信息
         [HttpGet("hostInfo")]
-        public string GetHostInfo() {
+        public string GetHostInfo()
+        {
             GetHostInfoMessage message = new GetHostInfoMessage();
             StringValues token = default(StringValues);
-            if (Request.Headers.TryGetValue("token", out token)) {
+            if (Request.Headers.TryGetValue("token", out token))
+            {
                 var data = Token.VerifyToken(token);
-                if (data != null) {
-                    try {
+                if (data != null)
+                {
+                    try
+                    {
                         //ModelContext context = new ModelContext();
                         int hostId = int.Parse(data["id"]);
                         var host = myContext.Hosts.Single(b => b.HostId == hostId);
@@ -161,7 +177,8 @@ namespace Back_End.Controllers {
                         message.data["hostLevelName"] = host.HostLevel == null ? null : host.HostLevelNavigation.HostLevelName;
                         int commentNum = 0, commentScore = 0;
                         int publishedNum = 0, unpublishedNum = 0, pendingReviewNum = 0;
-                        foreach (var stay in host.Stays) {
+                        foreach (var stay in host.Stays)
+                        {
                             if (stay.StayStatus == 4)
                                 continue;
                             commentNum += (int)stay.CommentNum;
@@ -186,12 +203,14 @@ namespace Back_End.Controllers {
                         message.data["unpublishedStayInfo"] = new List<Dictionary<string, dynamic>>();
                         message.data["pendingStayInfo"] = new List<Dictionary<string, dynamic>>();
                         message.data["publishedHouseInfo"] = new List<Dictionary<string, dynamic>>();
-                        foreach (var stay in host.Stays) {
+                        foreach (var stay in host.Stays)
+                        {
                             var stayInfo = new Dictionary<string, dynamic>();
 
                             int imgListNum = 0, stayPrice = 999999999;
                             var stayImgList = new List<string>();
-                            foreach (var room in stay.Rooms) {
+                            foreach (var room in stay.Rooms)
+                            {
                                 imgListNum += room.RoomPhotos.Count();
                                 stayPrice = Math.Min(stayPrice, room.Price);
                                 foreach (var roomphoto in room.RoomPhotos)
@@ -205,13 +224,16 @@ namespace Back_End.Controllers {
                             stayInfo.Add("stayPlace", stay.DetailedAddress);
                             stayInfo.Add("stayPrice", stayPrice);
                             stayInfo.Add("stayImgList", stayImgList);
-                            if (stay.StayStatus == 0) {
+                            if (stay.StayStatus == 0)
+                            {
                                 message.data["unpublishedStayInfo"].Add(stayInfo);
                             }
-                            else if (stay.StayStatus == 1) {
+                            else if (stay.StayStatus == 1)
+                            {
                                 message.data["pendingStayInfo"].Add(stayInfo);
                             }
-                            else if (stay.StayStatus == 2) {
+                            else if (stay.StayStatus == 2)
+                            {
                                 //stayInfo.Add("valReplyTime", stay.AdministratorStays.First().ValReplyTime);
                                 stayInfo.Add("orderNum", myContext.Generates.Where(b => b.StayId == stay.StayId).Select(b => b.OrdersId).Distinct().Count());
                                 stayInfo.Add("reviewNum", stay.CommentNum);
@@ -223,7 +245,8 @@ namespace Back_End.Controllers {
                         return message.ReturnJson();
 
                     }
-                    catch (Exception e) {
+                    catch (Exception e)
+                    {
                         Console.WriteLine(e.ToString());
                         message.errorCode = 300;
                         return message.ReturnJson();
@@ -235,23 +258,29 @@ namespace Back_End.Controllers {
 
         // 修改房东的头像
         [HttpPut("hostAvatar")]
-        public string ChangeCustomerPhoto() {
+        public string ChangeHostPhoto()
+        {
             Message message = new Message();
             message.errorCode = 400;
             StringValues token = default(StringValues);
-            if (Request.Headers.TryGetValue("token", out token)) {
+            if (Request.Headers.TryGetValue("token", out token))
+            {
 
                 var data = Token.VerifyToken(token);
-                if (data != null) {
+                if (data != null)
+                {
                     myContext.DetachAll();
                     int id = int.Parse(data["id"]);
                     var host = myContext.Hosts.Single(b => b.HostId == id);
                     string photo = Request.Form["hostAvatar"];
                     Console.WriteLine(photo + "200");
-                    if (photo != null) {
-                        try {
+                    if (photo != null)
+                    {
+                        try
+                        {
                             string newPhoto = PhotoUpload.UploadPhoto(photo, "hostAvatar/" + id.ToString());
-                            if (newPhoto != null) {
+                            if (newPhoto != null)
+                            {
                                 host.HostAvatar = newPhoto;
                                 myContext.SaveChanges();
                                 message.errorCode = 200;
@@ -259,7 +288,8 @@ namespace Back_End.Controllers {
                                 return message.ReturnJson();
                             }
                         }
-                        catch (Exception e) {
+                        catch (Exception e)
+                        {
                             Console.WriteLine(e.ToString());
                             message.errorCode = 300;
                             return message.ReturnJson();
@@ -273,15 +303,19 @@ namespace Back_End.Controllers {
 
         // 修改房东的昵称
         [HttpPut("hostNickName")]
-        public string ChangeHostNickName() {
+        public string ChangeHostNickName()
+        {
             Message message = new Message();
             message.errorCode = 400;
             StringValues token = default(StringValues);
-            if (Request.Headers.TryGetValue("token", out token)) {
+            if (Request.Headers.TryGetValue("token", out token))
+            {
 
                 var data = Token.VerifyToken(token);
-                if (data != null) {
-                    try {
+                if (data != null)
+                {
+                    try
+                    {
                         myContext.DetachAll();
                         int id = int.Parse(data["id"]);
                         var host = myContext.Hosts.Single(b => b.HostId == id);
@@ -290,7 +324,8 @@ namespace Back_End.Controllers {
                         message.errorCode = 200;
                         return message.ReturnJson();
                     }
-                    catch (Exception e) {
+                    catch (Exception e)
+                    {
                         Console.WriteLine(e.ToString());
                         message.errorCode = 300;
                         return message.ReturnJson();
@@ -299,8 +334,6 @@ namespace Back_End.Controllers {
             }
             return message.ReturnJson();
         }
-
-
-
     }
 }
+
