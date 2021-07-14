@@ -16,7 +16,6 @@ namespace Back_End.Models
         public string PeripheralName { get; set; }
         public string PeripheralClass { get; set; }
         public int? PeripheralPopularity { get; set; }
-        public string PeripheralRoad { get; set; }
         public string DetailedAddress { get; set; }
 
         public virtual ICollection<Near> Nears { get; set; }

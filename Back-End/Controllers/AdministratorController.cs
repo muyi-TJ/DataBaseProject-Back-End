@@ -349,7 +349,7 @@ namespace Back_End.Controllers
                                 nearbyType = c.PeripheralClass,
                                 nearbyName = c.PeripheralName,
                                 nearbyPopularity = (int)c.PeripheralPopularity,
-                                nearbyDetailedAdd = c.PeripheralRoad
+                                nearbyDetailedAdd = c.DetailedAddress
                             });
                         var nears = pageInfo.ToList();
                         message.data["nearbyList"] = nears;
@@ -477,7 +477,6 @@ namespace Back_End.Controllers
                         myContext.DetachAll();
                         Peripheral near = new Peripheral();
                         near.PeripheralName = Request.Form["nearbyName"];
-                        near.PeripheralRoad = Request.Form["nearbyRoad"];
                         near.PeripheralClass = Request.Form["nearbyType"];
                         near.PeripheralPopularity =int.Parse( Request.Form["nearbyPopularity"]);
                         near.DetailedAddress = Request.Form["nearbyDetailedAdd"];
@@ -510,7 +509,6 @@ namespace Back_End.Controllers
                         int nearId = int.Parse(Request.Form["nearbyId"]);
                         Peripheral near = myContext.Peripherals.Single(s => s.PeripheralId == nearId);
                         near.PeripheralName = Request.Form["nearbyName"];
-                        near.PeripheralRoad = Request.Form["nearbyRoad"];
                         near.PeripheralClass = Request.Form["nearbyType"];
                         near.PeripheralPopularity = int.Parse(Request.Form["nearbyPopularity"]);
                         near.DetailedAddress = Request.Form["nearbyDetailedAdd"];
@@ -546,7 +544,7 @@ namespace Back_End.Controllers
                                 nearbyType = c.PeripheralClass,
                                 nearbyName = c.PeripheralName,
                                 nearbyPopularity = (int)c.PeripheralPopularity,
-                                nearbyDetailedAdd = c.PeripheralRoad
+                                nearbyDetailedAdd = c.DetailedAddress
                             });
                         var nears = searchedInfo.ToList();
                         message.data["total"] = nears.Count();

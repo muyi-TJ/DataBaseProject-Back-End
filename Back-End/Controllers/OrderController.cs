@@ -299,7 +299,7 @@ namespace Back_End.Controllers
                             int roomId = int.Parse(Request.Form["roomId"]);
                             decimal price = myContext.Rooms.Single(s => s.StayId == stayId && s.RoomId == roomId).Price;
                             generate.Money = price;
-                            if (Request.Form["couponId"].ToString() != null)
+                            if (Request.Form["couponId"].ToString() != "")
                             {
                                 int couponId = int.Parse(Request.Form["couponId"]);
                                 var coupon = myContext.Coupons.Single(c => c.CouponId == couponId);
