@@ -273,7 +273,7 @@ namespace Back_End.Controllers
                     int id = int.Parse(data["id"]);
                     var host = myContext.Hosts.Single(b => b.HostId == id);
                     string photo = Request.Form["hostAvatar"];
-                    Console.WriteLine(photo + "200");
+                    //Console.WriteLine(photo + "200");
                     if (photo != null)
                     {
                         try

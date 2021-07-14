@@ -183,7 +183,7 @@ namespace Back_End.Controllers
                     var customer = SearchById(id);
                     myContext.Entry(customer).State = EntityState.Unchanged;
                     string photo = Request.Form["avatarCode"];
-                    Console.WriteLine(photo + "200");
+                    //Console.WriteLine(photo + "200");
                     if (photo != null)
                     {
                         try

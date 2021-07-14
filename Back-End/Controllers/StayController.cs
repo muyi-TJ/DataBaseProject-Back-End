@@ -929,7 +929,8 @@ namespace Back_End.Controllers
                             {"nickName", comments[i].Order.Customer.CustomerName },
                             {"avatar", comments[i].Order.Customer.CustomerPhoto },
                             {"date",comments[i].CommentTime },
-                            {"commentContent", comments[i].CustomerComment1 }
+                            {"commentContent", comments[i].CustomerComment1 },
+                            {"ratings", comments[i].HouseStars }
                         }
                     );
                 }
