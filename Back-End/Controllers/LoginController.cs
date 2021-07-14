@@ -46,7 +46,7 @@ namespace Back_End.Controllers {
                 cookieOptions.MaxAge = new TimeSpan(0, 10, 0);
                 Response.Cookies.Append("Token", token, cookieOptions);
             }
-
+            var request = Request;
             return loginMessage.ReturnJson();
         }
 

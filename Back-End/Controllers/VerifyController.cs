@@ -37,6 +37,7 @@ namespace Back_End.Controllers
                 message.data["codeimg"] = image;
             }
             return message.ReturnJson();
+            //TODO:test
 
         }
 

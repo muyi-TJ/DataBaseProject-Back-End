@@ -9,6 +9,7 @@ using System.Text.Json;
 using Back_End.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Primitives;
+using System.Collections.Specialized;
 
 namespace Back_End.Controllers {
     [ApiController]
@@ -172,31 +173,51 @@ namespace Back_End.Controllers {
         }
 
         [HttpGet("getPositions")]
-        public string GetStayByLngAndLat() {
+        public string GetStayByLngAndLat()
+        {
             GetStayInfoMessage message = new GetStayInfoMessage();
-            try {
+            try
+            {
                 decimal left = decimal.Parse(Request.Query["westLng"]);
                 decimal right = decimal.Parse(Request.Query["eastLng"]);
                 decimal up = decimal.Parse(Request.Query["northLat"]);
                 decimal down = decimal.Parse(Request.Query["southLat"]);
                 bool cross = left * right < 0 && right - left < 0;
-                var stays = myContext.Stays.Where(s => s.StayStatus == 2 && IsInMap(left, right, up, down, s.Latitude, s.Longitude, cross))
-                    .Select(c => new StayInMapInfo {
-                        stayID = c.StayId,
-                        stayPrice = GetMinPrice(c.Rooms.ToList()),
-                        stayPosition = new decimal[] { c.Longitude, c.Latitude }
-                    }).ToList();
+                List<StayInMapInfo> stays;
+                if (cross)
+                {
+                    stays = myContext.Stays.Where(s => s.StayStatus == 2 && s.Latitude < up && s.Latitude > down && (s.Longitude > left || s.Longitude < right))
+                       .Select(c => new StayInMapInfo
+                       {
+                           stayID = c.StayId,
+                           stayPrice = GetMinPrice(c.Rooms.ToList()),
+                           stayPosition = new decimal[] { c.Longitude, c.Latitude }
+                       }).ToList();
+
+                }
+                else
+                {
+                    stays = myContext.Stays.Where(s => s.StayStatus == 2 && s.Latitude < up && s.Latitude > down && s.Longitude > left && s.Longitude < right)
+                   .Select(c => new StayInMapInfo
+                   {
+                       stayID = c.StayId,
+                       stayPrice = GetMinPrice(c.Rooms.ToList()),
+                       stayPosition = new decimal[] { c.Longitude, c.Latitude }
+                   }).ToList();
+
+                }
                 message.errorCode = 200;
                 message.data["stayPositionNum"] = stays.Count;
                 message.data["stayPositionInfo"] = stays;
             }
-            catch {
+            catch
+            {
 
             }
             return message.ReturnJson();
         }
 
-        public int GetMinPrice(List<Room> rooms) {
+        public static int GetMinPrice(List<Room> rooms) {
             int min = int.MaxValue;
             foreach (var room in rooms) {
                 if (room.Price < min) {
@@ -258,7 +279,14 @@ namespace Back_End.Controllers {
                     info.stayDescribe = rooms.Count.ToString() + "室" + bathroom.ToString() + "卫";
                     info.stayPhotos = photos;
                     info.hostAvatar = stay.Host.HostAvatar;
-                    info.stayScore = (double)stay.CommentScore / (double)stay.CommentNum;
+                    if (stay.CommentNum != 0)
+                    {
+                        info.stayScore = (double)stay.CommentScore / (double)stay.CommentNum;
+                    }
+                    else
+                    {
+                        info.stayScore = 0;
+                    }
                     bool islike = false;
                     StringValues token = default(StringValues);
                     if (Request.Headers.TryGetValue("token", out token)) {
@@ -360,9 +388,9 @@ namespace Back_End.Controllers {
             public int price { get; set; }
             public decimal? roomArea { get; set; }
             public byte? bathNum { get; set; }
-            public string[] bedTypes { get; set; }
-            public byte[] bedNums { get; set; }
-            public string[] images { get; set; }
+            public List<string> bedTypes { get; set; }
+            public List<byte> bedNums { get; set; }
+            public List<string> images { get; set; }
         }
 
         [HttpPost("infos")]
@@ -379,8 +407,9 @@ namespace Back_End.Controllers {
                 stay.PublicToilet = decimal.Parse(Request.Form["pubRestNum"]);
                 stay.PublicBathroom = decimal.Parse(Request.Form["pubBathNum"]);
                 stay.NonBarrierFacility = decimal.Parse(Request.Form["barrierFree"]);
-                stay.Longitude = decimal.Parse(Request.Form["Longtitude"]);
-                stay.Latitude = decimal.Parse(Request.Form["Latitude"]);
+                var test = Request.Form["longitude"];
+                stay.Longitude = decimal.Parse(Request.Form["longitude"]);
+                stay.Latitude = decimal.Parse(Request.Form["latitude"]);
                 stay.StayName = Request.Form["stayName"];
                 stay.Characteristic = Request.Form["stayChars"];
                 stay.StartTime = Request.Form["startTime"];
@@ -410,9 +439,9 @@ namespace Back_End.Controllers {
                     throw (null);
                 }
                 myContext.Stays.Add(stay);
-                myContext.SaveChanges();
                 //TODO:test
                 var rooms = JsonSerializer.Deserialize<List<RoomInfo>>(Request.Form["roomInfo"]);
+                
                 foreach (var room in rooms) {
                     Room newRoom = new Room();
                     newRoom.StayId = stay.StayId;
@@ -421,19 +450,18 @@ namespace Back_End.Controllers {
                     newRoom.RoomArea = room.roomArea;
                     newRoom.BathroomNum = room.bathNum;
                     myContext.Rooms.Add(newRoom);
-                    myContext.SaveChanges();
-                    for (int i = 0; i < room.bedTypes.Length; i++) {
+                    for (int i = 0; i < room.bedTypes.Count(); i++) {
                         if (room.bedNums[i] > 0) {
                             RoomBed roomBed = new RoomBed();
                             roomBed.BedType = room.bedTypes[i];
                             roomBed.BedNum = room.bedNums[i];
+                            stay.BedNum += roomBed.BedNum;
                             roomBed.RoomId = newRoom.RoomId;
                             roomBed.StayId = stay.StayId;
                             myContext.RoomBeds.Add(roomBed);
                         }//全部插入后再保存
                     }
-                    myContext.SaveChanges();
-                    for (int i = 0; i < room.images.Length; i++) {
+                    for (int i = 0; i < room.images.Count(); i++) {
                         string url = PhotoUpload.UploadPhoto(room.images[i], "roomPhoto/" + stay.StayId + '-' + newRoom.RoomId + '-' + i.ToString());
                         if (url != null) {
                             var photo = new RoomPhoto();
@@ -443,21 +471,24 @@ namespace Back_End.Controllers {
                             myContext.RoomPhotos.Add(photo);
                         }//目前上传失败不抛出异常
                     }
-                    myContext.SaveChanges();
 
-                    // 插入tag
-                    var tags = JsonSerializer.Deserialize<List<string>>(Request.Form["stayTags"]);
-                    foreach(var tag in tags) {
-                        myContext.StayLabels.Add(
-                            new StayLabel() {
-                                StayId = stay.StayId,
-                                LabelName = tag,
-                            }
-                        );
-                    }
-                    myContext.SaveChanges();
 
                 }
+                myContext.SaveChanges();
+                // 插入tag
+                var tags = JsonSerializer.Deserialize<List<string>>(Request.Form["stayTags"]);
+                foreach (var tag in tags)
+                {
+                    myContext.StayLabels.Add(
+                        new StayLabel()
+                        {
+                            StayId = stay.StayId,
+                            LabelName = tag,
+                        }
+                    );
+                }
+                myContext.SaveChanges();
+
                 message.errorCode = 200;
             }
             catch {
@@ -469,14 +500,14 @@ namespace Back_End.Controllers {
 
 
 
-        [HttpPut("info")]
+        [HttpPut("infos")]
         public string ChangeStayInfo()
         {
             Message message = new Message();
             message.errorCode = 300;
             int preId = -1;
             int.TryParse(Request.Form["stayId"], out preId);
-            Stay preStay = SearchById(-1);
+            Stay preStay = SearchById(preId);
             if (preStay != null)
             {
                 myContext.Entry(preStay).State = EntityState.Unchanged;
@@ -493,8 +524,9 @@ namespace Back_End.Controllers {
                     stay.PublicToilet = decimal.Parse(Request.Form["pubRestNum"]);
                     stay.PublicBathroom = decimal.Parse(Request.Form["pubBathNum"]);
                     stay.NonBarrierFacility = decimal.Parse(Request.Form["barrierFree"]);
-                    stay.Longitude = decimal.Parse(Request.Form["Longtitude"]);
-                    stay.Latitude = decimal.Parse(Request.Form["Latitude"]);
+                    var test = Request.Form["longitude"];
+                    stay.Longitude = decimal.Parse(Request.Form["longitude"]);
+                    stay.Latitude = decimal.Parse(Request.Form["latitude"]);
                     stay.StayName = Request.Form["stayName"];
                     stay.Characteristic = Request.Form["stayChars"];
                     stay.StartTime = Request.Form["startTime"];
@@ -529,9 +561,9 @@ namespace Back_End.Controllers {
                         throw (null);
                     }
                     myContext.Stays.Add(stay);
-                    myContext.SaveChanges();
                     //TODO:test
                     var rooms = JsonSerializer.Deserialize<List<RoomInfo>>(Request.Form["roomInfo"]);
+
                     foreach (var room in rooms)
                     {
                         Room newRoom = new Room();
@@ -541,21 +573,20 @@ namespace Back_End.Controllers {
                         newRoom.RoomArea = room.roomArea;
                         newRoom.BathroomNum = room.bathNum;
                         myContext.Rooms.Add(newRoom);
-                        myContext.SaveChanges();
-                        for (int i = 0; i < room.bedTypes.Length; i++)
+                        for (int i = 0; i < room.bedTypes.Count(); i++)
                         {
                             if (room.bedNums[i] > 0)
                             {
                                 RoomBed roomBed = new RoomBed();
-                                                                roomBed.BedType = room.bedTypes[i];
+                                roomBed.BedType = room.bedTypes[i];
                                 roomBed.BedNum = room.bedNums[i];
+                                stay.BedNum += roomBed.BedNum;
                                 roomBed.RoomId = newRoom.RoomId;
                                 roomBed.StayId = stay.StayId;
                                 myContext.RoomBeds.Add(roomBed);
                             }//全部插入后再保存
                         }
-                        myContext.SaveChanges();
-                        for (int i = 0; i < room.images.Length; i++)
+                        for (int i = 0; i < room.images.Count(); i++)
                         {
                             string url = PhotoUpload.UploadPhoto(room.images[i], "roomPhoto/" + stay.StayId + '-' + newRoom.RoomId + '-' + i.ToString());
                             if (url != null)
@@ -567,19 +598,24 @@ namespace Back_End.Controllers {
                                 myContext.RoomPhotos.Add(photo);
                             }//目前上传失败不抛出异常
                         }
-                        myContext.SaveChanges();
-                    }
 
+
+                    }
+                    myContext.SaveChanges();
                     // 插入tag
                     var tags = JsonSerializer.Deserialize<List<string>>(Request.Form["stayTags"]);
-                    foreach (var tag in tags) {
+                    foreach (var tag in tags)
+                    {
                         myContext.StayLabels.Add(
-                            new StayLabel() {
+                            new StayLabel()
+                            {
                                 StayId = stay.StayId,
                                 LabelName = tag,
                             }
                         );
                     }
+                    myContext.SaveChanges();
+
                     message.errorCode = 200;
                 }
                 catch
@@ -630,9 +666,9 @@ namespace Back_End.Controllers {
                             }
                             foreach (var roomPhoto in room.RoomPhotos)
                                 images.Add(roomPhoto.RPhoto);
-                            roomInfo.bedTypes = bedTypes.ToArray();
-                            roomInfo.bedNums = bedNums.ToArray();
-                            roomInfo.images = images.ToArray();
+                            roomInfo.bedTypes = bedTypes.ToList();
+                            roomInfo.bedNums = bedNums.ToList();
+                            roomInfo.images = images.ToList();
                             message.data["roomInfo"].Add(roomInfo);
                         }
                         message.data["stayStatus"] = stay.StayStatus;
