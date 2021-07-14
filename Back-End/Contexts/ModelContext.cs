@@ -287,7 +287,7 @@ namespace Back_End.Contexts
                     .IsUnique();
 
                 entity.Property(e => e.CustomerId)
-                    .HasPrecision(10)
+                    .HasPrecision(40)
                     .ValueGeneratedOnAdd()
                     .UseHiLo("SEQ")
                     .HasColumnName("CUSTOMER_ID");
@@ -637,7 +637,7 @@ namespace Back_End.Contexts
 
                 entity.Property(e => e.HostUsername)
                     .IsRequired()
-                    .HasMaxLength(10)
+                    .HasMaxLength(40)
                     .IsUnicode(false)
                     .HasColumnName("HOST_USERNAME")
                     .HasDefaultValueSql("'HOST' ");

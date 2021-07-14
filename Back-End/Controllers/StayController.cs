@@ -49,6 +49,7 @@ namespace Back_End.Controllers {
             message.data.Add("stayList", new List<StayInfo>());
             try {
                 var staySelectList = myContext.Rooms
+                    .Where( b=> b.Stay.StayStatus == 2)
                     .GroupBy(r => r.StayId)
                     .OrderBy(r => r.Min(x => x.Price))
                     .Select(g => new StayInfo {
@@ -649,6 +650,77 @@ namespace Back_End.Controllers {
                 }
             }
             return message.ReturnJson();
+        }
+
+        // 搜索
+        [HttpGet("getStaysDetails")]
+        public string GetStaysDetails(string name) {
+            Message message = new Message();
+            message.data.Add("staysDetails", new List<Dictionary<string, dynamic>>());
+            try {
+                var stayList = myContext.Stays.Where(b => b.StayStatus == 2 && b.StayName.Contains(name));
+                foreach (var stay in stayList) {
+                    var details = new Dictionary<string, dynamic>();
+                    details["stayId"] = stay.StayId;
+                    details["stayImages"] = new List<string>();
+                    foreach (var room in stay.Rooms) {
+                        foreach (var roomPhoto in room.RoomPhotos) {
+                            details["stayImages"].Add(roomPhoto.RPhoto);
+                        }
+                    }
+                    details["stayName"] = stay.StayName;
+                    details["stayDescription"] = stay.Characteristic;
+                    details["characteristic"] = stay.StayTypeNavigation.Characteristic;
+                    details["hostAvatar"] = stay.Host.HostAvatar;
+                    details["hostLevel"] = stay.Host.HostLevelNavigation == null ? null : stay.Host.HostLevelNavigation.HostLevelName;
+                    details["hostCommentNum"] = stay.CommentNum;
+                    details["stayPosition"] = new List<float> { (float)stay.Longitude, (float)stay.Latitude };
+                    details["hostName"] = stay.Host.HostUsername;
+                    details["roomNum"] = stay.Rooms.Count();
+                    int bedNum = 0;
+                    foreach (var room in stay.Rooms)
+                        bedNum += room.RoomBeds.Count();
+                    details["bedNum"] = bedNum;
+                    details["stayCapacity"] = stay.StayCapacity;
+                    details["publicBathroom"] = stay.PublicBathroom;
+                    details["publicToilet"] = stay.PublicToilet;
+                    details["nonBarrierFacility"] = stay.NonBarrierFacility == 0 ? false : true;
+                    details["startTime"] = stay.StartTime;
+                    details["endTime"] = stay.EndTime;
+                    details["stayStatus"] = stay.StayStatus;
+                    details["rooms"] = new List<Dictionary<string, dynamic>>();
+                    foreach (var room in stay.Rooms) {
+                        var dict = new Dictionary<string, dynamic>();
+                        dict.Add("id", room.RoomId);
+                        dict.Add("area", room.RoomArea);
+                        dict.Add("bathroom", room.BathroomNum);
+                        dict.Add("price", room.Price);
+                        int roomCapacity = 0;
+                        foreach (var roomBed in room.RoomBeds)
+                            roomCapacity += roomBed.BedTypeNavigation.PersonNum;
+                        dict.Add("roomCapacity", roomCapacity);
+                        dict.Add("roomImage", new List<string>());
+                        foreach (var roomPhoto in room.RoomPhotos)
+                            dict["roomImage"].Add(roomPhoto.RPhoto);
+                        dict.Add("beds", new List<Dictionary<string, dynamic>>());
+                        foreach (var roomBed in room.RoomBeds)
+                            dict["beds"].Add(new Dictionary<string, dynamic> { { "bedType", roomBed.BedType }, { "num", roomBed.BedNum } });
+                        dict.Add("unavailable", new List<Dictionary<string, DateTime>>());
+                        var unavailableList = myContext.Generates.Where(b => b.StayId == stay.StayId).Distinct().ToList();
+                        foreach (var unavailable in unavailableList)
+                            dict["unavailable"].Add(new Dictionary<string, DateTime> { { "startData", unavailable.StartTime }, { "endData", unavailable.EndTime } });
+                        details["rooms"].Add(dict);
+                    }
+                    message.data["staysDetails"].Add(details);
+                }
+                message.errorCode = 200;
+                return message.ReturnJson();
+            }
+            catch(Exception e) {
+                Console.WriteLine(e.ToString());
+                message.errorCode = 300;
+                return message.ReturnJson();
+            }
         }
 
         // 获取房源详细信息
