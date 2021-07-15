@@ -10,22 +10,28 @@ using Back_End.Models;
 using Microsoft.Extensions.Primitives;
 using Microsoft.EntityFrameworkCore;
 
-namespace Back_End.Controllers {
+namespace Back_End.Controllers
+{
     [ApiController]
     [Route("api/[controller]")]
-    public class HostGroupController {
+    public class HostGroupController
+    {
         private readonly ModelContext myContext;
-        public HostGroupController(ModelContext modelContext) {
+        public HostGroupController(ModelContext modelContext)
+        {
             myContext = modelContext;
         }
 
         [HttpGet]
-        public string GetHostGroup() {
+        public string GetHostGroup()
+        {
             Message message = new Message();
-            try {
+            try
+            {
                 message.data.Add("customerGroup", new List<Dictionary<string, dynamic>>());
                 var hostGroupList = myContext.HostGroups.ToList();
-                for(int i = 0; i < hostGroupList.Count; i++) { 
+                for (int i = 0; i < hostGroupList.Count; i++)
+                {
                     message.data["customerGroup"].Add(
                         new Dictionary<string, dynamic> {
                             {"hostLevel", hostGroupList[i].HostLevel },
@@ -37,7 +43,8 @@ namespace Back_End.Controllers {
                     return message.ReturnJson();
                 }
             }
-            catch {
+            catch
+            {
                 message.errorCode = 300;
                 return message.ReturnJson();
             }

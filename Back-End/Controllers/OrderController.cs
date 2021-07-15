@@ -67,7 +67,7 @@ namespace Back_End.Controllers
         }
 
 
-        class CustomerOrderInfo:OrderInfo
+        class CustomerOrderInfo : OrderInfo
         {
             public int reportState { get; set; }
             public string reportReason { get; set; }
@@ -89,11 +89,11 @@ namespace Back_End.Controllers
                 {
                     int id = int.Parse(data["id"]);
                     var customer = CustomerController.SearchById(id);
-                    if(customer!=null)
+                    if (customer != null)
                     {
                         var orders = customer.Orders.ToList();
                         List<CustomerOrderInfo> orderInfos = new List<CustomerOrderInfo>();
-                        foreach(var order in orders)
+                        foreach (var order in orders)
                         {
                             CustomerOrderInfo orderInfo = new CustomerOrderInfo();
                             orderInfo.orderId = order.OrderId;
@@ -106,19 +106,19 @@ namespace Back_End.Controllers
                             orderInfo.endTime = order.Generates.First().EndTime;
                             orderInfo.name = stay.Host.HostUsername;
                             orderInfo.totalCost = order.TotalCost;
-                            orderInfo.id =(int) stay.HostId;
+                            orderInfo.id = (int)stay.HostId;
                             orderInfo.photo = stay.Host.HostAvatar;
 
                             List<string> photos = new List<string>();
-                            foreach(var room in stay.Rooms)
+                            foreach (var room in stay.Rooms)
                             {
-                                foreach(var photo in room.RoomPhotos)
+                                foreach (var photo in room.RoomPhotos)
                                 {
                                     photos.Add(photo.RPhoto);
                                 }
                             }
                             orderInfo.stayImage = photos;
-                            if(order.CustomerComment!=null)
+                            if (order.CustomerComment != null)
                             {
                                 orderInfo.commentStars = order.CustomerComment.HouseStars;
                                 orderInfo.comment = order.CustomerComment.CustomerComment1;
@@ -129,22 +129,26 @@ namespace Back_End.Controllers
                                 orderInfo.comment = null;
                             }
                             orderInfos.Add(orderInfo);
-                            if(order.Report == null) {
+                            if (order.Report == null)
+                            {
                                 orderInfo.reportState = 0;
                             }
-                            else {
-                                if (order.Report.IsDealed == 0) {
+                            else
+                            {
+                                if (order.Report.IsDealed == 0)
+                                {
                                     orderInfo.reportState = 1;
                                     orderInfo.reportReason = order.Report.Reason;
                                 }
-                                else {
+                                else
+                                {
                                     orderInfo.reportState = 2;
                                     orderInfo.reportReason = order.Report.Reason;
                                     orderInfo.reportReply = order.Report.Reply;
                                 }
                             }
                         }
-                        message.data.Add("customerOrderList",orderInfos);
+                        message.data.Add("customerOrderList", orderInfos);
 
                         message.errorCode = 200;
                     }
@@ -169,7 +173,7 @@ namespace Back_End.Controllers
                     if (host != null)
                     {
                         List<Order> orders = new List<Order>();
-                        foreach(var stay in host.Stays)
+                        foreach (var stay in host.Stays)
                         {
                             orders.AddRange(myContext.Orders.Where(s => s.Generates.First().StayId == stay.StayId)
                                 .Select(c => c).ToList());
@@ -199,7 +203,7 @@ namespace Back_End.Controllers
                                 }
                             }
                             orderInfo.stayImage = photos;
-                            if (order.HostComment!= null)
+                            if (order.HostComment != null)
                             {
                                 orderInfo.commentStars = order.HostComment.CustomerStars;
                                 orderInfo.comment = order.HostComment.HostComment1;
@@ -291,7 +295,7 @@ namespace Back_End.Controllers
                                 Stay stay = order.Generates.First().Room.Stay;
                                 myContext.Entry(stay).State = EntityState.Unchanged;
                                 stay.CommentNum += 1;
-                                stay.CommentScore +=(int?) customerComment.HouseStars;
+                                stay.CommentScore += (int?)customerComment.HouseStars;
                                 myContext.CustomerComments.Add(customerComment);
                                 myContext.SaveChanges();
                                 message.errorCode = 200;
@@ -309,8 +313,10 @@ namespace Back_End.Controllers
         }
 
         [HttpGet("afterPay")]
-        public void AfterPay(string order_id, string qr_price, string sign) {
-            try {
+        public void AfterPay(string order_id, string qr_price, string sign)
+        {
+            try
+            {
                 myContext.DetachAll();
                 var customer = myContext.Orders.Single(b => b.OrderId == int.Parse(order_id))
                     .Customer;
@@ -319,18 +325,21 @@ namespace Back_End.Controllers
                 customer.CustomerDegree += (int)decimal.Parse(qr_price);
                 host.HostScore += (int)decimal.Parse(qr_price);
                 var customerGroupList = myContext.CustomerGroups.ToList();
-                foreach(var customerGroup in customerGroupList) {
+                foreach (var customerGroup in customerGroupList)
+                {
                     if (customer.CustomerDegree >= customerGroup.CustomerLevelDegree)
                         customer.CustomerLevel = customerGroup.CustomerLevel;
                 }
                 var hostGroupList = myContext.HostGroups.ToList();
-                foreach(var hostGroup in hostGroupList) {
+                foreach (var hostGroup in hostGroupList)
+                {
                     if (host.HostScore >= hostGroup.HostLevelDegree)
                         host.HostLevel = hostGroup.HostLevel;
                 }
                 myContext.SaveChanges();
             }
-            catch {
+            catch
+            {
 
             }
         }
@@ -375,7 +384,7 @@ namespace Back_End.Controllers
                                 decimal amount = coupon.CouponType.CouponAmount;
                                 price -= (int)amount;
                                 myContext.Coupons.Remove(coupon);
-                                
+
                             }
                             order.TotalCost = price;
                             myContext.Orders.Add(order);
@@ -388,7 +397,7 @@ namespace Back_End.Controllers
                             myContext.Generates.Add(generate);
                             myContext.SaveChanges();
 
-                            
+
                             //MD5 md5 = MD5.Create();
                             //byte[] strNoKey = md5.ComputeHash(Encoding.UTF8.GetBytes(order.OrderId.ToString() + price.ToString()));
                             //byte[] strWithKey = md5.ComputeHash(Encoding.UTF8.GetBytes(strNoKey.ToString() + key));
@@ -436,7 +445,8 @@ namespace Back_End.Controllers
             return message.ReturnJson();
         }
 
-        public string PostUrl(string url, string postData) {
+        public string PostUrl(string url, string postData)
+        {
             string result = "";
 
             HttpWebRequest req = (HttpWebRequest)WebRequest.Create(url);
@@ -451,7 +461,8 @@ namespace Back_End.Controllers
 
             req.ContentLength = data.Length;
 
-            using (Stream reqStream = req.GetRequestStream()) {
+            using (Stream reqStream = req.GetRequestStream())
+            {
                 reqStream.Write(data, 0, data.Length);
 
                 reqStream.Close();
@@ -462,7 +473,8 @@ namespace Back_End.Controllers
             Stream stream = resp.GetResponseStream();
 
             //获取响应内容
-            using (StreamReader reader = new StreamReader(stream, Encoding.UTF8)) {
+            using (StreamReader reader = new StreamReader(stream, Encoding.UTF8))
+            {
                 result = reader.ReadToEnd();
             }
 
@@ -470,9 +482,9 @@ namespace Back_End.Controllers
         }
 
         public string GetStrMd5_32X(string ConvertString)
-       //32位小写
+        //32位小写
 
-       {
+        {
             MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider();
 
             string t2 = BitConverter.ToString(md5.ComputeHash(UTF8Encoding.Default.GetBytes(ConvertString)));
@@ -484,16 +496,21 @@ namespace Back_End.Controllers
         }
 
         [HttpPost("reportCustomerOrder")]
-        public string ReportCustomerOrder() {
+        public string ReportCustomerOrder()
+        {
             Message message = new Message();
             StringValues token = default(StringValues);
-            if (Request.Headers.TryGetValue("token", out token)) {
+            if (Request.Headers.TryGetValue("token", out token))
+            {
                 var data = Token.VerifyToken(token);
-                if (data != null) {
-                    try {
+                if (data != null)
+                {
+                    try
+                    {
                         int customerId = int.Parse(data["id"]);
                         int orderId = int.Parse(Request.Form["orderId"]);
-                        var report = new Report() {
+                        var report = new Report()
+                        {
                             OrderId = orderId,
                             ReportTime = DateTime.Now,
                             Reason = Request.Form["reportReason"],
@@ -506,7 +523,8 @@ namespace Back_End.Controllers
                         message.errorCode = 200;
                         return message.ReturnJson();
                     }
-                    catch (Exception e){
+                    catch (Exception e)
+                    {
                         Console.WriteLine(e.ToString());
                         message.errorCode = 300;
                         return message.ReturnJson();

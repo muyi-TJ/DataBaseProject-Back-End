@@ -9,28 +9,35 @@ using Back_End.Models;
 using System.Text.Json;
 using Microsoft.Extensions.Primitives;
 
-namespace Back_End.Controllers {
+namespace Back_End.Controllers
+{
     [ApiController]
     [Route("api/[controller]")]
-    public class FavoriteStayController : ControllerBase {
+    public class FavoriteStayController : ControllerBase
+    {
 
         private readonly ModelContext myContext;
-        public FavoriteStayController(ModelContext modelContext) {
+        public FavoriteStayController(ModelContext modelContext)
+        {
             myContext = modelContext;
         }
-        public class FavoriteStayMessage {
+        public class FavoriteStayMessage
+        {
             public int errorCode { get; set; }
             public Dictionary<string, dynamic> data { get; set; } = new Dictionary<string, dynamic>();
 
-            public FavoriteStayMessage() {
+            public FavoriteStayMessage()
+            {
                 errorCode = 400;
             }
-            public string ReturnJson() {
+            public string ReturnJson()
+            {
                 return JsonSerializer.Serialize(this);
             }
         }
 
-        public class StayInfo {
+        public class StayInfo
+        {
             public int stayId { get; set; }
             public string stayName { get; set; }
             public string stayCharacteristic { get; set; }
@@ -45,17 +52,22 @@ namespace Back_End.Controllers {
         }
 
         [HttpDelete]
-        public string DeleteFavorite(int favoriteId = -1, int stayId = -1) {
+        public string DeleteFavorite(int favoriteId = -1, int stayId = -1)
+        {
             FavoriteStayMessage message = new FavoriteStayMessage();
             StringValues token = default(StringValues);
-            if (Request.Headers.TryGetValue("token", out token)) {
+            if (Request.Headers.TryGetValue("token", out token))
+            {
                 var data = Token.VerifyToken(token);
-                if (data != null) {
+                if (data != null)
+                {
                     var context = myContext;
                     context.DetachAll();
 
-                    try {
-                        Favoritestay favoritestay = new Favoritestay() {
+                    try
+                    {
+                        Favoritestay favoritestay = new Favoritestay()
+                        {
                             FavoriteId = favoriteId,
                             StayId = stayId
                         };
@@ -64,7 +76,8 @@ namespace Back_End.Controllers {
                         message.errorCode = 200;
                         return message.ReturnJson();
                     }
-                    catch (Exception e) {
+                    catch (Exception e)
+                    {
                         Console.WriteLine(e.ToString());
                         message.errorCode = 300;
                         return message.ReturnJson();
@@ -75,23 +88,28 @@ namespace Back_End.Controllers {
         }
 
         [HttpDelete("stay")]
-        public string DeleteStay(int stayID = -1) {
+        public string DeleteStay(int stayID = -1)
+        {
             FavoriteStayMessage message = new FavoriteStayMessage();
             StringValues token = default(StringValues);
-            if (Request.Headers.TryGetValue("token", out token)) {
+            if (Request.Headers.TryGetValue("token", out token))
+            {
                 var data = Token.VerifyToken(token);
-                if (data != null) {
+                if (data != null)
+                {
                     var context = myContext;
                     context.DetachAll();
 
-                    try {
+                    try
+                    {
                         int customerId = int.Parse(data["id"]);
                         context.RemoveRange(context.Favoritestays.Where(b => b.StayId == stayID && b.Favorite.CustomerId == customerId));
                         context.SaveChanges();
                         message.errorCode = 200;
                         return message.ReturnJson();
                     }
-                    catch (Exception e) {
+                    catch (Exception e)
+                    {
                         Console.WriteLine(e.ToString());
                         message.errorCode = 300;
                         return message.ReturnJson();
@@ -103,30 +121,37 @@ namespace Back_End.Controllers {
 
 
         [HttpGet]
-        public string GetFavoriteStay(int favoriteId = -1) {
+        public string GetFavoriteStay(int favoriteId = -1)
+        {
             FavoriteStayMessage message = new FavoriteStayMessage();
             StringValues token = default(StringValues);
-            if (Request.Headers.TryGetValue("token", out token)) {
+            if (Request.Headers.TryGetValue("token", out token))
+            {
                 var data = Token.VerifyToken(token);
-                if (data != null) {
+                if (data != null)
+                {
                     var context = myContext;
                     context.DetachAll();
 
                     List<StayInfo> stayList = new List<StayInfo>();
                     // 如果不存在这个收藏夹
-                    if (!context.Favorites.Any(b => b.FavoriteId == favoriteId)) {
+                    if (!context.Favorites.Any(b => b.FavoriteId == favoriteId))
+                    {
                         message.data.Add("favoriteList", stayList);
                         message.errorCode = 300;
                         return message.ReturnJson();
                     }
-                    try {
+                    try
+                    {
                         var stayIdList = context.Favoritestays.Where(b => b.FavoriteId == favoriteId).Select(b => b.StayId).ToList();
 
-                        foreach (var stayId in stayIdList) {
+                        foreach (var stayId in stayIdList)
+                        {
                             var stay = context.Stays.Single(b => b.StayId == stayId);
                             int stayMinPrice = context.Rooms.Where(b => b.StayId == stayId).Min(x => x.Price);
                             string stayPhoto = context.RoomPhotos.Where(b => b.StayId == stayId).FirstOrDefault().RPhoto;
-                            stayList.Add(new StayInfo() {
+                            stayList.Add(new StayInfo()
+                            {
                                 stayId = stay.StayId,
                                 stayName = stay.StayName,
                                 stayCharacteristic = stay.Characteristic,
@@ -145,7 +170,8 @@ namespace Back_End.Controllers {
                         message.errorCode = 200;
                         return message.ReturnJson();
                     }
-                    catch (Exception e) {
+                    catch (Exception e)
+                    {
                         Console.WriteLine(e.ToString());
                         message.errorCode = 300;
                         return message.ReturnJson();
@@ -156,29 +182,36 @@ namespace Back_End.Controllers {
         }
 
         [HttpPost]
-        public string InsertFavoriteStay() {
+        public string InsertFavoriteStay()
+        {
             FavoriteStayMessage message = new FavoriteStayMessage();
             StringValues token = default(StringValues);
-            if (Request.Headers.TryGetValue("token", out token)) {
+            if (Request.Headers.TryGetValue("token", out token))
+            {
                 var data = Token.VerifyToken(token);
-                if (data != null) {
+                if (data != null)
+                {
                     int favoriteId = int.Parse(Request.Form["favoriteId"]);
                     int stayId = int.Parse(Request.Form["stayId"]);
                     var context = myContext;
                     context.DetachAll();
 
                     // 如果不存在这个收藏夹
-                    if (!context.Favorites.Any(b => b.FavoriteId == favoriteId)) {
+                    if (!context.Favorites.Any(b => b.FavoriteId == favoriteId))
+                    {
                         message.errorCode = 300;
                         return message.ReturnJson();
                     }
                     // 如果已经添加了
-                    if (context.Favoritestays.Any(b => b.FavoriteId == favoriteId && b.StayId == stayId)) {
+                    if (context.Favoritestays.Any(b => b.FavoriteId == favoriteId && b.StayId == stayId))
+                    {
                         message.errorCode = 300;
                         return message.ReturnJson();
                     }
-                    try {
-                        Favoritestay favoritestay = new Favoritestay() {
+                    try
+                    {
+                        Favoritestay favoritestay = new Favoritestay()
+                        {
                             FavoriteId = favoriteId,
                             StayId = stayId
                         };
@@ -189,7 +222,8 @@ namespace Back_End.Controllers {
 
                         return message.ReturnJson();
                     }
-                    catch (Exception e) {
+                    catch (Exception e)
+                    {
                         Console.WriteLine(e.ToString());
                         message.errorCode = 300;
                         return message.ReturnJson();

@@ -537,7 +537,7 @@ namespace Back_End.Controllers
                     {
                         message.errorCode = 200;
                         string search = Request.Query["search"];
-                        var searchedInfo = myContext.Peripherals.Where(s => s.PeripheralId.ToString().Contains(search) || s.PeripheralName.Contains(search) || s.DetailedAddress.Contains(search)).OrderBy(b => b.PeripheralId)
+                        var searchedInfo = myContext.Peripherals.Where(s => s.PeripheralId.ToString().Contains(search) || s.PeripheralName.Contains(search) || s.DetailedAddress.Contains(search) || s.PeripheralClass.Contains(search)).OrderBy(b => b.PeripheralId)
                             .Take(pageSize).Select(c => new PagedNears
                             {
                                 nearbyId = c.PeripheralId,

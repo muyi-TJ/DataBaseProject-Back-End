@@ -18,16 +18,20 @@ using System.Security.Cryptography.X509Certificates;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Primitives;
 
-namespace Back_End.Controllers {
+namespace Back_End.Controllers
+{
     [ApiController]
     [Route("api/[controller]")]
-    public class IDVerifyController : ControllerBase {
-       
+    public class IDVerifyController : ControllerBase
+    {
+
 
         [HttpPost]
-        public string IDVerify() {
+        public string IDVerify()
+        {
             IDVerifyMessage message = new IDVerifyMessage();
-            try {
+            try
+            {
                 string appcode = "443d03aefd5c4e4f87be752c72ebafae";
                 string img_file = Request.Form["positivePhoto"];
                 //face:表示正面；back：表示反面
@@ -37,10 +41,12 @@ namespace Back_End.Controllers {
                 string url = "https://dm-51.data.aliyun.com/rest/160601/ocr/ocr_idcard.json";
 
                 string bodys;
-                if (img_file.StartsWith("http")) {
+                if (img_file.StartsWith("http"))
+                {
                     bodys = "{\"image\":\"" + img_file + "\",\"configure\":" + config + "}";
                 }
-                else {
+                else
+                {
                     string base64 = img_file;
                     bodys = "{\"image\":\"" + base64 + "\",\"configure\":" + config + "}";
                 };
@@ -54,16 +60,20 @@ namespace Back_End.Controllers {
                 //根据API的要求，定义相对应的Content-Type
                 httpRequest.ContentType = "application/json; charset=UTF-8";
 
-                if (0 < bodys.Length) {
+                if (0 < bodys.Length)
+                {
                     byte[] data = Encoding.UTF8.GetBytes(bodys);
-                    using (Stream stream = httpRequest.GetRequestStream()) {
+                    using (Stream stream = httpRequest.GetRequestStream())
+                    {
                         stream.Write(data, 0, data.Length);
                     }
                 }
-                try {
+                try
+                {
                     httpResponse = (HttpWebResponse)httpRequest.GetResponse();
                 }
-                catch (WebException ex) {
+                catch (WebException ex)
+                {
                     httpResponse = (HttpWebResponse)ex.Response;
                 }
                 Stream st = httpResponse.GetResponseStream();
@@ -75,14 +85,16 @@ namespace Back_End.Controllers {
                 var context = new ModelContext();
                 context.DetachAll();
                 string idNumber = dict["num"];
-                if (!context.Hosts.Any(b => b.HostIdnumber == idNumber)) {
+                if (!context.Hosts.Any(b => b.HostIdnumber == idNumber))
+                {
                     message.errorCode = 200;
                     message.data["verifyResult"] = 2;
                     message.data["trueName"] = dict["name"];
                     message.data["trueID"] = dict["num"];
                     return message.ReturnJson();
                 }
-                else {
+                else
+                {
                     message.errorCode = 200;
                     message.data["verifyResult"] = 1;
                     message.data["trueName"] = dict["name"];
@@ -90,7 +102,8 @@ namespace Back_End.Controllers {
                     return message.ReturnJson();
                 }
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 Console.WriteLine(e.ToString());
                 message.errorCode = 200;
                 message.data["verifyResult"] = 0;
@@ -101,7 +114,8 @@ namespace Back_End.Controllers {
 
 
 
-        public static bool CheckValidationResult(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors) {
+        public static bool CheckValidationResult(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
+        {
             return true;
         }
     }

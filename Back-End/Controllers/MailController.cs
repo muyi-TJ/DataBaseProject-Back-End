@@ -12,11 +12,13 @@ using Back_End.Contexts;
 using Back_End.Models;
 using Microsoft.AspNetCore.Http;
 
-namespace Back_End.Controllers {
+namespace Back_End.Controllers
+{
     [ApiController]
     [Route("[controller]")]
-    public class MailController : ControllerBase {
-    
+    public class MailController : ControllerBase
+    {
+
         //GET: api/<VerficateMail>
         [HttpPost]
         public string VerficateMail()
@@ -33,20 +35,20 @@ namespace Back_End.Controllers {
             Response.Cookies.Append("VCcode", MD5Helper.EncryptString(VCcode), cookieOptions);
             return MD5Helper.EncryptString(VCcode);
         }
-        
+
         public static string GetMailCode(int codeLength)
         {
             int randNum;
             char code;
             string randomCode = String.Empty;
-            
+
             for (int i = 0; i < codeLength; i++)
             {
                 byte[] buffer = Guid.NewGuid().ToByteArray();
                 int seed = BitConverter.ToInt32(buffer, 0);
                 Random random = new Random(seed);
                 randNum = random.Next();
-                
+
                 if (randNum % 3 == 1)
                     code = (char)('A' + (char)(randNum % 26));
                 else if (randNum % 3 == 2)
@@ -57,7 +59,7 @@ namespace Back_End.Controllers {
             }
             return randomCode;
         }
-        
+
         public static bool SendMailMessage(string myEmailAddress, string recEmailAddress, string subject, string body, string authorizationCode)
         {
 
@@ -74,7 +76,7 @@ namespace Back_End.Controllers {
             client.EnableSsl = true;//使用安全加密SSL连接  
             client.DeliveryMethod = SmtpDeliveryMethod.Network;
             client.Credentials = new NetworkCredential(myEmailAddress, authorizationCode);//验证发件人身份(发件人邮箱，邮箱授权码);                   
-            
+
             try
             {
                 client.Send(mail);
@@ -86,7 +88,7 @@ namespace Back_End.Controllers {
             }
             return true;
         }
-        
+
         public static bool CheckMail(string mail)
         {
             string str = @"^[1-9][0-9]{4,}@qq.com$";
@@ -97,7 +99,7 @@ namespace Back_End.Controllers {
             return false;
         }
     }
-    
+
     public static class MD5Helper
     {
         public static string EncryptString(string str)
@@ -106,7 +108,7 @@ namespace Back_End.Controllers {
             // 将字符串转换成字节数组
             byte[] byteOld = Encoding.UTF8.GetBytes(str);
             // 调用加密方法
-            byte[] byteNew =  md5.ComputeHash(byteOld);
+            byte[] byteNew = md5.ComputeHash(byteOld);
             // 将加密结果转换为字符串
             StringBuilder sb = new StringBuilder();
             foreach (byte b in byteNew)

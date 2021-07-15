@@ -10,28 +10,36 @@ using Back_End.Models;
 using Microsoft.Extensions.Primitives;
 using Microsoft.EntityFrameworkCore;
 
-namespace Back_End.Controllers {
+namespace Back_End.Controllers
+{
     [ApiController]
     [Route("api/[controller]")]
-    public class CustomerGroupController {
+    public class CustomerGroupController
+    {
         private readonly ModelContext myContext;
-        public CustomerGroupController(ModelContext modelContext) {
+        public CustomerGroupController(ModelContext modelContext)
+        {
             myContext = modelContext;
         }
 
         [HttpGet]
-        public string GetCustomerGroup() {
+        public string GetCustomerGroup()
+        {
             Message message = new Message();
-            try {
+            try
+            {
                 var customerGropList = myContext.CustomerGroups.ToList();
                 message.data.Add("customerGroup", new List<Dictionary<string, dynamic>>());
-                for (int i = 0; i < customerGropList.Count; i++) {
+                for (int i = 0; i < customerGropList.Count; i++)
+                {
                     int customerNextLevelDegree = (i == customerGropList.Count - 1) ? 999 : customerGropList[i + 1].CustomerLevelDegree;
                     int count = 0;
-                    try {
+                    try
+                    {
                         count = (int)customerGropList[i].CustomerGroupCoupon.CouponType.CouponAmount;
                     }
-                    catch {
+                    catch
+                    {
 
                     }
                     message.data["customerGroup"].Add(
@@ -47,7 +55,8 @@ namespace Back_End.Controllers {
                     return message.ReturnJson();
                 }
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 Console.WriteLine(e.ToString());
                 message.errorCode = 300;
                 return message.ReturnJson();
