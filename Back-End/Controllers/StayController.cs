@@ -687,7 +687,6 @@ namespace Back_End.Controllers
                             var data = Token.VerifyToken(token);
                             if (data != null)
                             {
-                                myContext.DetachAll();
                                 int id = int.Parse(data["id"]);
                                 var host = HostController.SearchById(id);
                                 if (host != null)
