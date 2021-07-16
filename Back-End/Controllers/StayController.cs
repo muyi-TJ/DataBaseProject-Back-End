@@ -278,7 +278,7 @@ namespace Back_End.Controllers
             GetStayInfoMessage message = new GetStayInfoMessage();
             try
             {
-                int stayId = int.Parse(Request.Query["stayID"]);
+                int stayId = int.Parse(Request.Query["stayId"]);
                 var stay = SearchById(stayId);
                 if (stay != null)
                 {
@@ -352,7 +352,7 @@ namespace Back_End.Controllers
             GetStayInfoMessage message = new GetStayInfoMessage();
             try
             {
-                int stayId = int.Parse(Request.Query["stayID"]);
+                int stayId = int.Parse(Request.Query["stayId"]);
                 var stay = SearchById(stayId);
                 if (stay != null)
                 {
@@ -657,6 +657,10 @@ namespace Back_End.Controllers
                     foreach(var tag in preStay.StayLabels)
                     {
                         myContext.Remove(tag);
+                    }
+                    var adminstay = myContext.AdministratorStays.Where(c => c.StayId == preId).FirstOrDefault();
+                    if (adminstay != null) {
+                        myContext.Remove(adminstay);
                     }
                     myContext.SaveChanges();
                     try

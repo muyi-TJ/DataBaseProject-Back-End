@@ -379,8 +379,13 @@ namespace Back_End.Controllers
                         int stayId = int.Parse(Request.Form["stayId"]);
                         int isPass = int.Parse(Request.Form["isPass"]);
                         Stay stay = StayController.SearchById(stayId);
+                        myContext.Entry(stay).State = EntityState.Unchanged;
                         if (stay != null)
                         {
+                            var adminstay = myContext.AdministratorStays.Where(c => c.StayId == stayId).FirstOrDefault();
+                            if(adminstay!=null) {
+                                myContext.Remove(adminstay);
+                            }
                             myContext.Entry(stay).State = EntityState.Unchanged;
                             AdministratorStay form = new AdministratorStay();
                             form.AdminId = id;
